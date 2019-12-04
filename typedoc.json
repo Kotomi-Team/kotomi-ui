@@ -1,0 +1,13 @@
+{
+    "name": "Kotomi Documentation",
+    "mode": "modules",
+    "module": "commonjs",
+    "target": "ES6",
+    "hideGenerator": true,
+    "readme": "./README.md",
+    "exclude": "**/*+(e2e|spec|test|index.ios|index.android|index).tsx",
+    "excludeExternals": true,
+    "excludeNotExported": true,
+    "excludePrivate": true,
+    "excludeProtected": true
+}
