@@ -1,5 +1,5 @@
 import React from 'react'
-import { Table,ColumnProps } from '../table';
+import { Table,ColumnProps,TableEvent } from '../table';
 
 export default { title: 'Table' };
 
@@ -24,6 +24,13 @@ export const baseTable = () => {
     return (
         <Table<User>
             columns={columns}
+            rowSelection = "multiple"
+            event={{
+               /* onSelect:(selectedRowKeys:string[],selected: boolean)=>{
+                    console.log(selectedRowKeys)
+                    console.log(selected)
+                },*/
+            } as TableEvent<User>}
             loadData={({page, pageSize,param,sorter})=>{
                 return new Promise<{dataSource:User[],total:number}>((re)=>{
                     let data:User[] = []
@@ -36,7 +43,7 @@ export const baseTable = () => {
                     }
                     setTimeout(()=>{
                         re({dataSource: data, total: 2000})
-                    },1000)
+                    },500)
                 })
             }}
         />

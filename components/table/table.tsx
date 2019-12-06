@@ -1,8 +1,9 @@
 import React from 'react'
 import { Table as AntTable , Icon} from 'antd'
-import {TableSize, ColumnProps } from 'antd/lib/table/interface'
+import {TableSize, ColumnProps, TableRowSelection,TableEventListeners } from 'antd/lib/table/interface'
 
 export { ColumnProps } from 'antd/lib/table/interface'
+
 
 type Props<T> = {
     // 列的信息
@@ -15,7 +16,14 @@ type Props<T> = {
     defaultPageSize?: number
     // 表格高度
     height?: boolean | number | string
+    // 表格的宽度
     width?: boolean | number | string
+    // 数据中默认的key
+    rowKey: string
+    // 是否可以选中行，默认为不显示选择框
+    rowSelection?: 'single'| 'multiple' | undefined
+    // 当前表格的事件
+    event?: TableEvent<T>
 }
 
 type State<T> = {
@@ -35,6 +43,23 @@ export type Sorter = {
     order: string
 }
 
+export type TableEvent<T> = {
+
+    /**
+     * 当前表格的选择状态
+     * @param selectedRowKeys 当前所有变化的Row的key
+     * @param selected        变化状态true表示选中，false表示取消
+     */
+    onSelect(selectedRowKeys:string[],selected: boolean):void
+
+    /**
+     * 当前行的事件
+     * @param record 当前行的数据
+     * @param index  当前行的索引
+     */
+    onRow(record: T, index: number):TableEventListeners;
+}
+
 export class Table<T> extends React.Component<Props<T>,State<T>>{
     
     state = {
@@ -48,10 +73,15 @@ export class Table<T> extends React.Component<Props<T>,State<T>>{
     }
 
     static defaultProps = {
-        theme: "middle",
+        theme: "small",
         defaultPageSize: 300,
         width: false,
-        height: 400
+        height: 400,
+        rowKey: 'id',
+        event: {
+            onSelect:()=>{},
+            onRow:()=>{}
+        }
     }
 
     componentDidMount(){
@@ -110,6 +140,8 @@ export class Table<T> extends React.Component<Props<T>,State<T>>{
         this.setState({
             loading: true
         })
+
+        // 如果请求失败，则做任何操作
         this.props.loadData({page, pageSize,param,sorter}).then(({dataSource,total})=>{
             this.setState({
                 dataSource,
@@ -122,9 +154,33 @@ export class Table<T> extends React.Component<Props<T>,State<T>>{
         })
     }
 
+    protected getRowSelection():TableRowSelection<T> | undefined{
+        const self = this
+        let rowProps:TableRowSelection<T> = {
+            type: 'checkbox',
+            onSelect:(record: T, selected: boolean, selectedRows: Object[], nativeEvent: Event)=>{
+                self.props.event!.onSelect(record[self.props.rowKey],selected)
+            },
+            onSelectAll:(selected: boolean, selectedRows: T[], changeRows: T[])=>{
+                self.props.event!.onSelect(changeRows.map((record)=> record[self.props.rowKey]),selected)
+            },
+        }
+        switch(this.props.rowSelection){
+            case 'single':
+                rowProps.type = 'radio'
+                return rowProps
+            case 'multiple':
+                rowProps.type = 'checkbox'
+                return rowProps
+            default:
+                return undefined
+        }
+    }
+
     render(){
         return (
             <AntTable
+                rowKey={this.props.rowKey}
                 columns={this.getColumns()}
                 dataSource={this.getDataSource()}
                 loading={{
@@ -151,6 +207,8 @@ export class Table<T> extends React.Component<Props<T>,State<T>>{
                         } as Sorter
                     })
                 }}
+                rowSelection = {this.getRowSelection()}
+                onRow={this.props.event!.onRow}
                 size="small" 
                 scroll={{
                     x: this.props.width,
