@@ -7,9 +7,9 @@ import { WrappedFormUtils } from "antd/lib/form/Form";
 
 type Props<T> = {
     // 列的信息
-    column?: ColumnProps<T>
+    column: ColumnProps<T>
     // 当前行的数据
-    record?: T 
+    record: T 
     // 当前行号
     rowIndex?: number
     // 当前单元格是否可编辑 true表示可编辑，false表示不可编辑
@@ -29,8 +29,11 @@ export class EditableCell<T> extends React.Component<Props<T>>{
     }
 
     renderFormItem=(form: WrappedFormUtils)=>{
+        const dataIndex: string = this.props.column.dataIndex as string
+        const record = this.props.record
         return form.getFieldDecorator(this.props.column!.dataIndex as string, {
             rules:this.props.column!.rules,
+            initialValue: record[dataIndex],
         })(this.props.column!.inputType)
     }
 

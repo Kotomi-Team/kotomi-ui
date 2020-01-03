@@ -1,5 +1,6 @@
 import React from 'react'
-import { Table,ColumnProps,TableEvent,Sorter } from '../Table';
+
+import { Table,ColumnProps,TableEvent,TableSorter } from '../Table';
 
 export default { title: 'Table' };
 
@@ -58,13 +59,18 @@ export const baseTable = () => {
                 },
                 onRow:(record:User)=>{
                     return {
-                        onClick:(r)=>{
+                        onClick:()=>{
                             console.log(record)
                         }
                     }
+                },
+                onSave: async (record,type) => {
+                    console.log(record)
+                    console.log(type)
+                    return true
                 }
             } as TableEvent<User>}
-            loadData={({page, pageSize,param,sorter}:{page:number,pageSize:number,param?:any,sorter?:Sorter})=>{
+            loadData={({page, pageSize}:{page:number,pageSize:number,param?:any,sorter?:TableSorter})=>{
                 return new Promise<{dataSource:User[],total:number}>((re)=>{
                     let data:User[] = []
                     for(let i = 0; i<pageSize! ;i++){

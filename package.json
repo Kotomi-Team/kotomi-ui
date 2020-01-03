@@ -5,11 +5,15 @@
   "scripts": {
     "start": "start-storybook -p 3000",
     "build:typedoc": "typedoc --out build/docs/typedoc",
-    "build:storybook": "build-storybook -o docs/storybook/"
+    "build:storybook": "build-storybook -o docs/storybook/",
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx"
   },
   "keywords": [],
   "author": "zhangj",
   "license": "MIT",
+  "pre-commit":[
+    "npm run lint"
+  ],
   "devDependencies": {
     "@babel/core": "^7.7.4",
     "@storybook/addon-actions": "^5.2.8",
@@ -20,7 +24,11 @@
     "@storybook/preset-typescript": "^1.1.0",
     "@storybook/react": "^5.2.8",
     "@types/jest": "^24.0.23",
+    "@typescript-eslint/eslint-plugin": "^2.14.0",
+    "@typescript-eslint/parser": "^2.14.0",
     "babel-loader": "^8.0.6",
+    "eslint": "^6.8.0",
+    "eslint-plugin-react": "^7.17.0",
     "jest": "^24.9.0",
     "react-docgen-typescript-loader": "^3.6.0",
     "ts-jest": "^24.2.0",
@@ -31,6 +39,7 @@
   "dependencies": {
     "antd": "^3.26.3",
     "react": "^16.12.0",
+    "rc-queue-anim": "^1.8.3",
     "react-dom": "^16.12.0"
   }
 }
