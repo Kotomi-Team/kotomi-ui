@@ -1,8 +1,8 @@
 import React from 'react'
-import { Form } from 'antd'
+import { Form, Input } from 'antd'
 
 import { ColumnProps } from './Table'
-import { WrappedFormUtils } from "antd/lib/form/Form";
+import { WrappedFormUtils } from 'antd/lib/form/Form';
 
 
 type Props<T> = {
@@ -14,7 +14,15 @@ type Props<T> = {
     rowIndex?: number
     // 当前单元格是否可编辑 true表示可编辑，false表示不可编辑
     editing?: boolean
+    // 当前单元格编辑类型，cell表示单元格编辑，row表示行编辑
+    editingType?: 'cell'| 'row'
+    // 用户触发保存的信息
+    onSave:(record: T, type: 'DELETE' | 'UPDATE' | 'CREATE' ) => Promise<boolean>
     restProps?: any
+}
+
+type State = {
+    editing: boolean
 }
 
 export type EditableContextProps<T> = {
@@ -23,43 +31,92 @@ export type EditableContextProps<T> = {
 
 export const EditableContext = React.createContext({} as EditableContextProps<any>);
 
-export class EditableCell<T> extends React.Component<Props<T>>{
+export class EditableCell<T> extends React.Component<Props<T>,State>{
+
+
     static defaultProps = {
+        editing: false,
+        editingType: 'cell'
+    }
+
+    state = {
         editing: false
     }
 
+    componentDidMount(){
+        this.setState({
+            editing: this.props.editing!
+        })
+    }
+
     renderFormItem=(form: WrappedFormUtils)=>{
-        const dataIndex: string = this.props.column.dataIndex as string
-        const record = this.props.record
-        return form.getFieldDecorator(this.props.column!.dataIndex as string, {
-            rules:this.props.column!.rules,
+        const { column, onSave, record } = this.props
+        const dataIndex: string = column.dataIndex as string
+        const self = this
+        const inputType:JSX.Element = column!.inputType || <Input />
+        return form.getFieldDecorator(column!.dataIndex as string, {
+            rules:column!.rules,
             initialValue: record[dataIndex],
-        })(this.props.column!.inputType)
+        })(React.cloneElement(inputType,{
+            // 用户移动鼠标后
+            onBlur:()=>{
+                form.validateFields((err,values: T)=>{
+                    onSave({
+                        ...record,
+                        ...values
+                    },'UPDATE').then((respState)=>{
+                        if((respState || true)){
+                            self.setState({
+                                editing: false
+                            })
+                        }
+                    })
+                })
+            },
+            ref:(input:Input) => {
+                input.focus()
+            }
+        }))
     }
 
     renderCell = ({ form }: { form: WrappedFormUtils }) => {
-        if(this.props.editing === false){
+        const {editingType, restProps, children, column}  = this.props
+        const self = this 
+        if(this.state.editing === false){
             return (
-                <td {...this.props.restProps!}>
-                    {this.props.children}
-                </td>
+                <div
+                    {...restProps!}
+                    className={ column === undefined ? undefined : 'kotomi-components-table-cell-value-wrap' }
+                    onClick={()=>{
+                        // 如果是表格编辑，则表示点击即可编辑
+                        if(editingType === 'cell' ){
+                            self.setState({
+                                editing: true
+                            })
+                        }
+                    }}
+                >
+                    {children}
+                </div>
             )
         }else{
             return (
-                <td>
+                <>
                     <Form.Item>
                         {this.renderFormItem(form)}
                     </Form.Item>
-                </td>
+                </>
             )
         }
     }
 
     render() {
         return (
-            <EditableContext.Consumer>
-                {this.renderCell}
-            </EditableContext.Consumer>
+            <td>
+                <EditableContext.Consumer>
+                    {this.renderCell}
+                </EditableContext.Consumer>
+            </td>
         )
     }
 }

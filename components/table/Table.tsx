@@ -1,7 +1,7 @@
 import React from 'react'
-import { Table as AntTable , Button, Form, Divider, Input , Icon} from 'antd'
+import { Table as AntTable , Button, Form, Divider, Icon } from 'antd'
 import {TableSize, ColumnProps as AntColumnProps, TableRowSelection,TableEventListeners } from 'antd/lib/table/interface'
-import { WrappedFormUtils, ValidationRule } from "antd/lib/form/Form";
+import { WrappedFormUtils, ValidationRule } from 'antd/lib/form/Form';
 import { EditableContext,EditableCell } from './EditableCell'
 
 import './Table.less'
@@ -66,8 +66,24 @@ type Props<T> = {
     // 无需传入，Form.create 进行创建即可
     form?: WrappedFormUtils
 
+    // 是否可编辑表格 true表示可编辑，false表示不可编辑
+    isEditing: boolean
+
+    // 当前单元格编辑类型，cell表示单元格编辑，row表示行编辑
+    editingType?: 'cell'| 'row'
+
     // 当前表格样式
     style?: React.CSSProperties;
+    refExt?: (self: Table<T>)=> void
+
+}
+
+
+// 数据状态
+class DataSourceState<T>{
+    update: Array<T> = []
+    delete: Array<T> = []
+    create: Array<T> = []
 }
 
 type State<T> = {
@@ -79,6 +95,7 @@ type State<T> = {
     pageSize: number
     sorter?: TableSorter
     editingKey?: string
+    dataSourceState: DataSourceState<T>
 }
 
 export type TableSorter = {
@@ -110,7 +127,7 @@ export type TableEvent<T> = {
      * @param type    当前数据变更的类型，删除更新和创建
      * @returns 如果成功则返回true，否则返回false
      */
-    onSave?:(record: T, type: "DELETE" | "UPDATE" | "CREATE" ) => Promise<boolean>
+    onSave?:(record: T, type: 'DELETE' | 'UPDATE' | 'CREATE' ) => Promise<boolean>
 }
 
 /**
@@ -126,15 +143,18 @@ class Table<T> extends React.Component<Props<T>,State<T>>{
         page: 1,
         pageSize: 0,
         sorter: undefined,
-        editingKey: undefined
+        editingKey: undefined,
+        dataSourceState:new DataSourceState<T>()
     }
 
     static defaultProps = {
-        theme: "small",
+        theme: 'small',
         defaultPageSize: 300,
         width: '100%',
         height: 400,
         rowKey: 'id',
+        editingType: 'cell',
+        isEditing: false,
         event: {
             onSelect:()=>{},
             onRow:()=>{},
@@ -147,6 +167,9 @@ class Table<T> extends React.Component<Props<T>,State<T>>{
             page: 1,
             pageSize: this.props.defaultPageSize!
         })
+        if(this.props.refExt){
+            this.props.refExt(this)
+        }
     }
 
     /**
@@ -155,7 +178,9 @@ class Table<T> extends React.Component<Props<T>,State<T>>{
      * @returns true表示可编辑 false表示不可编辑
      */
     protected isEditing(record : T): boolean{
-        return record[this.props.rowKey] === this.state.editingKey
+        const { rowKey } = this.props
+        const { editingKey } = this.state
+        return record[rowKey] === editingKey
     }
 
     /**
@@ -163,47 +188,63 @@ class Table<T> extends React.Component<Props<T>,State<T>>{
      */
     protected getColumns():ColumnProps<T>[]{
         const self = this 
-        this.props.columns.forEach((column)=>{
+        const  {
+            columns,
+            event,
+            isEditing,
+            editingType,
+            form,
+            rowKey
+        } = this.props
+        const { 
+            dataSourceState,
+            dataSource
+         } = this.state
+        columns.forEach((column)=>{
             if(column.dataIndex === '$operating'){
                 column.render=(text:string, record: T)=>{
                     const editor = (
-                        <span>
+                        <>
                             <Button
-                                icon="edit"
-                                type="link"
+                                icon='edit'
+                                type='link'
                                 disabled={this.state.editingKey !== undefined && !this.isEditing(record)}
                                 onClick={()=>{
                                     this.setState({
-                                        editingKey: record[this.props.rowKey]
+                                        editingKey: record[rowKey]
                                     })
                                 }}
                             />
-                            <Divider type="vertical" />
+                            <Divider type='vertical' />
                             <Button
-                                icon="delete"
-                                type="link"
+                                icon='delete'
+                                type='link'
                                 disabled={this.state.editingKey !== undefined && !this.isEditing(record)}
                                 onClick={()=>{
                                     this.setState({
-                                        editingKey: record[this.props.rowKey]
+                                        editingKey: record[rowKey]
                                     })
                                 }}
                             />
-                        </span>
+                        </>
                     )
                     
                     return self.isEditing(record) ? (
-                        <span>
+                        <>
                             <Button
-                                icon="check"
-                                type="link"
+                                icon='check'
+                                type='link'
                                 onClick={()=>{
-                                    const onSave = this.props.event!.onSave 
-                                    if(onSave){
-                                        onSave(record,'CREATE').then((respState)=>{
-                                            if(respState){
-                                                this.setState({
-                                                    editingKey: undefined
+                                    const onSave = event!.onSave 
+                                    if(onSave && form !== undefined){
+                                        form.validateFields((err, values) => {
+                                            if(!err){
+                                                onSave(record,'CREATE').then((respState)=>{
+                                                    if((respState || true)){
+                                                        this.setState({
+                                                            editingKey: undefined
+                                                        })
+                                                    }
                                                 })
                                             }
                                         })
@@ -211,20 +252,43 @@ class Table<T> extends React.Component<Props<T>,State<T>>{
                                   
                                 }}
                             />
-                            <Divider type="vertical" />
+                            <Divider type='vertical' />
                             <Button
-                                icon="undo"
-                                type="link"
+                                icon='undo'
+                                type='link'
                                 onClick={()=>{
                                     this.setState({
                                         editingKey: undefined
                                     })
                                 }}
                             />
-                        </span>
+                        </>
                     ) : editor 
                 }
                 column.width = 80
+            }else if(column.dataIndex === '$state'){
+                column.render=(text:string, record: T)=>{
+                    if(
+                        dataSourceState.update.filter((data)=>{ 
+                            return data[rowKey] === record[rowKey]
+                        }).length > 0 ||
+                        dataSourceState.create.filter((data)=>{
+                            return  data[rowKey] === record[rowKey]
+                        }).length > 0
+                    ){
+                        return (
+                            <>
+                               <Icon type="edit" />
+                            </>
+                        )
+                    }
+                    return (
+                        <>
+                        </>
+                    )
+                }
+                column.width = 14
+                    
             }else{
                 
                 if(column.ellipsis === undefined){
@@ -239,7 +303,32 @@ class Table<T> extends React.Component<Props<T>,State<T>>{
                         column,
                         record,
                         rowIndex,
-                        editing: this.isEditing(record)
+                        editing: isEditing && this.isEditing(record),
+                        editingType: editingType,
+                        onSave: async (values: T) => {
+                            const newData: T[] = [...dataSource];
+                            newData.forEach((data,dataIndex)=>{
+                                if(data[rowKey] === values[rowKey]){
+                                    newData.splice(dataIndex, 1, {
+                                        ...values
+                                    });
+          
+                                }
+                            })
+                            if(dataSourceState.update.filter((data)=> data[rowKey] === values[rowKey]).length > 0){
+                                dataSourceState.update.forEach((element,elementIndex) => {
+                                    if(element[rowKey] === values[rowKey]){
+                                        dataSourceState.update.splice(elementIndex,1,{
+                                            ...values
+                                        })
+                                    }
+                                });
+                            }else{
+                                dataSourceState.update.push(values)
+                            }
+                            self.setState({ dataSource: newData });
+                            return true
+                        }
                     }
                 }
 
@@ -247,16 +336,20 @@ class Table<T> extends React.Component<Props<T>,State<T>>{
                 if(column.width == null){
                     column.width = 120
                 }
-
-                // 给一个编辑器的默认值
-                if(column.inputType == null){
-                    column.inputType = <Input />
-                }
                
             }
            
         })
         return this.props.columns
+    }
+
+
+    /**
+     * 获取当前表格的编辑状态
+     * @returns DataSourceState
+     */
+    public getDataSourceState(){
+        return this.state.dataSourceState
     }
 
     /**
@@ -310,7 +403,7 @@ class Table<T> extends React.Component<Props<T>,State<T>>{
         const onSelect =  self.props.event!.onSelect!
         let rowProps:TableRowSelection<T> = {
             type: 'checkbox',
-            columnWidth: 30,
+            columnWidth: 16,
             onSelect:(record: T, selected: boolean)=>{
                 onSelect(record[self.props.rowKey],selected)
             },
@@ -340,6 +433,7 @@ class Table<T> extends React.Component<Props<T>,State<T>>{
                     style={this.props.style}
                     rowKey={this.props.rowKey}
                     columns={this.getColumns()}
+                    rowClassName={() => 'kotomi-components-table-row'}
                     components={{
                         body: {
                             cell: EditableCell,
@@ -348,14 +442,14 @@ class Table<T> extends React.Component<Props<T>,State<T>>{
                     dataSource={this.getDataSource()}
                     loading={{
                         indicator:<Icon
-                                    type="loading"
+                                    type='loading'
                                     style={{ fontSize: 24 }}
                                     spin
                                 />,
                         spinning:this.state.loading
                     }}
                     pagination={{
-                        size:"small" ,
+                        size:'small' ,
                         defaultPageSize:this.props.defaultPageSize,
                         total:this.state.total,
                     }}
@@ -380,7 +474,7 @@ class Table<T> extends React.Component<Props<T>,State<T>>{
                        // 否则不相应事件
                        return {}
                     }}
-                    size="small" 
+                    size='small' 
                     scroll={{
                         x: this.props.width,
                         y: this.props.height
