@@ -13,7 +13,7 @@
   "keywords": [],
   "author": "zhangj",
   "license": "MIT",
-  "pre-commit":[
+  "pre-commit": [
     "npm run lint"
   ],
   "devDependencies": {
@@ -39,9 +39,8 @@
     "typescript": "^3.7.2"
   },
   "dependencies": {
-    "antd": "^3.26.3",
+    "antd": "^3.26.6",
     "react": "^16.12.0",
-    "rc-queue-anim": "^1.8.3",
     "react-dom": "^16.12.0"
   }
 }
