@@ -14,18 +14,20 @@ type EditorComponent = {
      * 当前的组件实列
      */
     component: JSX.Element
+}
+
+type Rule = {
+
+    /**
+     * 组件的唯一名称
+     */
+    name: string
 
     /**
      * 当前组件的校验规则
      */
-    rules?: ValidationRule[]
-
-    /**
-     * 默认值
-     */
-    initialValue?: any
+    rules?: ValidationRule[] 
 }
-
 
 type Props = {
 
@@ -43,40 +45,44 @@ type Props = {
      * [name input]    [name input] [name input]
      */
     script: string
-
+    form?: WrappedFormUtils
     labelCol?: ColProps
-    wrapperCol?: ColProps
     onSubmit?: React.FormEventHandler<HTMLFormElement>
+    wrapperCol?: ColProps
+
+    // 当前表单的校验规则
+    rules?: Rule[]
+
+    // 当前表单的默认值
+    initialValues?: any
+
     /**
      * 注册的组件信息,所有注册的组件都可以在语义化脚本中进行布局操作
      */
     components?: EditorComponent[]
-
-    form?: WrappedFormUtils
-
 }
 
 type State = {
-
 }
 
 class FormItemProps {
     name: string
     span: number
     label: string
+    rules?: ValidationRule[]
+    initialValue?: any
     component: EditorComponent | undefined
 }
 
 class Form extends React.Component<Props & FormComponentProps, State> {
 
     state = {
-
     }
 
     // 当前节点上拥有的组件
     components:EditorComponent[] = []
+    rules: Rule[] = []
 
-    
     static defaultProps = {
         components: [],
         labelCol: {
@@ -94,7 +100,8 @@ class Form extends React.Component<Props & FormComponentProps, State> {
     }
 
     componentWillMount(){
-        this.props.components?.forEach((component)=>{
+        const {rules , components}  = this.props
+        components?.forEach((component)=>{
             this.components.push(component)
         })
         // 添加默认的输入框
@@ -102,6 +109,8 @@ class Form extends React.Component<Props & FormComponentProps, State> {
             name: 'input',
             component: <Input />
         })
+        this.rules.push(...(rules || []))
+
        
     }
 
@@ -109,8 +118,8 @@ class Form extends React.Component<Props & FormComponentProps, State> {
      * 将脚本信息，转换为json对象
      */
     protected getScriptToJsonArray(): FormItemProps[][] {
-        const { script } = this.props
-        const { components } = this
+        const { script, initialValues } = this.props
+        const { components,rules } = this
         try {
             const splitScript = script.trim().split('\n')
             const respArray: FormItemProps[][] = []
@@ -128,9 +137,19 @@ class Form extends React.Component<Props & FormComponentProps, State> {
                         fromItemProps.label =  realConfig[0].split('|')[1].trim()
 
                         // 添加组件
-                        fromItemProps.component = components?.filter((component) => { 
+                        fromItemProps.component = components.filter((component) => { 
                             return component.name.trim() === realConfig[1].trim()
                          })[0]
+
+                         
+                        // 设置校验规则
+                        fromItemProps.rules = rules.filter(rule => { 
+                            debugger
+                            return rule.name === fromItemProps.name
+                        })[0]?.rules
+                        
+                        // 设置默认值
+                        fromItemProps.initialValue = (initialValues || {})[fromItemProps.name]
 
                         // START 设置当前组件的span大小
                         if (realConfig[2] === undefined) {
@@ -173,8 +192,8 @@ class Form extends React.Component<Props & FormComponentProps, State> {
                             label={itemCol.label}
                          >
                             {form?.getFieldDecorator(itemCol.name, {
-                                rules: itemCol.component?.rules,
-                                initialValue: itemCol.component?.initialValue,
+                                rules: itemCol?.rules,
+                                initialValue: itemCol?.initialValue,
                             })(itemCol.component?.component)}
                          </AntForm.Item>
                     </Col>
