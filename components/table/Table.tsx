@@ -14,11 +14,14 @@ export interface ColumnProps<T> extends AntColumnProps<T>{
 }
 
 type Props<T> = {
+
     /**
      * 列的信息 
      * $operating 用来修改数据的默认操作列
+     * $state     当前编辑状态
      */
     columns:ColumnProps<T> []
+
     /**
      * 装载数据的方法
      * @param page 当前第几页信息
@@ -74,6 +77,8 @@ type Props<T> = {
 
     // 当前表格样式
     style?: React.CSSProperties;
+    
+    // 扩展的表格信息
     refExt?: (self: Table<T>)=> void
 
 }
@@ -331,12 +336,10 @@ class Table<T> extends React.Component<Props<T>,State<T>>{
                         }
                     }
                 }
-
                 // 给一个宽度的默认值
                 if(column.width == null){
                     column.width = 120
                 }
-               
             }
            
         })
@@ -466,7 +469,7 @@ class Table<T> extends React.Component<Props<T>,State<T>>{
                     }}
                     rowSelection = {this.getRowSelection()}
                     onRow={(record: T, index: number)=>{
-                       // 如果当前行处于不可编辑状态才除非click事件
+                       // 如果当前行处于不可编辑状态，则不点击click事件
                        if(this.state.editingKey == undefined){
                             const onRow = this.props.event!.onRow
                             return onRow === undefined ? {} : onRow(record,index) 
@@ -481,7 +484,6 @@ class Table<T> extends React.Component<Props<T>,State<T>>{
                     }}
                 />
             </EditableContext.Provider>
-           
         )
     }
 }
