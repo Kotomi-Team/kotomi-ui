@@ -39,15 +39,14 @@ type Props = {
      *    - 如果不写第4个参数，则表示占用剩下的空间
      * ------------------------
      * 
-     * [name input]+12 [name input] [name input]
+     * [name input]    [name input] [name input]
      * [name input]    [name input] [name input]
      */
     script: string
 
     labelCol?: ColProps
-
     wrapperCol?: ColProps
-
+    onSubmit?: React.FormEventHandler<HTMLFormElement>
     /**
      * 注册的组件信息,所有注册的组件都可以在语义化脚本中进行布局操作
      */
@@ -125,12 +124,11 @@ class Form extends React.Component<Props & FormComponentProps, State> {
                         const fromItemProps = new FormItemProps()
 
                         // 添加名称
-                        fromItemProps.name = realConfig[0].split('|')[0]
-                        fromItemProps.label =  realConfig[0].split('|')[1]
+                        fromItemProps.name = realConfig[0].split('|')[0].trim()
+                        fromItemProps.label =  realConfig[0].split('|')[1].trim()
 
                         // 添加组件
                         fromItemProps.component = components?.filter((component) => { 
-                            debugger
                             return component.name.trim() === realConfig[1].trim()
                          })[0]
 
@@ -162,12 +160,16 @@ class Form extends React.Component<Props & FormComponentProps, State> {
         const formItemsProps = this.getScriptToJsonArray()
         const formItems:JSX.Element[] = []
         const { form } = this.props
-        formItemsProps.forEach((itemProps) => {
+        formItemsProps.forEach((itemProps,index) => {
             const cols:JSX.Element[] = []
             itemProps.forEach((itemCol) => {
                 const col:JSX.Element = (
-                    <Col span={itemCol.span}>
+                    <Col
+                        span={itemCol.span}
+                        key={ 'form-item-col' + itemCol.name + index}
+                    >
                          <AntForm.Item
+                            key={ 'form-item' + itemCol.name + index}
                             label={itemCol.label}
                          >
                             {form?.getFieldDecorator(itemCol.name, {
@@ -180,7 +182,9 @@ class Form extends React.Component<Props & FormComponentProps, State> {
                 cols.push(col)
             })
             formItems.push((
-                <Row>
+                <Row
+                    key={'form-item-row' + index}
+                >
                     {cols}
                 </Row>
             ))
@@ -190,11 +194,12 @@ class Form extends React.Component<Props & FormComponentProps, State> {
 
 
     render() {
-        const {labelCol , wrapperCol} = this.props
+        const {labelCol , wrapperCol, onSubmit} = this.props
         return (
             <AntForm
                 labelCol = {labelCol}
                 wrapperCol= {wrapperCol}
+                onSubmit= {onSubmit}
             >
                 {
                     this.renderFormItems()
@@ -203,7 +208,6 @@ class Form extends React.Component<Props & FormComponentProps, State> {
         )
     }
 }
-
 
 const ScriptForm = AntForm.create<Props & FormComponentProps>()(Form);
 
