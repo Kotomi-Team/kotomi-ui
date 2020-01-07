@@ -22,7 +22,7 @@ export const baseForm = () => {
             components={[{
                 name: 'drop',
                 component: <Input />
-            } ]}
+            }]}
         />
     )
 }

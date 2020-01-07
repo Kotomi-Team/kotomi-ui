@@ -81,13 +81,12 @@ export class EditableCell<T> extends React.Component<Props<T>,State>{
             }
         }))
     }
-    
+
 
     renderCell = ({ form }: { form: WrappedFormUtils }) => {
         const {editingType, restProps, children, column , readOnly}  = this.props
         const self = this 
         const className =  column === undefined ? undefined : readOnly ? undefined: 'kotomi-components-table-cell-value-wrap'
-        debugger
         // 如果为只读则不能进行编辑
         if(this.state.editing === false || readOnly === true){
             return (

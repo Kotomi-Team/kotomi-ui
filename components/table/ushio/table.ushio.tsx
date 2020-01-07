@@ -56,6 +56,7 @@ export const baseTable = () => {
                     console.log(selectedRowKeys)
                     console.log(selected)
                 },
+
                 onRow:(record:User)=>{
                     return {
                         onClick:()=>{
@@ -89,8 +90,6 @@ export const baseTable = () => {
         />
     )
 }
-
-
 
 export const cellEditorTable = () => {
     let tableDom : any = undefined 

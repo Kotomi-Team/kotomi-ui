@@ -18,9 +18,11 @@
   "keywords": [],
   "author": "zhangj",
   "license": "MIT",
-  "pre-commit": [
-    "npm run lint"
-  ],
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint"
+    }
+  },
   "devDependencies": {
     "@babel/core": "^7.7.4",
     "@storybook/addon-actions": "^5.2.8",
@@ -37,6 +39,7 @@
     "cpx": "^1.5.0",
     "eslint": "^6.8.0",
     "eslint-plugin-react": "^7.17.0",
+    "husky": "^4.0.0",
     "jest": "^24.9.0",
     "react-docgen-typescript-loader": "^3.6.0",
     "ts-jest": "^24.2.0",
