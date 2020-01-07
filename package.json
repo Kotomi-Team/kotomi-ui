@@ -7,7 +7,7 @@
     "build": "tsc && cpx \"components/**/*.less\" ./build/lib",
     "build:typedoc": "typedoc --out build/docs/typedoc",
     "build:storybook": "build-storybook -o docs/storybook/",
-    "lint": "eslint . --ext .js,.jsx,.ts,.tsx"
+    "lint": "eslint components/* --ext .js,.jsx,.ts,.tsx"
   },
   "main": "build/lib/index.js",
   "files": [
@@ -20,7 +20,7 @@
   "license": "MIT",
   "husky": {
     "hooks": {
-      "pre-commit": "lint"
+      "pre-commit": "npm run lint"
     }
   },
   "devDependencies": {

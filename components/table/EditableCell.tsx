@@ -68,7 +68,7 @@ export class EditableCell<T> extends React.Component<Props<T>,State>{
                         ...record,
                         ...values
                     },'UPDATE').then((respState)=>{
-                        if((respState || true)){
+                        if(respState){
                             self.setState({
                                 editing: false
                             })

@@ -131,7 +131,7 @@ class Form extends React.Component<Props & FormComponentProps, State> {
                 for (const realString of matchs) {
                     const config = realString.pop()
                     if (config) {
-                        const realConfig = config.replace('\[', '').replace('\]', '').split(/\s/g)
+                        const realConfig = config.replace(/\[/g, '').replace(/\]/g, '').split(/\s/g)
                         if(realConfig.length < 2){
                             // 如果参数小于二个则直接跳过
                             continue;
