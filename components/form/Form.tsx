@@ -49,6 +49,7 @@ type Props = {
     labelCol?: ColProps
     onSubmit?: React.FormEventHandler<HTMLFormElement>
     wrapperCol?: ColProps
+    key?: string 
 
     // 当前表单的校验规则
     rules?: Rule[]
@@ -70,10 +71,15 @@ class FormItemProps {
     span: number
     label: string
     rules?: ValidationRule[]
+    labelCol?: ColProps
+    wrapperCol?: ColProps
     initialValue?: any
     component: EditorComponent | undefined
 }
 
+/**
+ * 可进行脚本语义化的form表单
+ */
 class Form extends React.Component<Props & FormComponentProps, State> {
 
     state = {
@@ -86,32 +92,27 @@ class Form extends React.Component<Props & FormComponentProps, State> {
     static defaultProps = {
         components: [],
         labelCol: {
-            xs: { span: 24 },
-            sm: { span: 4 },
+            md: { span: 4 }
         },
         wrapperCol: {
-            xs: { span: 0 },
-            sm: { span: 20 },
+            md: { span: 20 }
         },
 
     }
     constructor(props: Props & FormComponentProps) {
         super(props);
-    }
-
-    componentWillMount(){
-        const {rules , components}  = this.props
-        components?.forEach((component)=>{
-            this.components.push(component)
-        })
+        const {rules , components}  = props
+        if(components){
+            components.forEach((component)=>{
+                this.components.push(component)
+            })
+        }
         // 添加默认的输入框
         this.components.push({
             name: 'input',
             component: <Input />
         })
         this.rules.push(...(rules || []))
-
-       
     }
 
     /**
@@ -123,30 +124,40 @@ class Form extends React.Component<Props & FormComponentProps, State> {
         try {
             const splitScript = script.trim().split('\n')
             const respArray: FormItemProps[][] = []
+            
             splitScript.forEach((singleRowScript) => {
-                const matchs = singleRowScript.matchAll(/\[.*?\]/g)
+                const matchs = singleRowScript['matchAll'](/\[.*?\]/g)
                 const rowData: FormItemProps[] = []
                 for (const realString of matchs) {
                     const config = realString.pop()
                     if (config) {
                         const realConfig = config.replace('\[', '').replace('\]', '').split(/\s/g)
+                        debugger
+                        if(realConfig.length < 2){
+                            // 如果参数小于二个则直接跳过
+                            continue;
+                        }
+
                         const fromItemProps = new FormItemProps()
 
-                        // 添加名称
-                        fromItemProps.name = realConfig[0].split('|')[0].trim()
-                        fromItemProps.label =  realConfig[0].split('|')[1].trim()
+                        if(realConfig[0].split('|').length >= 1){
+                            fromItemProps.name = realConfig[0].split('|')[0].trim()
+                        }
+                        if(realConfig[0].split('|').length >= 2){
+                            fromItemProps.label =  realConfig[0].split('|')[1].trim()
+                        }
 
                         // 添加组件
                         fromItemProps.component = components.filter((component) => { 
                             return component.name.trim() === realConfig[1].trim()
                          })[0]
 
-                         
-                        // 设置校验规则
-                        fromItemProps.rules = rules.filter(rule => { 
-                            debugger
-                            return rule.name === fromItemProps.name
-                        })[0]?.rules
+                         if(rules.filter(rule => { rule.name === fromItemProps.name }).length > 0){
+                             // 设置校验规则
+                            fromItemProps.rules = rules.filter(rule => { 
+                                return rule.name === fromItemProps.name
+                            })[0].rules
+                         }
                         
                         // 设置默认值
                         fromItemProps.initialValue = (initialValues || {})[fromItemProps.name]
@@ -159,7 +170,18 @@ class Form extends React.Component<Props & FormComponentProps, State> {
                             })
                             fromItemProps.span = span
                         } else {
-                            fromItemProps.span = Number.parseInt(realConfig[2])
+                            const cols = realConfig[2].split('-')
+                            fromItemProps.span = Number.parseInt(cols[0])
+                            if(cols[1]){
+                                fromItemProps.labelCol = {
+                                    md: Number.parseInt(cols[1])
+                                }
+                            }
+                            if(cols[2]){
+                                fromItemProps.wrapperCol =  {
+                                    md: Number.parseInt(cols[2])
+                                }
+                            }
                         }
                         // END
                         rowData.push(fromItemProps)
@@ -178,27 +200,47 @@ class Form extends React.Component<Props & FormComponentProps, State> {
     renderFormItems():JSX.Element[]  {
         const formItemsProps = this.getScriptToJsonArray()
         const formItems:JSX.Element[] = []
-        const { form } = this.props
+        const { form, labelCol, wrapperCol, key } = this.props
         formItemsProps.forEach((itemProps,index) => {
             const cols:JSX.Element[] = []
             itemProps.forEach((itemCol) => {
-                const col:JSX.Element = (
-                    <Col
-                        span={itemCol.span}
-                        key={ 'form-item-col' + itemCol.name + index}
-                    >
-                         <AntForm.Item
-                            key={ 'form-item' + itemCol.name + index}
-                            label={itemCol.label}
-                         >
-                            {form?.getFieldDecorator(itemCol.name, {
-                                rules: itemCol?.rules,
-                                initialValue: itemCol?.initialValue,
-                            })(itemCol.component?.component)}
-                         </AntForm.Item>
-                    </Col>
-                )
-                cols.push(col)
+                let rules:ValidationRule[] = []
+                let initialValue = undefined
+                if(itemCol.rules){
+                    rules = itemCol.rules
+                }
+                if(itemCol.initialValue){
+                    initialValue=itemCol.initialValue
+                }
+    
+                if(itemCol.component){
+                    // 如果一列时候，修复显示的位置
+                    const colLabelCol = itemCol.span === 24 ? { md: 2} :  itemCol.labelCol || labelCol
+                    const colWrapperCol= itemCol.span === 24  ? { md: 22 } : itemCol.wrapperCol || wrapperCol
+                    const col:JSX.Element = (
+                        <Col
+                            span={itemCol.span}
+                            key={ 'form-item-col' + itemCol.name + index}
+                            className={`kotomi-components-form-${itemCol.name}${key === undefined ? '':`-${key}`}`}
+                        >
+                             <AntForm.Item
+                                key={ 'form-item' + itemCol.name + index}
+                                label={itemCol.label}
+                                labelCol = {colLabelCol}
+                                wrapperCol = {colWrapperCol}
+                             >
+                                {form.getFieldDecorator(itemCol.name, {
+                                    rules,
+                                    initialValue,
+                                })(itemCol.component.component)}
+                             </AntForm.Item>
+                        </Col>
+                    )
+                    cols.push(col)
+                }else{
+                    // 如果默认找不到对应的组件，则抛出对应的错误信息
+                    throw Error(`Unsupported component. field name [${itemCol.name}]`)
+                }
             })
             formItems.push((
                 <Row

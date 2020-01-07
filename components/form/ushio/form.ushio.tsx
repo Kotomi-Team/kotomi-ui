@@ -10,8 +10,9 @@ export const baseForm = () => {
     return (
         <Form
             script={`
-                [name|显示名称 input 12] [code|显示代号 input 12]
-                [name1|名称 input 12] [code1|代号 input 12]
+                [name|Field1 input 8]        [code|Field2 input 8 ]        [code1|Field3 input 8] 
+                [name1|Field4 input 8]       [code2|Field5 input 16-2-22]
+                [name2|Field6 input 16-2-22] [code3|Field7 input 8]
             `}
             rules={[{
                 name:'name',
