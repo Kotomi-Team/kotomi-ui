@@ -132,7 +132,6 @@ class Form extends React.Component<Props & FormComponentProps, State> {
                     const config = realString.pop()
                     if (config) {
                         const realConfig = config.replace('\[', '').replace('\]', '').split(/\s/g)
-                        debugger
                         if(realConfig.length < 2){
                             // 如果参数小于二个则直接跳过
                             continue;
@@ -146,18 +145,20 @@ class Form extends React.Component<Props & FormComponentProps, State> {
                         if(realConfig[0].split('|').length >= 2){
                             fromItemProps.label =  realConfig[0].split('|')[1].trim()
                         }
-
+                         
                         // 添加组件
                         fromItemProps.component = components.filter((component) => { 
                             return component.name.trim() === realConfig[1].trim()
                          })[0]
 
-                         if(rules.filter(rule => { rule.name === fromItemProps.name }).length > 0){
-                             // 设置校验规则
-                            fromItemProps.rules = rules.filter(rule => { 
-                                return rule.name === fromItemProps.name
-                            })[0].rules
-                         }
+                         const rulesFilter = rules.filter(rule =>  {
+                            return rule.name === fromItemProps.name 
+                        })
+                        
+                        if(rulesFilter.length > 0){
+                            // 设置校验规则
+                            fromItemProps.rules = rulesFilter[0].rules
+                        }
                         
                         // 设置默认值
                         fromItemProps.initialValue = (initialValues || {})[fromItemProps.name]

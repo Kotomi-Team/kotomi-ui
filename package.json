@@ -1,9 +1,10 @@
 {
   "name": "kotomi-ui",
-  "version": "0.0.2",
+  "version": "0.0.4",
   "description": "",
   "scripts": {
     "start": "start-storybook -p 3000",
+    "publish":"npm run build && npm publish",
     "build": "tsc && cpx \"components/**/*.less\" ./build/lib",
     "build:typedoc": "typedoc --out build/docs/typedoc",
     "build:storybook": "build-storybook -o docs/storybook/",
