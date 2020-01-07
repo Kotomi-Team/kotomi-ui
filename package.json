@@ -1,19 +1,22 @@
 {
   "name": "kotomi-ui",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "",
   "scripts": {
     "start": "start-storybook -p 3000",
-    "build": "tsc",
+    "build": "tsc && cpx \"components/**/*.less\" ./build/lib",
     "build:typedoc": "typedoc --out build/docs/typedoc",
     "build:storybook": "build-storybook -o docs/storybook/",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx"
   },
   "main": "build/lib/index.js",
+  "files": [
+    "build/lib"
+  ],
   "keywords": [],
   "author": "zhangj",
   "license": "MIT",
-  "pre-commit":[
+  "pre-commit": [
     "npm run lint"
   ],
   "devDependencies": {
@@ -29,6 +32,7 @@
     "@typescript-eslint/eslint-plugin": "^2.14.0",
     "@typescript-eslint/parser": "^2.14.0",
     "babel-loader": "^8.0.6",
+    "cpx": "^1.5.0",
     "eslint": "^6.8.0",
     "eslint-plugin-react": "^7.17.0",
     "jest": "^24.9.0",
