@@ -19,6 +19,8 @@ type Props<T> = {
     // 用户触发保存的信息
     onSave:(record: T, type: 'DELETE' | 'UPDATE' | 'CREATE' ) => Promise<boolean>
     restProps?: any
+
+    readOnly?: boolean 
 }
 
 type State = {
@@ -36,6 +38,7 @@ export class EditableCell<T> extends React.Component<Props<T>,State>{
 
     static defaultProps = {
         editing: false,
+        readOnly: false,
         editingType: 'cell'
     }
 
@@ -78,15 +81,19 @@ export class EditableCell<T> extends React.Component<Props<T>,State>{
             }
         }))
     }
+    
 
     renderCell = ({ form }: { form: WrappedFormUtils }) => {
-        const {editingType, restProps, children, column}  = this.props
+        const {editingType, restProps, children, column , readOnly}  = this.props
         const self = this 
-        if(this.state.editing === false){
+        const className =  column === undefined ? undefined : readOnly ? undefined: 'kotomi-components-table-cell-value-wrap'
+        debugger
+        // 如果为只读则不能进行编辑
+        if(this.state.editing === false || readOnly === true){
             return (
                 <div
                     {...restProps!}
-                    className={ column === undefined ? undefined : 'kotomi-components-table-cell-value-wrap' }
+                    className={className}
                     onClick={()=>{
                         // 如果是表格编辑，则表示点击即可编辑
                         if(editingType === 'cell' ){

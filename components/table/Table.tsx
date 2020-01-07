@@ -7,6 +7,8 @@ import { EditableContext,EditableCell } from './EditableCell'
 import './Table.less'
 
 export interface ColumnProps<T> extends AntColumnProps<T>{
+    // 列是否只读，默认为false
+    readOnly?: boolean
     // 行编辑的单元类型
     inputType?: JSX.Element
     // 校验规则
@@ -188,6 +190,21 @@ class Table<T> extends React.Component<Props<T>,State<T>>{
         return record[rowKey] === editingKey
     }
 
+
+    /**
+     * 判断当前列是否只读，true表示只读，false表示可编辑
+     * @param column 
+     */
+    protected isReadOnly(column:ColumnProps<T>){
+        const {isEditing} = this.props
+        if(column.readOnly){
+            return true
+        }
+        if(!isEditing){
+            return true
+        }
+        return false
+    }
     /**
      * 获得当前列的信息
      */
@@ -196,7 +213,6 @@ class Table<T> extends React.Component<Props<T>,State<T>>{
         const  {
             columns,
             event,
-            isEditing,
             editingType,
             form,
             rowKey
@@ -303,13 +319,16 @@ class Table<T> extends React.Component<Props<T>,State<T>>{
                     column.sortDirections = ['descend', 'ascend']
                     column.sorter = true
                 }
+
+                // 如果属性设置为可编辑，则渲染可编辑的表格，默认为不可编辑
                 column.onCell = (record: T ,rowIndex: number)=>{
                     return {
                         column,
                         record,
                         rowIndex,
-                        editing: isEditing && this.isEditing(record),
+                        editing: this.isEditing(record),
                         editingType: editingType,
+                        readOnly: this.isReadOnly(column),
                         onSave: async (values: T) => {
                             const newData: T[] = [...dataSource];
                             newData.forEach((data,dataIndex)=>{
@@ -317,7 +336,7 @@ class Table<T> extends React.Component<Props<T>,State<T>>{
                                     newData.splice(dataIndex, 1, {
                                         ...values
                                     });
-          
+            
                                 }
                             })
                             if(dataSourceState.update.filter((data)=> data[rowKey] === values[rowKey]).length > 0){
