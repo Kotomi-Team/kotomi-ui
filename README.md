@@ -1,6 +1,8 @@
 <h1 align="center">Kotomi UI</h1>
 <div align="center">基于Ant Design做的组件扩展，开发的一套组件库</div>
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/e250572478fe40f18b4164d325c78176)](https://www.codacy.com/gh/Kotomi-Team/kotomi-ui?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Kotomi-Team/kotomi-ui&amp;utm_campaign=Badge_Grade)
+
 ## ✨ 特性
 
 - ⚙️ 表格支持单元格和行编辑，并且很方便的进行远程分页加载数据。
