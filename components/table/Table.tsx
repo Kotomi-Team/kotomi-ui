@@ -380,7 +380,7 @@ class Table<T> extends React.Component<Props<T>,State<T>>{
     public refresh(param?: any){
         this.requestLoadData({
             page:this.state.page,
-            pageSize:this.state.pageSize!,
+            pageSize:this.state.pageSize! || this.props.defaultPageSize!,
             param:{
                 ...this.state.param,
                 ...(param || {})

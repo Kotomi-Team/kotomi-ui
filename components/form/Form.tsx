@@ -63,7 +63,7 @@ type Props = {
     components?: EditorComponent[]
 
     // 扩展的表格信息
-    refExt?: (self: Form)=> void
+    refExt?: (form: WrappedFormUtils)=> void
 }
 
 type State = {
@@ -119,8 +119,9 @@ class Form extends React.Component<Props & FormComponentProps, State> {
     }
 
     componentDidMount(){
-        if(this.props.refExt){
-            this.props.refExt(this)
+        const {refExt , form} = this.props
+        if(refExt){
+            refExt(form)
         }
     }
     /**
