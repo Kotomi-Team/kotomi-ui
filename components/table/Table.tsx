@@ -231,7 +231,15 @@ class Table<T> extends React.Component<Props<T>,State<T>>{
                             <Icon
                                 type='delete'
                                 onClick={()=>{
-                                    
+                                    const onSave = event!.onSave 
+                                    if(onSave){
+                                        onSave(record,'DELETE').then((respState)=>{
+                                            if(respState !== false){
+                                                self.refresh()
+                                            }
+                                        })
+                                    } 
+                                  
                                 }}
                             />
                         </>
@@ -269,7 +277,7 @@ class Table<T> extends React.Component<Props<T>,State<T>>{
                                 }}
                             />
                         </>
-                    ) : editor 
+                    ) : self.state.editingKey === undefined ? editor : <></> 
                 }
                 column.width = 80
             }else if(column.dataIndex === '$state'){
