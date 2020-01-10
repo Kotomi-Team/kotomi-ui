@@ -1,5 +1,5 @@
 import React from 'react'
-import { Table as AntTable , Button, Form, Divider, Icon } from 'antd'
+import { Table as AntTable , Form, Divider, Icon } from 'antd'
 import {TableSize, ColumnProps as AntColumnProps, TableRowSelection,TableEventListeners } from 'antd/lib/table/interface'
 import { WrappedFormUtils, ValidationRule } from 'antd/lib/form/Form';
 import { EditableContext,EditableCell } from './EditableCell'
@@ -7,8 +7,8 @@ import { EditableContext,EditableCell } from './EditableCell'
 import './Table.less'
 
 export interface ColumnProps<T> extends AntColumnProps<T>{
-    // 列是否只读，默认为false
-    readOnly?: boolean
+    // 是否可编辑，默认为false
+    isEditing?: boolean
     // 行编辑的单元类型
     inputType?: JSX.Element
     // 校验规则
@@ -70,9 +70,6 @@ type Props<T> = {
     
     // 无需传入，Form.create 进行创建即可
     form?: WrappedFormUtils
-
-    // 是否可编辑表格 true表示可编辑，false表示不可编辑
-    isEditing: boolean
 
     // 当前单元格编辑类型，cell表示单元格编辑，row表示行编辑
     editingType?: 'cell'| 'row'
@@ -161,7 +158,6 @@ class Table<T> extends React.Component<Props<T>,State<T>>{
         height: 400,
         rowKey: 'id',
         editingType: 'cell',
-        isEditing: false,
         event: {
             onSelect:()=>{},
             onRow:()=>{},
@@ -195,16 +191,12 @@ class Table<T> extends React.Component<Props<T>,State<T>>{
      * 判断当前列是否只读，true表示只读，false表示可编辑
      * @param column 
      */
-    protected isReadOnly(column:ColumnProps<T>){
-        const {isEditing} = this.props
-        if(column.readOnly){
-            return true
-        }
-        if(!isEditing){
+    /*protected isReadOnly(column:ColumnProps<T>){
+        if(column.isEditing){
             return true
         }
         return false
-    }
+    }*/
     /**
      * 获得当前列的信息
      */
@@ -226,10 +218,8 @@ class Table<T> extends React.Component<Props<T>,State<T>>{
                 column.render=(text:string, record: T)=>{
                     const editor = (
                         <>
-                            <Button
-                                icon='edit'
-                                type='link'
-                                disabled={this.state.editingKey !== undefined && !this.isEditing(record)}
+                            <Icon
+                                type="edit"
                                 onClick={()=>{
                                     this.setState({
                                         editingKey: record[rowKey]
@@ -237,24 +227,20 @@ class Table<T> extends React.Component<Props<T>,State<T>>{
                                 }}
                             />
                             <Divider type='vertical' />
-                            <Button
-                                icon='delete'
-                                type='link'
-                                disabled={this.state.editingKey !== undefined && !this.isEditing(record)}
+
+                            <Icon
+                                type='delete'
                                 onClick={()=>{
-                                    this.setState({
-                                        editingKey: record[rowKey]
-                                    })
+                                    
                                 }}
                             />
                         </>
-                    )
+                    )  
                     
                     return self.isEditing(record) ? (
                         <>
-                            <Button
-                                icon='check'
-                                type='link'
+                          <Icon
+                                type='check'
                                 onClick={()=>{
                                     const onSave = event!.onSave 
                                     if(onSave && form !== undefined){
@@ -274,9 +260,8 @@ class Table<T> extends React.Component<Props<T>,State<T>>{
                                 }}
                             />
                             <Divider type='vertical' />
-                            <Button
-                                icon='undo'
-                                type='link'
+                            <Icon
+                                type='undo'
                                 onClick={()=>{
                                     this.setState({
                                         editingKey: undefined
@@ -328,7 +313,6 @@ class Table<T> extends React.Component<Props<T>,State<T>>{
                         rowIndex,
                         editing: this.isEditing(record),
                         editingType: editingType,
-                        readOnly: this.isReadOnly(column),
                         onSave: async (values: T) => {
                             const newData: T[] = [...dataSource];
                             newData.forEach((data,dataIndex)=>{

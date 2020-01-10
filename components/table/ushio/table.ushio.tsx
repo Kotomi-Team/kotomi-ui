@@ -21,6 +21,7 @@ export const baseTable = () => {
     },{
         dataIndex: 'name',
         title: 'name',
+        isEditing: true,
         width: 100
     },{
         dataIndex: 'six',
@@ -50,6 +51,8 @@ export const baseTable = () => {
     return (
         <Table<User>
             columns={columns}
+            isEditing
+            editingType="row"
             rowSelection = 'multiple'
             event={{
                onSelect:(selectedRowKeys:string[],selected: boolean)=>{
@@ -70,6 +73,7 @@ export const baseTable = () => {
                     return true
                 }
             } as TableEvent<User>}
+            
             loadData={({page, pageSize}:{page:number,pageSize:number,param?:any,sorter?:TableSorter})=>{
                 return new Promise<{dataSource:User[],total:number}>((re)=>{
                     let data:User[] = []
