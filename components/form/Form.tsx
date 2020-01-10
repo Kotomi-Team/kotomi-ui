@@ -61,6 +61,9 @@ type Props = {
      * 注册的组件信息,所有注册的组件都可以在语义化脚本中进行布局操作
      */
     components?: EditorComponent[]
+
+    // 扩展的表格信息
+    refExt?: (self: Form)=> void
 }
 
 type State = {
@@ -115,6 +118,11 @@ class Form extends React.Component<Props & FormComponentProps, State> {
         this.rules.push(...(rules || []))
     }
 
+    componentDidMount(){
+        if(this.props.refExt){
+            this.props.refExt(this)
+        }
+    }
     /**
      * 将脚本信息，转换为json对象
      */
@@ -215,7 +223,7 @@ class Form extends React.Component<Props & FormComponentProps, State> {
                 }
     
                 if(itemCol.component){
-                    
+
                     const colLabelCol =   itemCol.labelCol || labelCol
                     const colWrapperCol=  itemCol.wrapperCol || wrapperCol
 
