@@ -137,10 +137,10 @@ export const cellEditorTable = () => {
                 rowSelection = 'multiple'
                 isEditing={true}
                 event={{
-                onSelect:(selectedRowKeys:string[],selected: boolean)=>{
-                        console.log(selectedRowKeys)
-                        console.log(selected)
-                    },
+                    onSelect:(selectedRowKeys:string[],selected: boolean)=>{
+                            console.log(selectedRowKeys)
+                            console.log(selected)
+                        },
                     onRow:(record:User)=>{
                         return {
                             onClick:()=>{

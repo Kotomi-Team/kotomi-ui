@@ -215,9 +215,10 @@ class Form extends React.Component<Props & FormComponentProps, State> {
                 }
     
                 if(itemCol.component){
-                    // 如果一列时候，修复显示的位置
-                    const colLabelCol = itemCol.span === 24 ? { md: 2} :  itemCol.labelCol || labelCol
-                    const colWrapperCol= itemCol.span === 24  ? { md: 22 } : itemCol.wrapperCol || wrapperCol
+                    
+                    const colLabelCol =   itemCol.labelCol || labelCol
+                    const colWrapperCol=  itemCol.wrapperCol || wrapperCol
+
                     const col:JSX.Element = (
                         <Col
                             span={itemCol.span}
