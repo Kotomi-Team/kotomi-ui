@@ -142,7 +142,7 @@ class Table<T> extends React.Component<Props<T>,State<T>>{
     state = {
         dataSource:[],
         total: 0,
-        loading: false,
+        loading: true,
         param:{},
         page: 1,
         pageSize: 0,
@@ -395,6 +395,7 @@ class Table<T> extends React.Component<Props<T>,State<T>>{
      * @param pageSize 当前页面显示的数据条数
      */
     protected requestLoadData({page, pageSize,param,sorter}:{page:number,pageSize:number,param?:any,sorter?:TableSorter}){
+       
         this.setState({
             loading: true
         })
@@ -403,10 +404,7 @@ class Table<T> extends React.Component<Props<T>,State<T>>{
         this.props.loadData({page, pageSize,param,sorter}).then(({dataSource,total})=>{
             this.setState({
                 dataSource,
-                total
-            })
-        }).finally(()=>{
-            this.setState({
+                total,
                 loading: false
             })
         })
