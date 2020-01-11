@@ -254,7 +254,7 @@ class Table<T> extends React.Component<Props<T>,State<T>>{
                                     if(onSave && form !== undefined){
                                         form.validateFields((err, values) => {
                                             if(!err){
-                                                onSave(values,'CREATE').then((respState)=>{
+                                                onSave(values,'UPDATE').then((respState)=>{
                                                     if(respState !== false){
                                                         this.setState({
                                                             editingKey: undefined
