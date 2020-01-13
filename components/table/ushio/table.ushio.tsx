@@ -1,7 +1,7 @@
 import React from 'react'
 
 import { Table,ColumnProps,TableEvent,TableSorter } from '../Table';
-import { Button, Checkbox, Select } from 'antd';
+import { Button, Checkbox, Select , DatePicker} from 'antd';
 
 export default { title: 'Table' };
 
@@ -239,6 +239,7 @@ export const cellCheckboxTable = () => {
     },{
         dataIndex: 'six1',
         title: 'six1',
+        inputType: <DatePicker />,
         width: 100
     },{
         dataIndex: 'six2',
@@ -268,7 +269,7 @@ export const cellCheckboxTable = () => {
                 rowSelection = 'multiple'
                 editingType="cell"
                 event={{
-                onSelect:(selectedRowKeys:string[],selected: boolean)=>{
+                    onSelect:(selectedRowKeys:string[],selected: boolean)=>{
                         console.log(selectedRowKeys)
                         console.log(selected)
                     },
