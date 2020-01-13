@@ -100,8 +100,8 @@ class Form extends React.Component<Props & FormComponentProps, State> {
         wrapperCol: {
             md: { span: 20 }
         },
-
     }
+    
     constructor(props: Props & FormComponentProps) {
         super(props);
         const {rules , components}  = props

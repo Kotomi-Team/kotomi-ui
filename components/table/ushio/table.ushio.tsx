@@ -216,8 +216,9 @@ export const cellCheckboxTable = () => {
         dataIndex: 'name',
         title: 'name',
         width: 100,
+        inputModal: 'display',
         inputType: (
-            <Checkbox value="A">A</Checkbox>
+            <Checkbox />
         )
     },{
         dataIndex: 'six',

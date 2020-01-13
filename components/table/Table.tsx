@@ -7,14 +7,14 @@ import { EditableContext,EditableCell } from './EditableCell'
 import './Table.less'
 
 export interface ColumnProps<T> extends AntColumnProps<T>{
-
-
     // 是否可编辑，默认为false
     isEditing?: boolean
     // 行编辑的单元类型
     inputType?: JSX.Element
     // 校验规则
     rules?: ValidationRule[]
+    // 编辑模式，默认为点击编辑，可选为直接显示编辑
+    inputModal?: 'click' | 'display',
     // 显示列的别名
     aliasDataIndex?: string
 }
@@ -107,7 +107,6 @@ type State<T> = {
     pageSize: number
     sorter?: TableSorter
     editingKey?: string
-    dataSourceState: DataSourceState<T>
 }
 
 export type TableSorter = {
@@ -149,6 +148,9 @@ class Table<T> extends React.Component<Props<T>,State<T>>{
     // 用户查询参数
     private REQUEST_PARAM  = {}
 
+    private dataSourceState:DataSourceState<T> = new DataSourceState<T>()
+   
+
     state = {
         dataSource:[],
         total: 0,
@@ -156,8 +158,7 @@ class Table<T> extends React.Component<Props<T>,State<T>>{
         page: 1,
         pageSize: 0,
         sorter: undefined,
-        editingKey: undefined,
-        dataSourceState:new DataSourceState<T>()
+        editingKey: undefined
     }
 
     static defaultProps = {
@@ -202,9 +203,7 @@ class Table<T> extends React.Component<Props<T>,State<T>>{
         const  {
             rowKey
         } = this.props
-        const { 
-            dataSourceState
-         } = this.state
+        const dataSourceState = this.dataSourceState
         column.render=(text:string, record: T)=>{
             if(
                 dataSourceState.update.filter((data)=>{ 
@@ -325,9 +324,9 @@ class Table<T> extends React.Component<Props<T>,State<T>>{
             rowKey
         } = this.props
         const { 
-            dataSourceState,
             dataSource
          } = this.state
+        const dataSourceState = this.dataSourceState
         columns.forEach((column)=>{
             if(column.dataIndex === '$operating'){
                 // 设置操作的表格
@@ -362,6 +361,7 @@ class Table<T> extends React.Component<Props<T>,State<T>>{
                         rowIndex,
                         editing: this.isEditing(record),
                         editingType: editingType,
+                        inputModal: column.inputModal,
                         onSave: async (values: T) => {
                             const newData: T[] = [...dataSource];
                             newData.forEach((data,dataIndex)=>{
@@ -404,7 +404,7 @@ class Table<T> extends React.Component<Props<T>,State<T>>{
      * @returns DataSourceState
      */
     public getDataSourceState(){
-        return this.state.dataSourceState
+        return this.dataSourceState
     }
 
     /**
