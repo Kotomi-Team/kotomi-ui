@@ -16,7 +16,11 @@ class User  {
 }
 
 export const baseTable = () => {
+    let table:any = null
     let columns: ColumnProps<User>[] = [{
+        dataIndex: '$index',
+        title: '#',
+    },{
         dataIndex: '$state'
     },{
         dataIndex: 'name',
@@ -49,11 +53,24 @@ export const baseTable = () => {
     }]
 
     return (
+        <>
+        <Button
+            onClick={()=>{
+                table.refresh({
+                    a: '1'
+                })
+            }}
+        >
+            click query param
+        </Button>
         <Table<User>
             columns={columns}
             isEditing
             editingType="row"
             rowSelection = 'multiple'
+            refExt={(tempTable: any)=>{
+                table = tempTable
+            }}
             event={{
                onSelect:(selectedRowKeys:string[],selected: boolean)=>{
                     console.log(selectedRowKeys)
@@ -74,7 +91,8 @@ export const baseTable = () => {
                 }
             } as TableEvent<User>}
             
-            loadData={({page, pageSize}:{page:number,pageSize:number,param?:any,sorter?:TableSorter})=>{
+            loadData={({page, pageSize,param}:{page:number,pageSize:number,param?:any,sorter?:TableSorter})=>{
+                console.log(param)
                 return new Promise<{dataSource:User[],total:number}>((re)=>{
                     let data:User[] = []
                     for(let i = 0; i<pageSize! ;i++){
@@ -92,6 +110,7 @@ export const baseTable = () => {
                 })
             }}
         />
+        </>
     )
 }
 
@@ -99,6 +118,9 @@ export const cellEditorTable = () => {
     let tableDom : any = undefined 
 
     let columns: ColumnProps<User>[] = [{
+        dataIndex: '$index',
+        title: '#',
+    },{
         dataIndex: '$state',
         width: 100
     },{
@@ -139,7 +161,7 @@ export const cellEditorTable = () => {
                 columns={columns}
                 refExt={(self: any)=>{ tableDom = self}}
                 rowSelection = 'multiple'
-                isEditing={true}
+                editingType="cell"
                 event={{
                     onSelect:(selectedRowKeys:string[],selected: boolean)=>{
                             console.log(selectedRowKeys)
@@ -185,6 +207,9 @@ export const cellCheckboxTable = () => {
     let tableDom : any = undefined 
 
     let columns: ColumnProps<User>[] = [{
+        dataIndex: '$index',
+        title: '#',
+    },{
         dataIndex: '$state',
         width: 100
     },{
@@ -234,7 +259,7 @@ export const cellCheckboxTable = () => {
                 columns={columns}
                 refExt={(self: any)=>{ tableDom = self}}
                 rowSelection = 'multiple'
-                isEditing={true}
+                editingType="cell"
                 event={{
                 onSelect:(selectedRowKeys:string[],selected: boolean)=>{
                         console.log(selectedRowKeys)

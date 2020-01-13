@@ -7,12 +7,16 @@ import { EditableContext,EditableCell } from './EditableCell'
 import './Table.less'
 
 export interface ColumnProps<T> extends AntColumnProps<T>{
+
+
     // 是否可编辑，默认为false
     isEditing?: boolean
     // 行编辑的单元类型
     inputType?: JSX.Element
     // 校验规则
     rules?: ValidationRule[]
+    // 显示列的别名
+    aliasDataIndex?: string
 }
 
 type Props<T> = {
@@ -42,6 +46,11 @@ type Props<T> = {
      * 默认页面显示大小，默认为300条
      */
     defaultPageSize?: number
+
+    /**
+     * 用户默认参数
+     */
+    defaultParam?:any
     
     /**
      * 表格高度
@@ -71,9 +80,8 @@ type Props<T> = {
     // 无需传入，Form.create 进行创建即可
     form?: WrappedFormUtils
 
-    // 当前单元格编辑类型，cell表示单元格编辑，row表示行编辑
+    // 当前单元格编辑类型，cell表示单元格编辑，row表示行编辑,none 表示无编辑模式
     editingType?: 'cell'| 'row'
-
     // 当前表格样式
     style?: React.CSSProperties;
     
@@ -94,7 +102,6 @@ type State<T> = {
     dataSource:T[]
     total: number
     loading: boolean
-    param: any
     page: number
     pageSize: number
     sorter?: TableSorter
@@ -138,12 +145,13 @@ export type TableEvent<T> = {
  *  和后台交互的表格对象，并且可编辑
  */
 class Table<T> extends React.Component<Props<T>,State<T>>{
-    
+    // 用户查询参数
+    private REQUEST_PARAM  = {}
+
     state = {
         dataSource:[],
         total: 0,
         loading: true,
-        param:{},
         page: 1,
         pageSize: 0,
         sorter: undefined,
@@ -157,7 +165,9 @@ class Table<T> extends React.Component<Props<T>,State<T>>{
         width: '100%',
         height: 400,
         rowKey: 'id',
-        editingType: 'cell',
+        // 默认无编辑模式
+        editingType: 'row',
+        defaultParam: {},
         event: {
             onSelect:()=>{},
             onRow:()=>{},
@@ -186,17 +196,123 @@ class Table<T> extends React.Component<Props<T>,State<T>>{
         return record[rowKey] === editingKey
     }
 
-
-    /**
-     * 判断当前列是否只读，true表示只读，false表示可编辑
-     * @param column 
-     */
-    /*protected isReadOnly(column:ColumnProps<T>){
-        if(column.isEditing){
-            return true
+    // 获取当前表格操作的状态
+    protected getColumnState(column: ColumnProps<T>){
+        const  {
+            rowKey
+        } = this.props
+        const { 
+            dataSourceState
+         } = this.state
+        column.render=(text:string, record: T)=>{
+            if(
+                dataSourceState.update.filter((data)=>{ 
+                    return data[rowKey] === record[rowKey]
+                }).length > 0 ||
+                dataSourceState.create.filter((data)=>{
+                    return  data[rowKey] === record[rowKey]
+                }).length > 0
+            ){
+                return (
+                    <>
+                       <Icon type="edit" />
+                    </>
+                )
+            }
+            return (
+                <>
+                </>
+            )
         }
-        return false
-    }*/
+        column.width = 14
+    }
+
+    // 获取操作列的信息
+    protected getColumnOperating(column: ColumnProps<T>){
+        const self = this 
+        const  {
+            event,
+            form,
+            rowKey
+        } = this.props
+        column.render=(text:string, record: T)=>{
+            const editor = (
+                <>
+                    <Icon
+                        type="edit"
+                        onClick={()=>{
+                            this.setState({
+                                editingKey: record[rowKey]
+                            })
+                        }}
+                    />
+                    <Divider type='vertical' />
+
+                    <Icon
+                        type='delete'
+                        onClick={()=>{
+                            const onSave = event!.onSave 
+                            if(onSave){
+                                onSave(record,'DELETE').then((respState)=>{
+                                    if(respState !== false){
+                                        self.reload()
+                                    }
+                                })
+                            } 
+                          
+                        }}
+                    />
+                </>
+            )  
+            
+            return self.isEditing(record) ? (
+                <>
+                  <Icon
+                        type='check'
+                        onClick={()=>{
+                            const onSave = event!.onSave 
+                            if(onSave && form !== undefined){
+                                form.validateFields((err, values) => {
+                                    if(!err){
+                                        onSave({
+                                            ...record,
+                                            ...values
+                                        },'UPDATE').then((respState)=>{
+                                            if(respState !== false){
+                                                this.setState({
+                                                    editingKey: undefined
+                                                })
+                                            }
+                                        })
+                                    }
+                                })
+                            } 
+                          
+                        }}
+                    />
+                    <Divider type='vertical' />
+                    <Icon
+                        type='undo'
+                        onClick={()=>{
+                            this.setState({
+                                editingKey: undefined
+                            })
+                        }}
+                    />
+                </>
+            ) : self.state.editingKey === undefined ? editor : <></> 
+        }
+        column.width = 80
+    }
+
+    // 获取index列的信息
+    protected getColumnIndex(column: ColumnProps<T>){
+        column.render=(text: any, record: T, index: number)=>{
+            return <a>{index+1}</a>
+        }
+        column.width = 20
+        column.ellipsis = true
+    }
     /**
      * 获得当前列的信息
      */
@@ -204,9 +320,7 @@ class Table<T> extends React.Component<Props<T>,State<T>>{
         const self = this 
         const  {
             columns,
-            event,
             editingType,
-            form,
             rowKey
         } = this.props
         const { 
@@ -215,96 +329,15 @@ class Table<T> extends React.Component<Props<T>,State<T>>{
          } = this.state
         columns.forEach((column)=>{
             if(column.dataIndex === '$operating'){
-                column.render=(text:string, record: T)=>{
-                    const editor = (
-                        <>
-                            <Icon
-                                type="edit"
-                                onClick={()=>{
-                                    this.setState({
-                                        editingKey: record[rowKey]
-                                    })
-                                }}
-                            />
-                            <Divider type='vertical' />
-
-                            <Icon
-                                type='delete'
-                                onClick={()=>{
-                                    const onSave = event!.onSave 
-                                    if(onSave){
-                                        onSave(record,'DELETE').then((respState)=>{
-                                            if(respState !== false){
-                                                self.refresh()
-                                            }
-                                        })
-                                    } 
-                                  
-                                }}
-                            />
-                        </>
-                    )  
-                    
-                    return self.isEditing(record) ? (
-                        <>
-                          <Icon
-                                type='check'
-                                onClick={()=>{
-                                    const onSave = event!.onSave 
-                                    if(onSave && form !== undefined){
-                                        form.validateFields((err, values) => {
-                                            if(!err){
-                                                onSave(values,'UPDATE').then((respState)=>{
-                                                    if(respState !== false){
-                                                        this.setState({
-                                                            editingKey: undefined
-                                                        })
-                                                    }
-                                                })
-                                            }
-                                        })
-                                    } 
-                                  
-                                }}
-                            />
-                            <Divider type='vertical' />
-                            <Icon
-                                type='undo'
-                                onClick={()=>{
-                                    this.setState({
-                                        editingKey: undefined
-                                    })
-                                }}
-                            />
-                        </>
-                    ) : self.state.editingKey === undefined ? editor : <></> 
-                }
-                column.width = 80
+                // 设置操作的表格
+                this.getColumnOperating(column)
             }else if(column.dataIndex === '$state'){
-                column.render=(text:string, record: T)=>{
-                    if(
-                        dataSourceState.update.filter((data)=>{ 
-                            return data[rowKey] === record[rowKey]
-                        }).length > 0 ||
-                        dataSourceState.create.filter((data)=>{
-                            return  data[rowKey] === record[rowKey]
-                        }).length > 0
-                    ){
-                        return (
-                            <>
-                               <Icon type="edit" />
-                            </>
-                        )
-                    }
-                    return (
-                        <>
-                        </>
-                    )
-                }
-                column.width = 14
-                    
+                // 设置为状态的列
+                this.getColumnState(column)
+            }else if(column.dataIndex === '$index'){
+                // 获取index列的信息
+                this.getColumnIndex(column)
             }else{
-                
                 if(column.ellipsis === undefined){
                     column.ellipsis = true
                 }
@@ -313,6 +346,13 @@ class Table<T> extends React.Component<Props<T>,State<T>>{
                     column.sorter = true
                 }
 
+                // 如果有别名，那么显示别名信息
+                if(column.aliasDataIndex){
+                    const key:string  = column.aliasDataIndex!
+                    column.render = (text: any, record: T, index: number)=>{
+                        return <span>{record[key]}</span>
+                    }
+                }
                 // 如果属性设置为可编辑，则渲染可编辑的表格，默认为不可编辑
                 column.onCell = (record: T ,rowIndex: number)=>{
                     return {
@@ -374,17 +414,17 @@ class Table<T> extends React.Component<Props<T>,State<T>>{
     }
 
     /**
-     * 用来进行表格的数据刷新，如果无参数，就是重新请求后台
+     * 用来进行表格的数据刷新，如果参数为空，则是使用上一次的参数进行数据请求
      * @param param 刷新表格的参数
      */
-    public refresh(param?: any){
+    public reload(param?: any){
+        if(param){
+            this.REQUEST_PARAM = param
+        }
         this.requestLoadData({
             page:this.state.page,
             pageSize:this.state.pageSize! || this.props.defaultPageSize!,
-            param:{
-                ...this.state.param,
-                ...(param || {})
-            },
+            param,
             sorter:this.state.sorter
         })
     }
@@ -395,13 +435,20 @@ class Table<T> extends React.Component<Props<T>,State<T>>{
      * @param pageSize 当前页面显示的数据条数
      */
     protected requestLoadData({page, pageSize,param,sorter}:{page:number,pageSize:number,param?:any,sorter?:TableSorter}){
-       
+        const defaultParam =  this.props.defaultParam
         this.setState({
             loading: true
         })
 
         // 如果请求失败，则不做任何操作
-        this.props.loadData({page, pageSize,param,sorter}).then(({dataSource,total})=>{
+        this.props.loadData({
+            page, 
+            pageSize,
+            param:{
+                ...param,
+                ...defaultParam,
+                ...this.REQUEST_PARAM
+            },sorter}).then(({dataSource,total})=>{
             this.setState({
                 dataSource,
                 total,
@@ -469,7 +516,6 @@ class Table<T> extends React.Component<Props<T>,State<T>>{
                         this.requestLoadData({
                             page:pagination.current!,
                             pageSize:pagination.pageSize!,
-                            param: this.state.param,
                             sorter:{
                                 name: sorter.field,
                                 order: sorter.order
