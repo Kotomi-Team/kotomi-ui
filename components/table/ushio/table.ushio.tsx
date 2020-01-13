@@ -147,6 +147,12 @@ export const cellEditorTable = () => {
         dataIndex: 'six4',
         title: 'six4',
         width: 100
+    },{
+        dataIndex: '$operating#del',
+        title: '操作-删除',
+    },{
+        dataIndex: '$operating#edit',
+        title: '操作-修改',
     }]
 
     return (
