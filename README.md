@@ -1,7 +1,7 @@
 <h1 align="center">Kotomi UI</h1>
 <div align="center">基于Ant Design做的组件扩展，开发的一套组件库</div>
 
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/e250572478fe40f18b4164d325c78176)](https://www.codacy.com/gh/Kotomi-Team/kotomi-ui?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Kotomi-Team/kotomi-ui&amp;utm_campaign=Badge_Grade)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/e250572478fe40f18b4164d325c78176)](https://www.codacy.com/gh/Kotomi-Team/kotomi-ui?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Kotomi-Team/kotomi-ui&amp;utm_campaign=Badge_Grade) [NPM](https://img.shields.io/npm/dw/kotomi-ui?label=npm)
 
 ## ✨ 特性
 
