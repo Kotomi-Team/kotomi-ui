@@ -82,6 +82,7 @@ type Props<T> = {
 
     // 当前单元格编辑类型，cell表示单元格编辑，row表示行编辑,none 表示无编辑模式
     editingType?: 'cell'| 'row'
+
     // 当前表格样式
     style?: React.CSSProperties;
     
@@ -349,7 +350,7 @@ class Table<T> extends React.Component<Props<T>,State<T>>{
                 // 如果有别名，那么显示别名信息
                 if(column.aliasDataIndex){
                     const key:string  = column.aliasDataIndex!
-                    column.render = (text: any, record: T, index: number)=>{
+                    column.render = (_text: any, record: T, _index: number)=>{
                         return <span>{record[key]}</span>
                     }
                 }
