@@ -7,7 +7,7 @@ import { EditableContext, EditableCell } from './EditableCell'
 import './Table.less'
 
 export interface ColumnProps<T> extends AntColumnProps<T> {
-    // 是否可编辑，默认为false
+    // 是否可编辑，默认为true可编辑
     isEditing?: boolean
     // 行编辑的单元类型
     inputType?: JSX.Element
@@ -81,6 +81,7 @@ type Props<T> = {
     form?: WrappedFormUtils
 
     // 当前单元格编辑类型，cell表示单元格编辑，row表示行编辑,none 表示无编辑模式
+    // 如果为cell编辑模式，则表格不会触发onSave操作
     editingType?: 'cell' | 'row'
 
     // 当前表格样式
@@ -133,7 +134,7 @@ export type TableEvent<T> = {
     onRow?: (record: T, index: number) => TableEventListeners;
 
     /**
-     * 保存数据
+     * 保存数据，只针对row编辑模式，cell编辑模式下onSave事件无效
      * @param record  要操作的数据
      * @param type    当前数据变更的类型，删除更新和创建
      * @returns 如果成功则返回true，否则返回false
@@ -148,8 +149,11 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
     // 用户查询参数
     private REQUEST_PARAM = {}
 
+    // 当前用户的可编辑数据源
     private dataSourceState: DataSourceState<T> = new DataSourceState<T>()
 
+    // 当前正在编辑的cell列
+    private currentEditorCell: any[] = []
 
     state = {
         dataSource: [],
@@ -163,7 +167,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
 
     static defaultProps = {
         theme: 'small',
-        defaultPageSize: 300,
+        defaultPageSize: 100,
         width: '100%',
         height: 400,
         rowKey: 'id',
@@ -186,6 +190,32 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
             this.props.refExt(this)
         }
     }
+
+    /**
+     * 修改暂存，取消当前所有的修改状态
+     */
+    editStash() {
+        this.dataSourceState.create.splice(0)
+        this.dataSourceState.delete.splice(0)
+        this.dataSourceState.update.splice(0)
+        this.currentEditorCell.forEach(element => {
+            element.hideEdit()
+        })
+    }
+
+    editStatus(): boolean {
+        if (this.dataSourceState.create.length > 0) {
+            return true
+        }
+        if (this.dataSourceState.update.length > 0) {
+            return true
+        }
+        if (this.dataSourceState.delete.length > 0) {
+            return true
+        }
+        return false
+    }
+
 
     /**
      * 判断当前行的数据是否可以编辑
@@ -227,7 +257,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
         column.width = 14
     }
 
-    protected getColumnOperatingRender(editor:JSX.Element,record: any){
+    protected getColumnOperatingRender(editor: JSX.Element, record: any) {
         const self = this
         const {
             event,
@@ -288,7 +318,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                     />
                 </>
             )
-            return this.getColumnOperatingRender(editor,record)
+            return this.getColumnOperatingRender(editor, record)
         }
         column.width = 80
     }
@@ -317,11 +347,11 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                     />
                 </>
             )
-            return this.getColumnOperatingRender(editor,record)
+            return this.getColumnOperatingRender(editor, record)
         }
         column.width = 80
     }
-    
+
     // 获取操作列的信息
     protected getColumnOperating(column: ColumnProps<T>) {
         const self = this
@@ -357,7 +387,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                     />
                 </>
             )
-            return this.getColumnOperatingRender(editor,record)
+            return this.getColumnOperatingRender(editor, record)
         }
         column.width = 80
     }
@@ -378,7 +408,8 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
         const {
             columns,
             editingType,
-            rowKey
+            rowKey,
+            event
         } = this.props
         const {
             dataSource
@@ -388,10 +419,10 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
             if (column.dataIndex === '$operating') {
                 // 设置操作的表格
                 this.getColumnOperating(column)
-            } else if(column.dataIndex === '$operating#edit'){
+            } else if (column.dataIndex === '$operating#edit') {
                 // 只显示编辑按钮
                 this.getColumnOperatingEdit(column)
-            } else if(column.dataIndex === '$operating#del'){
+            } else if (column.dataIndex === '$operating#del') {
                 // 只显示删除按钮
                 this.getColumnOperatingDel(column)
             } else if (column.dataIndex === '$state') {
@@ -400,7 +431,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
             } else if (column.dataIndex === '$index') {
                 // 获取index列的信息
                 this.getColumnIndex(column)
-            }  else {
+            } else {
                 if (column.ellipsis === undefined) {
                     column.ellipsis = true
                 }
@@ -425,6 +456,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                         editing: this.isEditing(record),
                         editingType: editingType,
                         inputModal: column.inputModal,
+                        currentEditorCell: this.currentEditorCell,
                         onSave: async (values: T) => {
                             const newData: T[] = [...dataSource];
                             newData.forEach((data, dataIndex) => {
@@ -447,6 +479,14 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                                 dataSourceState.update.push(values)
                             }
                             self.setState({ dataSource: newData });
+                            const onSave = event!.onSave
+                            if(onSave){
+                                const respState = await onSave(values,'UPDATE')
+                                if(respState === undefined){
+                                    return true
+                                }
+                                return respState
+                            }
                             return true
                         }
                     }

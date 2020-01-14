@@ -2,6 +2,7 @@ import React from 'react'
 
 import { Table,ColumnProps,TableEvent,TableSorter } from '../Table';
 import { Button, Checkbox, Select , DatePicker} from 'antd';
+import moment from 'moment';
 
 export default { title: 'Table' };
 
@@ -209,6 +210,43 @@ export const cellEditorTable = () => {
 }
 
 
+
+class UserMoment  {
+    id: string 
+    name: string 
+    six: string
+    six1: string
+    six2: string
+    six3: string
+    six4: string
+}
+
+
+
+type Props  = {
+    value?: string 
+}
+
+class DatePickerExt extends React.Component<Props> {
+
+    private dom?: any
+
+    
+    componentDidMount(){
+        this.dom.focus()
+    }
+
+    toValue(value?:string){
+        return moment(value,'YYYY/MM/DD')
+    }
+    
+    render(){
+        const {value} = this.props
+        return <DatePicker onBlur={()=>{ console.log('onBlur')}} ref={(dom)=>{ this.dom = dom}} value = {this.toValue(value)}/>
+    }
+}
+
+
 export const cellCheckboxTable = () => {
     let tableDom : any = undefined 
 
@@ -239,7 +277,7 @@ export const cellCheckboxTable = () => {
     },{
         dataIndex: 'six1',
         title: 'six1',
-        inputType: <DatePicker />,
+        inputType: <DatePickerExt />,
         width: 100
     },{
         dataIndex: 'six2',
@@ -260,10 +298,11 @@ export const cellCheckboxTable = () => {
             <Button
                 onClick={()=>{
                     const dataSourceState = tableDom.getDataSourceState()
+                    tableDom.editStash()
                     console.log(dataSourceState)
                 }}
             > click get edit state</Button>
-            <Table<User>
+            <Table<UserMoment>
                 columns={columns}
                 refExt={(self: any)=>{ tableDom = self}}
                 rowSelection = 'multiple'
@@ -273,29 +312,22 @@ export const cellCheckboxTable = () => {
                         console.log(selectedRowKeys)
                         console.log(selected)
                     },
-                    onRow:(record:User)=>{
-                        return {
-                            onClick:()=>{
-                                console.log(record)
-                            }
-                        }
-                    },
                     onSave: async (record,type) => {
                         console.log(record)
-                        console.log(type)
                         return true
                     }
-                } as TableEvent<User>}
+                } as TableEvent<UserMoment>}
+                defaultPageSize="10"
                 loadData={({page, pageSize}:{page:number,pageSize:number,param?:any,sorter?:TableSorter})=>{
-                    return new Promise<{dataSource:User[],total:number}>((re)=>{
-                        let data:User[] = []
+                    return new Promise<{dataSource:UserMoment[],total:number}>((re)=>{
+                        let data:UserMoment[] = []
                         for(let i = 0; i<pageSize! ;i++){
                             data.push({
                                 'id':`${page} id ${i}`,
                                 'name':`${page} name`,
                                 'six':`${page} six`,
-                                'six1':`${page} six`,
-                                'six2':`${page} six`,
+                                'six1': '2018-11-11',
+                                'six2':``,
                                 'six3':`${page} six`,
                                 'six4':`${page} six`,
                             })
