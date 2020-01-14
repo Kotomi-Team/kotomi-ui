@@ -261,6 +261,7 @@ export const cellCheckboxTable = () => {
         title: 'name',
         width: 100,
         inputModal: 'display',
+        isEditing: true,
         inputType: (
             <Checkbox />
         )
@@ -268,6 +269,7 @@ export const cellCheckboxTable = () => {
         dataIndex: 'six',
         title: 'six',
         width: 100,
+        isEditing: true,
         inputType: (
           <Select style={{ width: '100px' }} defaultValue="Home">
             <Select.Option value="Home">Home</Select.Option>
@@ -277,11 +279,15 @@ export const cellCheckboxTable = () => {
     },{
         dataIndex: 'six1',
         title: 'six1',
+        isEditing: true,
         inputType: <DatePickerExt />,
         width: 100
     },{
         dataIndex: 'six2',
         title: 'six2',
+        isEditing: true,
+        inputType: <DatePickerExt />,
+
         width: 100
     },{
         dataIndex: 'six3',

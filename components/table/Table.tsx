@@ -7,7 +7,7 @@ import { EditableContext, EditableCell } from './EditableCell'
 import './Table.less'
 
 export interface ColumnProps<T> extends AntColumnProps<T> {
-    // 是否可编辑，默认为true可编辑
+    // 是否可编辑，默认为false 不可编辑
     isEditing?: boolean
     // 行编辑的单元类型
     inputType?: JSX.Element

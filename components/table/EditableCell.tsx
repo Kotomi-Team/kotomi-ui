@@ -59,16 +59,16 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
 
     // 调用此方法，在表格中不显示单元格
     hideEdit() {
-        const self = this 
-        const { onSave, record ,} = this.props
+        const self = this
+        const { onSave, record, } = this.props
         this.form.validateFields((err, values: any) => {
             if (!err) {
-                const newRecord:any = {
+                const newRecord: any = {
                     ...record
-                } 
-                Object.keys(values).forEach((key)=>{
+                }
+                Object.keys(values).forEach((key) => {
                     const recordKey = key.split(';')
-                    newRecord[recordKey[0] ] = values[key]
+                    newRecord[recordKey[0]] = values[key]
                 })
                 self.form.setFieldsValue(newRecord)
                 onSave({
@@ -95,7 +95,7 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
             initialValue: record[dataIndex],
         })(React.cloneElement(inputType, {
             ref: (input: Input) => {
-                if( input.focus){
+                if (input.focus) {
                     input.focus()
                 }
             }
@@ -127,47 +127,63 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
         return true
     }
 
+
+
     renderCell = ({ form }: { form: WrappedFormUtils }) => {
         const { editingType, restProps, children, inputModal, column, currentEditorCell, rowIndex } = this.props
         const self = this
-        this.form = form 
-        if (inputModal === 'click') {
-            // 如果为只读则不能进行编辑 或者没有dataIndex的列
-            if (!this.isEditing()) {
-                return (
-                    <div
-                        {...restProps!}
-                        className={this.getClassName()}
-                        onClick={() => {
-                            const currentKey = column.dataIndex! + rowIndex
-                            const filterKey = currentEditorCell.filter((currentDataIndex) => {
-                                return currentDataIndex.props.column.dataIndex! + currentDataIndex.props.rowIndex === currentKey
-                            })
-                            if (
-                                // 如果数据没有点击过，则可以触发保存信息
-                                filterKey.length === 0
-                                &&
-                                // 并且不是第一次点击
-                                currentEditorCell.length !== 0
-                            ) {
-                                currentEditorCell.forEach((cell) => {
-                                    cell.hideEdit()
+        this.form = form
+
+        // 如果列允许编辑
+        if ( column!== undefined && column.isEditing) {
+            if (inputModal === 'click') {
+                // 如果为只读则不能进行编辑 或者没有dataIndex的列
+                if (!this.isEditing()) {
+                    return (
+                        <div
+                            {...restProps!}
+                            className={this.getClassName()}
+                            onClick={() => {
+                                const currentKey = column.dataIndex! + rowIndex
+                                const filterKey = currentEditorCell.filter((currentDataIndex) => {
+                                    return currentDataIndex.props.column.dataIndex! + currentDataIndex.props.rowIndex === currentKey
                                 })
-                                currentEditorCell.splice(0)
-                            }
-                            currentEditorCell.push(self)
-                            // 如果是表格编辑，则表示点击即可编辑
-                            if (editingType === 'cell') {
-                                self.setState({
-                                    editing: true
-                                })
-                            }
-                        }}
-                    >
-                        {children}
-                    </div>
-                )
-            } else {
+                                if (
+                                    // 如果数据没有点击过，则可以触发保存信息
+                                    filterKey.length === 0
+                                    &&
+                                    // 并且不是第一次点击
+                                    currentEditorCell.length !== 0
+                                ) {
+                                    currentEditorCell.forEach((cell) => {
+                                        cell.hideEdit()
+                                    })
+                                    currentEditorCell.splice(0)
+                                }
+                                currentEditorCell.push(self)
+                                // 如果是表格编辑，则表示点击即可编辑
+                                if (editingType === 'cell') {
+                                    self.setState({
+                                        editing: true
+                                    })
+                                }
+                            }}
+                        >
+                            {children}
+                        </div>
+                    )
+                } else {
+                    return (
+                        <>
+                            <Form.Item>
+                                {this.renderFormItem(form)}
+                            </Form.Item>
+                        </>
+                    )
+                }
+            }
+
+            if (inputModal === 'display') {
                 return (
                     <>
                         <Form.Item>
@@ -176,18 +192,9 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
                     </>
                 )
             }
-        }
 
-        if (inputModal === 'display') {
-            return (
-                <>
-                    <Form.Item>
-                        {this.renderFormItem(form)}
-                    </Form.Item>
-                </>
-            )
         }
-
+        // 否则返回空
         return (
             <div
                 {...restProps!}
