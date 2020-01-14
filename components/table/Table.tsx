@@ -22,9 +22,13 @@ export interface ColumnProps<T> extends AntColumnProps<T> {
 type Props<T> = {
 
     /**
-     * 列的信息 
-     * $operating 用来修改数据的默认操作列
-     * $state     当前编辑状态
+     * 列的信息，以下是一些约定的dataIndex的信息 
+     * 
+     * $operating      用来修改数据的默认操作列(包含编辑和删除的列信息)
+     * $operating#edit 只显示编辑按钮的列
+     * $operating#del  只显示删除的列
+     * $state          当前编辑状态
+     * $index          序号
      */
     columns: ColumnProps<T>[]
 
@@ -82,7 +86,7 @@ type Props<T> = {
 
     // 当前单元格编辑类型，cell表示单元格编辑，row表示行编辑,none 表示无编辑模式
     // 如果为cell编辑模式，则表格不会触发onSave操作
-    editingType?: 'cell' | 'row'
+    editingType?: 'cell' | 'row' | 'none'
 
     // 当前表格样式
     style?: React.CSSProperties;
@@ -540,7 +544,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
      */
     protected requestLoadData({ page, pageSize, param, sorter }: { page: number, pageSize: number, param?: any, sorter?: TableSorter }) {
         const defaultParam = this.props.defaultParam
-        
+
         this.setState({
             loading: true,
         })
