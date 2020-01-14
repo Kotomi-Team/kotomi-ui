@@ -167,7 +167,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
 
     static defaultProps = {
         theme: 'small',
-        defaultPageSize: 100,
+        defaultPageSize: 300,
         width: '100%',
         height: 400,
         rowKey: 'id',
@@ -540,8 +540,9 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
      */
     protected requestLoadData({ page, pageSize, param, sorter }: { page: number, pageSize: number, param?: any, sorter?: TableSorter }) {
         const defaultParam = this.props.defaultParam
+        
         this.setState({
-            loading: true
+            loading: true,
         })
 
         // 如果请求失败，则不做任何操作

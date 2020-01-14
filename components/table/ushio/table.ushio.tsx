@@ -338,7 +338,10 @@ export const cellCheckboxTable = () => {
                                 'six4':`${page} six`,
                             })
                         }
-                        re({dataSource: data, total: 2000})
+                        setTimeout(()=>{
+                            re({dataSource: data, total: 2000})
+                        },3000)
+                        
                     })
                 }}
             />
