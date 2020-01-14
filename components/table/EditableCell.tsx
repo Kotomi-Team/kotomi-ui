@@ -96,7 +96,7 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
     }
 
     renderFormItem = (form: WrappedFormUtils) => {
-        const { column, record, rowIndex } = this.props
+        const { column, record, rowIndex,editingType } = this.props
         const self = this
         this.form = form
         const dataIndex: string = column.dataIndex as string
@@ -111,12 +111,10 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
                 }
             },
             onBlur: () => {
-                self.onSave('none')
+                if(editingType === 'cell'){
+                    self.onSave('none')
+                }
             },
-            // 传递给用户的完成事件
-            onFinish:() =>{
-                self.onSave('none')
-            }
         }))
     }
 

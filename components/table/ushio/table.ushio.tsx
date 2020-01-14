@@ -6,6 +6,73 @@ import moment from 'moment';
 
 export default { title: 'Table' };
 
+
+class UserMoment {
+    id: string
+    name: string
+    six: string
+    six1: string
+    six2: string
+    six3: string
+    six4: string
+}
+
+
+
+type Props = {
+    value?: string
+    onChange?: (value: string) => void
+    onFinish?: () => void
+}
+
+class DatePickerExt extends React.Component<Props> {
+
+    private dom?: any
+
+
+    componentDidMount() {
+        this.dom.focus()
+    }
+
+    toValue(value?: string) {
+        return moment(value, 'YYYY/MM/DD')
+    }
+
+    render() {
+        const { value } = this.props
+        return <DatePicker onBlur={() => { console.log('onBlur') }} ref={(dom) => { this.dom = dom }} value={this.toValue(value)} />
+    }
+}
+
+class CheckboxExt extends React.Component<Props>{
+
+    toValue(value?: string): boolean {
+        return value === '0' ? true : false
+    }
+
+    render() {
+        const { value, onChange, onFinish } = this.props
+        const defaultValue = value === '0' ? [] : ['1']
+        return (
+            <Checkbox.Group
+                value={defaultValue}
+                onChange={(values) => {
+                    if (values.length === 0) {
+                        onChange!('0')
+                    } else {
+                        onChange!('1')
+                    }
+                    if (onFinish) {
+                        onFinish()
+                    }
+                }}>
+                <Checkbox value="1" />
+            </Checkbox.Group>
+        )
+    }
+}
+
+
 class User {
     id: string
     name: string
@@ -115,7 +182,7 @@ export const baseTable = () => {
     )
 }
 
-export const cellEditorTable = () => {
+export const rowEditorTable = () => {
     let tableDom: any = undefined
 
     let columns: ColumnProps<User>[] = [{
@@ -127,14 +194,20 @@ export const cellEditorTable = () => {
     }, {
         dataIndex: 'name',
         title: 'name',
+        isEditing: true,
         width: 100
     }, {
         dataIndex: 'six',
         title: 'six',
-        width: 100
+        isEditing: true,
+        width: 100,
+        inputType: (
+            <CheckboxExt />
+        )
     }, {
         dataIndex: 'six1',
         title: 'six1',
+        isEditing: true,
         width: 100
     }, {
         dataIndex: 'six2',
@@ -148,10 +221,10 @@ export const cellEditorTable = () => {
         dataIndex: 'six4',
         title: 'six4',
         width: 100
-    }, {
+    }/*, {
         dataIndex: '$operating#del',
         title: '操作-删除',
-    }, {
+    }*/, {
         dataIndex: '$operating#edit',
         title: '操作-修改',
     }]
@@ -168,7 +241,7 @@ export const cellEditorTable = () => {
                 columns={columns}
                 refExt={(self: any) => { tableDom = self }}
                 rowSelection='multiple'
-                editingType="cell"
+                editingType="row"
                 event={{
                     onSelect: (selectedRowKeys: string[], selected: boolean) => {
                         console.log(selectedRowKeys)
@@ -210,71 +283,6 @@ export const cellEditorTable = () => {
 }
 
 
-
-class UserMoment {
-    id: string
-    name: string
-    six: string
-    six1: string
-    six2: string
-    six3: string
-    six4: string
-}
-
-
-
-type Props = {
-    value?: string
-    onChange?: (value: string) => void
-    onFinish?: () => void
-}
-
-class DatePickerExt extends React.Component<Props> {
-
-    private dom?: any
-
-
-    componentDidMount() {
-        this.dom.focus()
-    }
-
-    toValue(value?: string) {
-        return moment(value, 'YYYY/MM/DD')
-    }
-
-    render() {
-        const { value } = this.props
-        return <DatePicker onBlur={() => { console.log('onBlur') }} ref={(dom) => { this.dom = dom }} value={this.toValue(value)} />
-    }
-}
-
-class CheckboxExt extends React.Component<Props>{
-
-    toValue(value?: string): boolean {
-        return value === '0' ? true : false
-    }
-
-    render() {
-        const { value, onChange, onFinish } = this.props
-        const defaultValue = value === '0' ? [] : ['1']
-        return (
-            <Checkbox.Group
-                value={defaultValue}
-                onChange={(values) => {
-                    if (values.length === 0) {
-                        onChange!('0')
-                    } else {
-                        onChange!('1')
-                    }
-                    if (onFinish) {
-                        onFinish()
-                    }
-                }}>
-                <Checkbox value="1" />
-            </Checkbox.Group>
-        )
-    }
-}
 
 
 export const cellCheckboxTable = () => {
