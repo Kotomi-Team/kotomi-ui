@@ -203,7 +203,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
         this.dataSourceState.delete.splice(0)
         this.dataSourceState.update.splice(0)
         this.currentEditorCell.forEach(element => {
-            element.hideEdit()
+            element.onSave('hide')
         })
     }
 
@@ -471,6 +471,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
 
                                 }
                             })
+                            
                             if (dataSourceState.update.filter((data) => data[rowKey] === values[rowKey]).length > 0) {
                                 dataSourceState.update.forEach((element, elementIndex) => {
                                     if (element[rowKey] === values[rowKey]) {

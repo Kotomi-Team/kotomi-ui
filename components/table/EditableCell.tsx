@@ -57,10 +57,13 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
         })
     }
 
-    // 调用此方法，在表格中不显示单元格
-    hideEdit() {
+    /**
+     * 调用onSave的方法
+     * @param isHideComponent hide 表示隐藏表格上的输入组件，none 表示不做任何操作
+     */
+    onSave(isHideComponent: 'hide' | 'none') {
         const self = this
-        const { onSave, record, } = this.props
+        const { onSave, record, rowIndex} = this.props
         this.form.validateFields((err, values: any) => {
             if (!err) {
                 const newRecord: any = {
@@ -68,7 +71,11 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
                 }
                 Object.keys(values).forEach((key) => {
                     const recordKey = key.split(';')
-                    newRecord[recordKey[0]] = values[key]
+
+                    // 修复一列多个输入组件导致的BUG
+                    if(Number.parseInt(recordKey[1]) === rowIndex){
+                        newRecord[recordKey[0]] = values[key]
+                    }
                 })
                 self.form.setFieldsValue(newRecord)
                 onSave({
@@ -76,9 +83,12 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
                 }, 'UPDATE').then((respState) => {
                     // 成功则隐藏单元格
                     if (respState) {
-                        self.setState({
-                            editing: false
-                        })
+                        // 如果隐藏组件，则隐藏
+                        if (isHideComponent === 'hide') {
+                            self.setState({
+                                editing: false
+                            })
+                        }
                     }
                 })
             }
@@ -87,6 +97,7 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
 
     renderFormItem = (form: WrappedFormUtils) => {
         const { column, record, rowIndex } = this.props
+        const self = this
         this.form = form
         const dataIndex: string = column.dataIndex as string
         const inputType: JSX.Element = column!.inputType || <Input />
@@ -98,6 +109,13 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
                 if (input.focus) {
                     input.focus()
                 }
+            },
+            onBlur: () => {
+                self.onSave('none')
+            },
+            // 传递给用户的完成事件
+            onFinish:() =>{
+                self.onSave('none')
             }
         }))
     }
@@ -135,7 +153,7 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
         this.form = form
 
         // 如果列允许编辑
-        if ( column!== undefined && column.isEditing) {
+        if (column !== undefined && column.isEditing) {
             if (inputModal === 'click') {
                 // 如果为只读则不能进行编辑 或者没有dataIndex的列
                 if (!this.isEditing()) {
@@ -156,7 +174,7 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
                                     currentEditorCell.length !== 0
                                 ) {
                                     currentEditorCell.forEach((cell) => {
-                                        cell.hideEdit()
+                                        cell.onSave('hide')
                                     })
                                     currentEditorCell.splice(0)
                                 }
