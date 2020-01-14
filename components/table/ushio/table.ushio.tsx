@@ -312,7 +312,7 @@ export const cellCheckboxTable = () => {
                         console.log(selectedRowKeys)
                         console.log(selected)
                     },
-                    onSave: async (record,type) => {
+                    onSave: async (record) => {
                         console.log(record)
                         return true
                     }
