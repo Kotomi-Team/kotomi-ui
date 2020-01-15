@@ -30,30 +30,10 @@ npm install kotomi-ui --save
 yarn add kotomi-ui
 ```
 
-## 🔨 示例
+## 🔨 文档
 
-```jsx
-import { Form } from 'kotomi-ui';
-const App = () => (
-  <>
-    <Form
-        script={`
-            [name|Field1 drop 8]        [code|Field2 input 8 ]        [code1|Field3 input 8]
-            [name1|Field4 input 8]       [code2|Field5 input 16-2-22]
-            [name2|Field6 input 16-2-22] [code3|Field7 input 8]
-        `}
-        rules={[{
-            name:'name',
-            rules:[{ required: true, message: '请输入用户名' }]
-        }]}
-        components={[{
-            name: 'drop',
-            component: <Input />
-        } ]}
-    />
-  </>
-);
-```
+- [Table 说明以及使用文档](./components/table/Table.md)
+
 
 ## 🔗 链接
 

@@ -89,7 +89,7 @@ type Props<T> = {
     editingType?: 'cell' | 'row' | 'none'
 
     // 当前表格样式
-    style?: React.CSSProperties;
+    style?: React.CSSProperties
 
     // 扩展的表格信息
     refExt?: (self: Table<T>) => void
@@ -135,10 +135,10 @@ export type TableEvent<T> = {
      * @param record 当前行的数据
      * @param index  当前行的索引
      */
-    onRow?: (record: T, index: number) => TableEventListeners;
+    onRow?: (record: T, index: number) => TableEventListeners
 
     /**
-     * 保存数据，只针对row编辑模式，cell编辑模式下onSave事件无效
+     * 保存数据，对row编辑模式，点击保存即可触发，cell编辑模式下onSave会在点击下一个单元格的时候触发
      * @param record  要操作的数据
      * @param type    当前数据变更的类型，删除更新和创建
      * @returns 如果成功则返回true，否则返回false
