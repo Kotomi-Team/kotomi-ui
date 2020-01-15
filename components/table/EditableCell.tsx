@@ -61,42 +61,46 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
      * 调用onSave的方法
      * @param isHideComponent hide 表示隐藏表格上的输入组件，none 表示不做任何操作
      */
-    onSave(isHideComponent: 'hide' | 'none') {
-        const self = this
-        const { onSave, record, rowIndex} = this.props
-        this.form.validateFields((err, values: any) => {
-            if (!err) {
-                const newRecord: any = {
-                    ...record
-                }
-                Object.keys(values).forEach((key) => {
-                    const recordKey = key.split(';')
-
-                    // 修复一列多个输入组件导致的BUG
-                    if(Number.parseInt(recordKey[1]) === rowIndex){
-                        newRecord[recordKey[0]] = values[key]
+    onSave(isHideComponent: 'hide' | 'none'):Promise<void> {
+        return new Promise((resolve, reject)=>{
+            const self = this
+            const { onSave, record, rowIndex } = this.props
+            this.form.validateFields((err, values: any) => {
+                if (!err) {
+                    const newRecord: any = {
+                        ...record
                     }
-                })
-                self.form.setFieldsValue(newRecord)
-                onSave({
-                    ...newRecord
-                }, 'UPDATE').then((respState) => {
-                    // 成功则隐藏单元格
-                    if (respState) {
-                        // 如果隐藏组件，则隐藏
-                        if (isHideComponent === 'hide') {
-                            self.setState({
-                                editing: false
-                            })
+                    Object.keys(values).forEach((key) => {
+                        const recordKey = key.split(';')
+    
+                        // 修复一列多个输入组件导致的BUG
+                        if (Number.parseInt(recordKey[1]) === rowIndex) {
+                            newRecord[recordKey[0]] = values[key]
                         }
-                    }
-                })
-            }
+                    })
+                    self.form.setFieldsValue(newRecord)
+                    onSave({
+                        ...newRecord
+                    }, 'UPDATE').then((respState)=>{
+                        // 成功则隐藏单元格
+                        if (respState) {
+                            // 如果隐藏组件，则隐藏
+                            if (isHideComponent === 'hide') {
+                                self.setState({
+                                    editing: false
+                                })
+                            }
+                        }
+                        resolve()
+                    })
+                }
+            })
+            
         })
     }
 
     renderFormItem = (form: WrappedFormUtils) => {
-        const { column, record, rowIndex,editingType } = this.props
+        const { column, record, rowIndex, editingType } = this.props
         const self = this
         this.form = form
         const dataIndex: string = column.dataIndex as string
@@ -111,7 +115,7 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
                 }
             },
             onBlur: () => {
-                if(editingType === 'cell'){
+                if (editingType === 'cell') {
                     self.onSave('none')
                 }
             },
