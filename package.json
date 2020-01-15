@@ -1,6 +1,6 @@
 {
   "name": "kotomi-ui",
-  "version": "0.0.29",
+  "version": "0.0.30",
   "description": "基于Ant Design做的组件扩展，开发的一套组件库",
   "scripts": {
     "start": "start-storybook -p 3000",
@@ -15,7 +15,7 @@
   ],
   "repository": "https://github.com/Kotomi-Team/kotomi-ui",
   "homepage": "https://github.com/Kotomi-Team/kotomi-ui",
-  "keywords": [],
+  "keywords": ["React","Ant Design","Table"],
   "author": "zhangj",
   "license": "MIT",
   "husky": {

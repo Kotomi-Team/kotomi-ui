@@ -175,12 +175,16 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
                                     // 并且不是第一次点击
                                     currentEditorCell.length !== 0
                                 ) {
-                                    currentEditorCell.forEach((cell) => {
-                                        cell.onSave('hide')
-                                    })
-                                    currentEditorCell.splice(0)
+                                    if(editingType === 'cell'){
+                                        currentEditorCell.forEach((cell) => {
+                                            cell.onSave('hide')
+                                        })
+                                        currentEditorCell.splice(0)
+                                    }
                                 }
-                                currentEditorCell.push(self)
+                                if(editingType === 'cell'){
+                                    currentEditorCell.push(self)
+                                }
                                 // 如果是表格编辑，则表示点击即可编辑
                                 if (editingType === 'cell') {
                                     self.setState({
