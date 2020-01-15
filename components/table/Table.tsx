@@ -193,20 +193,26 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
         if (this.props.refExt) {
             this.props.refExt(this)
         }
+
     }
 
     /**
      * 修改暂存，取消当前所有的修改状态
      */
     editStash() {
-        this.dataSourceState.create.splice(0)
-        this.dataSourceState.delete.splice(0)
-        this.dataSourceState.update.splice(0)
+        const self = this
+        const promises: Promise<void>[] = []
         this.currentEditorCell.forEach(element => {
-            element.onSave('hide')
+            promises.push(element.onSave('hide'))
         })
-        this.setState({})
+        Promise.all(promises).then(() => {
+            self.dataSourceState.create.splice(0)
+            self.dataSourceState.delete.splice(0)
+            self.dataSourceState.update.splice(0)
+            self.setState({})
+        })
     }
+
 
     editStatus(): boolean {
         if (this.dataSourceState.create.length > 0) {
@@ -277,9 +283,15 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                         if (onSave && form !== undefined) {
                             form.validateFields((err, values) => {
                                 if (!err) {
+                                    const newRecord: any = {
+                                        ...record
+                                    }
+                                    Object.keys(values).forEach((key) => {
+                                        const recordKey = key.split(';')
+                                        newRecord[recordKey[0]] = values[key]
+                                    })
                                     onSave({
-                                        ...record,
-                                        ...values
+                                        ...newRecord
                                     }, 'UPDATE').then((respState) => {
                                         if (respState !== false) {
                                             this.setState({
@@ -463,6 +475,8 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                         inputModal: column.inputModal,
                         currentEditorCell: this.currentEditorCell,
                         onSave: async (values: T) => {
+
+                            // 修改表格中的数据
                             const newData: T[] = [...dataSource];
                             newData.forEach((data, dataIndex) => {
                                 if (data[rowKey] === values[rowKey]) {
@@ -474,21 +488,29 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                             })
 
                             if (dataSourceState.update.filter((data) => data[rowKey] === values[rowKey]).length > 0) {
-                                dataSourceState.update.forEach((element, elementIndex) => {
+                                // 如果这个属性存在于更新状态中，则修改更新状态中的数据
+                                const { update } = dataSourceState
+                                for (let i = 0; i < update.length; i += 1) {
+                                    const element = update[i]
                                     if (element[rowKey] === values[rowKey]) {
-                                        dataSourceState.update.splice(elementIndex, 1, {
-                                            ...values
-                                        })
+                                        // 如果已经改变过状态，设置状态为可改变状态
+                                        if (JSON.stringify(element) !== JSON.stringify(values)) {
+                                            dataSourceState.update.splice(i, 1, {
+                                                ...values
+                                            })
+                                        }
+                                        break
                                     }
-                                });
+                                }
                             } else {
+                                // 如果不存在与update中，则添加一个标识信息
                                 dataSourceState.update.push(values)
                             }
                             self.setState({ dataSource: newData });
                             const onSave = event!.onSave
-                            if(onSave){
-                                const respState = await onSave(values,'UPDATE')
-                                if(respState === undefined){
+                            if (onSave) {
+                                const respState = await onSave(values, 'UPDATE')
+                                if (respState === undefined) {
                                     return true
                                 }
                                 return respState
@@ -650,6 +672,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                         y: this.props.height
                     }}
                 />
+
             </EditableContext.Provider>
         )
     }

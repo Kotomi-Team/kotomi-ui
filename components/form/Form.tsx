@@ -135,67 +135,68 @@ class Form extends React.Component<Props & FormComponentProps, State> {
             const respArray: FormItemProps[][] = []
             
             splitScript.forEach((singleRowScript) => {
-                const matchs = singleRowScript['matchAll'](/\[.*?\]/g)
+                const matchs = singleRowScript.match(/\[.*?\]/g)
                 const rowData: FormItemProps[] = []
-                for (const realString of matchs) {
-                    const config = realString.pop()
-                    if (config) {
-                        const realConfig = config.replace(/\[/g, '').replace(/\]/g, '').split(/\s/g)
-                        if(realConfig.length < 2){
-                            // 如果参数小于二个则直接跳过
-                            continue;
-                        }
-
-                        const fromItemProps = new FormItemProps()
-
-                        if(realConfig[0].split('|').length >= 1){
-                            fromItemProps.name = realConfig[0].split('|')[0].trim()
-                        }
-                        if(realConfig[0].split('|').length >= 2){
-                            fromItemProps.label =  realConfig[0].split('|')[1].trim()
-                        }
-                         
-                        // 添加组件
-                        fromItemProps.component = components.filter((component) => { 
-                            return component.name.trim() === realConfig[1].trim()
-                         })[0]
-
-                         const rulesFilter = rules.filter(rule =>  {
-                            return rule.name === fromItemProps.name 
-                        })
-                        
-                        if(rulesFilter.length > 0){
-                            // 设置校验规则
-                            fromItemProps.rules = rulesFilter[0].rules
-                        }
-                        
-                        // 设置默认值
-                        fromItemProps.initialValue = (initialValues || {})[fromItemProps.name]
-
-                        // START 设置当前组件的span大小
-                        if (realConfig[2] === undefined) {
-                            let span = 24
-                            rowData.forEach((colData) => {
-                                span = - colData.span
+                if(matchs){
+                    matchs.forEach((config)=>{
+                        if (config) {
+                            const realConfig = config.replace(/\[/g, '').replace(/\]/g, '').split(/\s/g)
+                            if(realConfig.length < 2){
+                                // 如果参数小于二个则直接跳过
+                                return ;
+                            }
+    
+                            const fromItemProps = new FormItemProps()
+    
+                            if(realConfig[0].split('|').length >= 1){
+                                fromItemProps.name = realConfig[0].split('|')[0].trim()
+                            }
+                            if(realConfig[0].split('|').length >= 2){
+                                fromItemProps.label =  realConfig[0].split('|')[1].trim()
+                            }
+                             
+                            // 添加组件
+                            fromItemProps.component = components.filter((component) => { 
+                                return component.name.trim() === realConfig[1].trim()
+                             })[0]
+    
+                             const rulesFilter = rules.filter(rule =>  {
+                                return rule.name === fromItemProps.name 
                             })
-                            fromItemProps.span = span
-                        } else {
-                            const cols = realConfig[2].split('-')
-                            fromItemProps.span = Number.parseInt(cols[0])
-                            if(cols[1]){
-                                fromItemProps.labelCol = {
-                                    md: Number.parseInt(cols[1])
+                            
+                            if(rulesFilter.length > 0){
+                                // 设置校验规则
+                                fromItemProps.rules = rulesFilter[0].rules
+                            }
+                            
+                            // 设置默认值
+                            fromItemProps.initialValue = (initialValues || {})[fromItemProps.name]
+    
+                            // START 设置当前组件的span大小
+                            if (realConfig[2] === undefined) {
+                                let span = 24
+                                rowData.forEach((colData) => {
+                                    span = - colData.span
+                                })
+                                fromItemProps.span = span
+                            } else {
+                                const cols = realConfig[2].split('-')
+                                fromItemProps.span = Number.parseInt(cols[0])
+                                if(cols[1]){
+                                    fromItemProps.labelCol = {
+                                        md: Number.parseInt(cols[1])
+                                    }
+                                }
+                                if(cols[2]){
+                                    fromItemProps.wrapperCol =  {
+                                        md: Number.parseInt(cols[2])
+                                    }
                                 }
                             }
-                            if(cols[2]){
-                                fromItemProps.wrapperCol =  {
-                                    md: Number.parseInt(cols[2])
-                                }
-                            }
+                            // END
+                            rowData.push(fromItemProps)
                         }
-                        // END
-                        rowData.push(fromItemProps)
-                    }
+                    })
                 }
                 respArray.push(rowData)
             })
