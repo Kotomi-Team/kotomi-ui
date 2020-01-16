@@ -62,13 +62,26 @@ type Props = {
      */
     components?: EditorComponent[]
 
+    event?: FormEvent
+
     // 扩展的表格信息
     refExt?: (form: WrappedFormUtils)=> void
 }
 
+
+
+
 type State = {
 }
 
+
+export type FormEvent= {
+    /**
+     * 表格数据改变后触发的事件。
+     */
+    onValuesChange?:(changedValues: any, allValues: any) => void
+    
+}
 class FormItemProps {
     name: string
     span: number
@@ -282,6 +295,15 @@ class Form extends React.Component<Props & FormComponentProps, State> {
     }
 }
 
-const ScriptForm = AntForm.create<Props & FormComponentProps>()(Form);
+const ScriptForm = AntForm.create<Props & FormComponentProps>({
+    onValuesChange:(props, changedValues: any, allValues: any)=>{
+        if(props.event){
+            if(props.event.onValuesChange){
+                const { onValuesChange } = props.event
+                onValuesChange(changedValues, allValues)
+            }
+        }
+    }
+})(Form);
 
 export { ScriptForm as Form };
