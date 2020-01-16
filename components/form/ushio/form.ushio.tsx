@@ -23,6 +23,12 @@ export const baseForm = () => {
                 name: 'drop',
                 component: <Input />
             }]}
+            event={{
+                onValuesChange:(changedValues: any, allValues: any)=>{
+                    console.log(changedValues)
+                    console.log(allValues)
+                }
+            }}
         />
     )
 }
