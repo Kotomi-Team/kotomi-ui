@@ -187,15 +187,15 @@ export const rowEditorTable = () => {
 
     let columns: ColumnProps<User>[] = [{
         dataIndex: '$index',
-        title: '#',
     }, {
         dataIndex: '$state',
         width: 100
     }, {
         dataIndex: 'name',
         title: 'name',
+        align: 'center',
         isEditing: true,
-        width: 100
+        width: 300
     }, {
         dataIndex: 'six',
         title: 'six',
@@ -258,6 +258,14 @@ export const rowEditorTable = () => {
                         console.log(record)
                         console.log(type)
                         return true
+                    },
+                    onBeforeRenderPromiseColumn:(record:User , column: ColumnProps<User> ,render: JSX.Element)=>{
+                        if(column.dataIndex === '$operating#edit'){
+                            if(record.id === '1 id 1'){
+                                return <></>
+                            }
+                        }
+                        return render
                     }
                 } as TableEvent<User>}
                 loadData={({ page, pageSize }: { page: number, pageSize: number, param?: any, sorter?: TableSorter }) => {

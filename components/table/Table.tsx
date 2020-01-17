@@ -144,6 +144,15 @@ export type TableEvent<T> = {
      * @returns 如果成功则返回true，否则返回false
      */
     onSave?: (record: T, type: 'DELETE' | 'UPDATE' | 'CREATE') => Promise<boolean>
+
+    /**
+     * 在渲染约定的特殊列之前所做的操作
+     * @param record 当前列的数据信息
+     * @param column 当前的列的信息
+     * @param render 当前数据渲染的react的节点数据
+     * @returns 返回一个react组件对象
+     */
+    onBeforeRenderPromiseColumn?:(record:T , column: ColumnProps<T> ,render: JSX.Element) => JSX.Element
 }
 
 /**
@@ -181,7 +190,11 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
         event: {
             onSelect: () => { },
             onRow: () => { },
-            onSave: () => { }
+            onSave: () => { },
+            // 默认返回默认dom节点
+            onBeforeRenderPromiseColumn: (_record: any , _column: any ,render: JSX.Element) => {
+                return render
+            }
         }
     }
 
@@ -268,7 +281,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
         column.width = 14
     }
 
-    protected getColumnOperatingRender(editor: JSX.Element, record: any) {
+    protected getColumnOperatingRender(editor: JSX.Element, record: any) : JSX.Element {
         const self = this
         const {
             event,
@@ -320,7 +333,8 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
 
     protected getColumnOperatingEdit(column: ColumnProps<T>) {
         const {
-            rowKey
+            rowKey,
+            event
         } = this.props
         column.render = (_text: string, record: T) => {
             const editor = (
@@ -335,7 +349,11 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                     />
                 </>
             )
-            return this.getColumnOperatingRender(editor, record)
+            const columnOperatingRender = this.getColumnOperatingRender(editor, record)
+            if(event && event.onBeforeRenderPromiseColumn){
+                return event.onBeforeRenderPromiseColumn(record,column,columnOperatingRender)
+            }
+            return columnOperatingRender
         }
         column.width = 80
     }
@@ -364,7 +382,10 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                     />
                 </>
             )
-            return this.getColumnOperatingRender(editor, record)
+            if(event && event.onBeforeRenderPromiseColumn){
+                return event.onBeforeRenderPromiseColumn(record,column,editor)
+            }
+            return editor
         }
         column.width = 80
     }
@@ -404,7 +425,12 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                     />
                 </>
             )
-            return this.getColumnOperatingRender(editor, record)
+
+            const operatingRender = this.getColumnOperatingRender(editor, record)
+            if(event && event.onBeforeRenderPromiseColumn){
+                return event.onBeforeRenderPromiseColumn(record,column,operatingRender)
+            }
+            return operatingRender
         }
         column.width = 80
     }
@@ -414,8 +440,15 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
         column.render = (text: any, record: T, index: number) => {
             return <a>{index + 1}</a>
         }
-        column.width = 20
-        column.ellipsis = true
+        if(column.width === undefined){
+            column.width = 20
+        }
+        if(column.ellipsis === undefined){
+            column.ellipsis = true
+        }
+        if(column.title === undefined){
+            column.title = '#'
+        }
     }
     /**
      * 获得当前列的信息
@@ -452,9 +485,13 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                 if (column.ellipsis === undefined) {
                     column.ellipsis = true
                 }
-                if (column.sortDirections === undefined) {
+
+                if (column.sortDirections === undefined 
+                    && 
+                    column.sorter === true
+                ) {
+                    // 默认显示升序，和倒序排序
                     column.sortDirections = ['descend', 'ascend']
-                    column.sorter = true
                 }
 
                 // 如果有别名，那么显示别名信息
