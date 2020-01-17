@@ -18,7 +18,6 @@ type Props<T> = {
     editingType?: 'cell' | 'row'
     // 用户触发保存的信息
     onSave: (record: T, type: 'DELETE' | 'UPDATE' | 'CREATE') => Promise<boolean>
-    restProps?: any
     // 显示模式，点击编辑，或者直接显示
     inputModal?: 'click' | 'display'
     // 当前正在编辑的cell
@@ -147,13 +146,11 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
         return true
     }
 
-
-
     renderCell = ({ form }: { form: WrappedFormUtils }) => {
-        const { editingType, restProps, children, inputModal, column, currentEditorCell, rowIndex } = this.props
+        const { editingType, children, inputModal, column, currentEditorCell, rowIndex } = this.props
         const self = this
         this.form = form
-
+        const textAlign = column === undefined ?  undefined : column.align
         // 如果列允许编辑
         if (column !== undefined && column.isEditing) {
             if (inputModal === 'click') {
@@ -161,7 +158,9 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
                 if (!this.isEditing()) {
                     return (
                         <div
-                            {...restProps!}
+                            style={{
+                                textAlign
+                            }}
                             className={this.getClassName()}
                             onClick={() => {
                                 const currentKey = column.dataIndex! + rowIndex
@@ -221,7 +220,9 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
         // 否则返回空
         return (
             <div
-                {...restProps!}
+                style={{
+                    textAlign
+                }}
             >
                 {children}
             </div>
