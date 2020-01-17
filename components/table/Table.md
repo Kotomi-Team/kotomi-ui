@@ -11,7 +11,7 @@
 |defaultPageSize |number         |300     | 默认当前表格显示的数据大小，默认为显示300条数据
 |defaultParam    |any            |{}      | 请求数据的默认带参数，设置此参数，会在每次请求的时候都会带上此参数信息，建议在第一次加载数据的时候进行设置，不要通过setState来进行控制
 |height          |boolean `|` number `|` string  | 400 | 表格的高度，默认为400px
-|width           |boolean `|` number `|` string  | `'100%'` | 表格的宽度，默认为百分之百
+|width           |boolean `|` number `|` string  | `100%` | 表格的宽度，默认为百分之百
 |rowKey          |string         | `id`       | 当前表格默认的rowKey，默认为id字段，可手动设置为其他字段
 |rowSelection   | 'single' `|` 'multiple' `|` undefined `|` undefined | 表格的选择模式，默认为undefined不显示选择框
 |editingType    | 'cell' `|` 'row' `|` 'none' | 'none' | 当前单元格编辑类型，cell表示单元格编辑，row表示行编辑,none 表示无编辑模式
@@ -26,7 +26,7 @@
 |onSelect   |(selectedRowKeys: string[], selected: boolean) => void   |        | 用户点击选择框选中，或者取消的时候触发的事件
 |onRow      |(record: T, index: number) => TableEventListeners        |        |用户点击当前行触发的事件。
 |onSave     | (record: T, type: 'DELETE' | 'UPDATE' | 'CREATE') => Promise<boolean>| | 用户编辑保存会触发他的onSave事件。
-
+|onBeforeRenderPromiseColumn     | (record:T , column: ColumnProps<T> ,render: JSX.Element) => JSX.Element| |渲染特殊单元格触发的事件
 
 > 保存数据，只针对row编辑模式，cell编辑模式下onSave会在点击下一个单元格的时候触发
 
