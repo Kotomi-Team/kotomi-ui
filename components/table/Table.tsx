@@ -625,6 +625,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                 total,
                 loading: false
             })
+            this.editStash()
         })
     }
 

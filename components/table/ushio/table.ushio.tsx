@@ -337,11 +337,13 @@ export const cellCheckboxTable = () => {
         width: 100
     }, {
         dataIndex: 'six3',
+        isEditing: true,
         title: 'six3',
         width: 100
     }, {
         dataIndex: 'six4',
         title: 'six4',
+        isEditing: true,
         width: 100
     }]
 
