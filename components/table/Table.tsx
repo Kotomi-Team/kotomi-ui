@@ -41,6 +41,13 @@ type Props<T> = {
      */
     loadData({ page, pageSize, param, sorter }: { page: number, pageSize: number, param?: any, sorter?: TableSorter }): Promise<{ dataSource: T[], total: number }>
 
+
+    /**
+     * 是否在第一次自动装载数据，默认为true装载
+     */
+    isAutoLoadData?: boolean
+
+
     /**
      * 表格显示大小
      */
@@ -186,6 +193,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
         rowKey: 'id',
         // 默认无编辑模式
         editingType: 'row',
+        isAutoLoadData: true,
         defaultParam: {},
         event: {
             onSelect: () => { },
@@ -199,12 +207,16 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
     }
 
     componentDidMount() {
-        this.requestLoadData({
-            page: 1,
-            pageSize: this.props.defaultPageSize!
-        })
-        if (this.props.refExt) {
-            this.props.refExt(this)
+        const { isAutoLoadData } = this.props
+        
+        if(isAutoLoadData){
+            this.requestLoadData({
+                page: 1,
+                pageSize: this.props.defaultPageSize!
+            })
+            if (this.props.refExt) {
+                this.props.refExt(this)
+            }
         }
 
     }
