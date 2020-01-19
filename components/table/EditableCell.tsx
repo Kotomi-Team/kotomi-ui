@@ -77,7 +77,6 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
                             newRecord[recordKey[0]] = values[key]
                         }
                     })
-                    self.form.setFieldsValue(newRecord)
                     onSave({
                         ...newRecord
                     }, 'UPDATE').then((respState)=>{
@@ -110,7 +109,9 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
         })(React.cloneElement(inputType, {
             ref: (input: Input) => {
                 if (input.focus) {
-                    input.focus()
+                    if(column.inputModal === 'click'){
+                        input.focus()
+                    }
                 }
             },
             onBlur: () => {
