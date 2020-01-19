@@ -175,6 +175,10 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
     // 当前正在编辑的cell列
     private currentEditorCell: any[] = []
 
+    // 默认鼠标移动到表格之外
+    private tableMouseOut:boolean = true
+
+
     state = {
         dataSource: [],
         total: 0,
@@ -226,16 +230,21 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
      */
     editStash() {
         const self = this
-        const promises: Promise<void>[] = []
-        this.currentEditorCell.forEach(element => {
-            promises.push(element.onSave('hide'))
-        })
-        Promise.all(promises).then(() => {
+        this.editHide().then(() => {
             self.dataSourceState.create.splice(0)
             self.dataSourceState.delete.splice(0)
             self.dataSourceState.update.splice(0)
             self.setState({})
         })
+    }
+
+
+    protected editHide(): Promise<void[]>{
+        const promises: Promise<void>[] = []
+        this.currentEditorCell.forEach(element => {
+            promises.push(element.onSave('hide'))
+        })
+        return Promise.all(promises)
     }
 
 
@@ -298,7 +307,11 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
         const {
             event,
             form,
+            rowKey,
         } = this.props
+        const {
+            dataSource
+        } = this.state
         return self.isEditing(record) ? (
             <>
                 <Icon
@@ -307,6 +320,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                         const onSave = event!.onSave
                         if (onSave && form !== undefined) {
                             form.validateFields((err, values) => {
+   
                                 if (!err) {
                                     const newRecord: any = {
                                         ...record
@@ -315,12 +329,23 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                                         const recordKey = key.split(';')
                                         newRecord[recordKey[0]] = values[key]
                                     })
+                                    
                                     onSave({
                                         ...newRecord
                                     }, 'UPDATE').then((respState) => {
                                         if (respState !== false) {
-                                            this.setState({
-                                                editingKey: undefined
+                                            // 修改表格中的数据
+                                            const newData: T[] = [...dataSource];
+                                            newData.forEach((data, dataIndex) => {
+                                                if (data[rowKey] === newRecord[rowKey]) {
+                                                    newData.splice(dataIndex, 1, {
+                                                        ...newRecord
+                                                    });
+                                                }
+                                            })
+                                            self.setState({
+                                                editingKey: undefined,
+                                                dataSource: newData
                                             })
                                         }
                                     })
@@ -669,61 +694,76 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
 
     render() {
         return (
-            <EditableContext.Provider value={{
-                form: this.props.form
-            }}>
-                <AntTable
-                    style={this.props.style}
-                    rowKey={this.props.rowKey}
-                    columns={this.getColumns()}
-                    rowClassName={() => 'kotomi-components-table-row'}
-                    components={{
-                        body: {
-                            cell: EditableCell,
-                        }
-                    }}
-                    dataSource={this.getDataSource()}
-                    loading={{
-                        indicator: <Icon
-                            type='loading'
-                            style={{ fontSize: 24 }}
-                            spin
-                        />,
-                        spinning: this.state.loading
-                    }}
-                    pagination={{
-                        size: 'small',
-                        defaultPageSize: this.props.defaultPageSize,
-                        total: this.state.total,
-                    }}
-                    onChange={(pagination, filters, sorter) => {
-                        this.requestLoadData({
-                            page: pagination.current!,
-                            pageSize: pagination.pageSize!,
-                            sorter: {
-                                name: sorter.field,
-                                order: sorter.order
-                            } as TableSorter
-                        })
-                    }}
-                    rowSelection={this.getRowSelection()}
-                    onRow={(record: T, index: number) => {
-                        // 如果当前行处于不可编辑状态，则不点击click事件
-                        if (this.state.editingKey == undefined) {
-                            const onRow = this.props.event!.onRow
-                            return onRow === undefined ? {} : onRow(record, index)
-                        }
-                        // 否则不相应事件
-                        return {}
-                    }}
-                    size='small'
-                    scroll={{
-                        x: this.props.width,
-                        y: this.props.height
-                    }}
-                />
+            <div
+                onBlur={()=>{
+                    // 如果鼠标移动到表格外
+                    if(this.tableMouseOut){
+                        this.editHide()
+                    }
+                }}
+                onMouseOut={()=>{
+                    this.tableMouseOut = true
+                }}
+                onMouseOver={()=>{
+                    this.tableMouseOut = false
+                }}
+            >
+                <EditableContext.Provider value={{
+                    form: this.props.form
+                }}>
+                    <AntTable
+                        style={this.props.style}
+                        rowKey={this.props.rowKey}
+                        columns={this.getColumns()}
+                        rowClassName={() => 'kotomi-components-table-row'}
+                        components={{
+                            body: {
+                                cell: EditableCell,
+                            }
+                        }}
+                        dataSource={this.getDataSource()}
+                        loading={{
+                            indicator: <Icon
+                                type='loading'
+                                style={{ fontSize: 24 }}
+                                spin
+                            />,
+                            spinning: this.state.loading
+                        }}
+                        pagination={{
+                            size: 'small',
+                            defaultPageSize: this.props.defaultPageSize,
+                            total: this.state.total,
+                        }}
+                        onChange={(pagination, filters, sorter) => {
+                            this.requestLoadData({
+                                page: pagination.current!,
+                                pageSize: pagination.pageSize!,
+                                sorter: {
+                                    name: sorter.field,
+                                    order: sorter.order
+                                } as TableSorter
+                            })
+                        }}
+                        rowSelection={this.getRowSelection()}
+                        onRow={(record: T, index: number) => {
+                            // 如果当前行处于不可编辑状态，则不点击click事件
+                            if (this.state.editingKey == undefined) {
+                                const onRow = this.props.event!.onRow
+                                return onRow === undefined ? {} : onRow(record, index)
+                            }
+                            // 否则不相应事件
+                            return {}
+                        }}
+                        size='small'
+                        scroll={{
+                            x: this.props.width,
+                            y: this.props.height
+                        }}
+                    />
 
-            </EditableContext.Provider>
+                </EditableContext.Provider>
+            </ div>
         )
     }
 }

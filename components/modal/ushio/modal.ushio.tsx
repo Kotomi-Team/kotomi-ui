@@ -22,9 +22,12 @@ export const baseoMdal = () => {
               modal = _modal
             }}
             title='My title is Modal'
-            onConfirm={async (self)=>{
-              console.log(self)
-              return true
+            onConfirm={()=>{
+              return new Promise((re)=>{
+                setTimeout(()=>{
+                  re(true)
+                },3000)
+              })
             }}
           >
                 <p> show children0 </p>
