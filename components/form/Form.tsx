@@ -189,6 +189,8 @@ class Form extends React.Component<Props & FormComponentProps, State> {
                             }
                             if(realConfig[0].split('|').length >= 2){
                                 fromItemProps.label =  realConfig[0].split('|')[1].trim()
+                            }else{
+                                fromItemProps.label = ''
                             }
                              
                             // 添加组件

@@ -49,7 +49,7 @@ export const stateForm = () => {
             </Button>
             <Form
                 script={`
-                    [name|Field1 drop 8]        [code|Field2 drop 8 ]        [code1|Field3 drop 8] 
+                    [name| drop 8]        [code|Field2 drop 8 ]        [code1|Field3 drop 8] 
                     [name1|Field4 drop 8]       [code2|Field5 drop 16-2-22]
                     [name2|Field6 drop 16-2-22] [code3|Field7 drop 8]
                 `}
