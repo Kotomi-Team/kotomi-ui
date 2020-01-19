@@ -375,7 +375,7 @@ export const cellCheckboxTable = () => {
                         return true
                     }
                 } as TableEvent<UserMoment>}
-                defaultPageSize="10"
+                defaultPageSize={10}
                 loadData={({ page, pageSize }: { page: number, pageSize: number, param?: any, sorter?: TableSorter }) => {
                     return new Promise<{ dataSource: UserMoment[], total: number }>((re) => {
                         let data: UserMoment[] = []

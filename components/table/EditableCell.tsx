@@ -77,7 +77,6 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
                             newRecord[recordKey[0]] = values[key]
                         }
                     })
-                    self.form.setFieldsValue(newRecord)
                     onSave({
                         ...newRecord
                     }, 'UPDATE').then((respState)=>{
