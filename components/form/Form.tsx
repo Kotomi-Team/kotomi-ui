@@ -117,18 +117,6 @@ class Form extends React.Component<Props & FormComponentProps, State> {
     
     constructor(props: Props & FormComponentProps) {
         super(props);
-        const {rules , components}  = props
-        if(components){
-            components.forEach((component)=>{
-                this.components.push(component)
-            })
-        }
-        // 添加默认的输入框
-        this.components.push({
-            name: 'input',
-            component: <Input />
-        })
-        this.rules.push(...(rules || []))
     }
 
     componentDidMount(){
@@ -137,12 +125,47 @@ class Form extends React.Component<Props & FormComponentProps, State> {
             refExt(form)
         }
     }
+
+    /**
+     * 创建Form对象
+     */
+    public static create(){
+        return AntForm.create<Props & FormComponentProps>({
+            onValuesChange:(props, changedValues: any, allValues: any)=>{
+                if(props.event){
+                    if(props.event.onValuesChange){
+                        const { onValuesChange } = props.event
+                        onValuesChange(changedValues, allValues)
+                    }
+                }
+            }
+        })(Form);
+    }
+
+    protected getPropsComponents(){
+        const { components } = this.props
+        return [
+            ...components,
+            {
+                name: 'input',
+                component: <Input />
+            }
+        ]
+    }
+
+    protected getRulesComponents(){
+        const { rules } = this.props
+        return [...(rules || [])]
+    }
+
+
     /**
      * 将脚本信息，转换为json对象
      */
     protected getScriptToJsonArray(): FormItemProps[][] {
         const { script, initialValues } = this.props
-        const { components,rules } = this
+        const components = this.getPropsComponents()
+        const rules = this.getRulesComponents()
         try {
             const splitScript = script.trim().split('\n')
             const respArray: FormItemProps[][] = []
@@ -295,15 +318,6 @@ class Form extends React.Component<Props & FormComponentProps, State> {
     }
 }
 
-const ScriptForm = AntForm.create<Props & FormComponentProps>({
-    onValuesChange:(props, changedValues: any, allValues: any)=>{
-        if(props.event){
-            if(props.event.onValuesChange){
-                const { onValuesChange } = props.event
-                onValuesChange(changedValues, allValues)
-            }
-        }
-    }
-})(Form);
+const ScriptForm = Form.create()
 
 export { ScriptForm as Form };
