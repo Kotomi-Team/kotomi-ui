@@ -17,7 +17,9 @@
 |editingType    | 'cell' `|` 'row' `|` 'none' | 'none' | 当前单元格编辑类型，cell表示单元格编辑，row表示行编辑,none 表示无编辑模式
 |style          | React.CSSProperties |  | 表格的css样式
 |refExt         | (self: Table<T>) => void |  | 初始化表格数据的时候，可通过self获取当前表格对象
+|isAutoLoadData | boolean   | true  | 是否第一次自动装载表格数据，默认为true，第一次初始化就装载数据
 |event          |  TableEvent<T>   |    |  当前表格的事件信息
+
 
 ### Table 事件
 
