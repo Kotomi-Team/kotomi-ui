@@ -637,8 +637,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
      * @param pageSize 当前页面显示的数据条数
      */
     protected requestLoadData({ page, pageSize, param, sorter }: { page: number, pageSize: number, param?: any, sorter?: TableSorter }) {
-        const defaultParam = this.props.defaultParam
-
+        const {defaultParam , rowKey } = this.props
         this.setState({
             loading: true,
         })
@@ -653,6 +652,17 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                 ...this.REQUEST_PARAM
             }, sorter
         }).then(({ dataSource, total }) => {
+
+            // fix https://github.com/Kotomi-Team/kotomi-ui/issues/13
+            dataSource.forEach((data)=>{
+                const keys = Object.keys(data)
+                if(keys.indexOf(rowKey) === -1){
+                    throw new Error(
+                        `KOTOMI-TABLE-5001: The returned data should have a unique rowKey field. rowKey is ['${rowKey}']. See https://github.com/Kotomi-Team/kotomi-ui/issues/13`
+                    )
+                }
+            })
+            
             this.setState({
                 dataSource,
                 total,
