@@ -342,8 +342,24 @@ export const cellCheckboxTable = () => {
         width: 100
     }, {
         dataIndex: 'six4',
-        title: 'six4',
         isEditing: true,
+        title: 'six4',
+        width: 100
+    }, {
+        dataIndex: 'six5',
+        isEditing: true,
+        title: 'six5',
+        width: 100
+    }, {
+        dataIndex: 'six6',
+        isEditing: true,
+        title: 'six6',
+        width: 100
+    }, {
+        dataIndex: 'six7',
+        title: 'six7',
+        isEditing: true,
+        fixed: 'right',
         width: 100
     }]
 
@@ -373,6 +389,10 @@ export const cellCheckboxTable = () => {
                     onSave: async (record) => {
                         console.log(record)
                         return true
+                    },
+                    onBeforeRenderPromiseColumn:(record: UserMoment , column: ColumnProps<UserMoment> ,render: JSX.Element)=>{
+                        console.log('--------------onBeforeRenderPromiseColumn------------')
+                        return render
                     }
                 } as TableEvent<UserMoment>}
                 defaultPageSize={10}
