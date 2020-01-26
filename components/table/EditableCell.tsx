@@ -60,7 +60,7 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
      * 调用onSave的方法
      * @param isHideComponent hide 表示隐藏表格上的输入组件，none 表示不做任何操作
      */
-    onSave(isHideComponent: 'hide' | 'none'):Promise<void> {
+    onCellSave(isHideComponent: 'hide' | 'none'):Promise<void> {
         return new Promise((resolve, _reject)=>{
             const self = this
             const { onSave, record, rowIndex } = this.props
@@ -116,7 +116,7 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
             },
             onBlur: () => {
                 if (editingType === 'cell') {
-                    self.onSave('none')
+                    self.onCellSave('none')
                 }
             },
         }))
@@ -177,7 +177,7 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
                                 ) {
                                     if(editingType === 'cell'){
                                         currentEditorCell.forEach((cell) => {
-                                            cell.onSave('hide')
+                                            cell.onCellSave('hide')
                                         })
                                         currentEditorCell.splice(0)
                                     }

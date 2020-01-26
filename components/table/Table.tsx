@@ -226,16 +226,21 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
      */
     editStash() {
         const self = this
-        const promises: Promise<void>[] = []
-        this.currentEditorCell.forEach(element => {
-            promises.push(element.onSave('hide'))
-        })
-        Promise.all(promises).then(() => {
+        this.editHide().then(() => {
             self.dataSourceState.create.splice(0)
             self.dataSourceState.delete.splice(0)
             self.dataSourceState.update.splice(0)
             self.setState({})
         })
+    }
+
+
+    protected editHide(): Promise<void[]>{
+        const promises: Promise<void>[] = []
+        this.currentEditorCell.forEach(element => {
+            promises.push(element.onCellSave('hide'))
+        })
+        return Promise.all(promises)
     }
 
 
@@ -298,7 +303,11 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
         const {
             event,
             form,
+            rowKey,
         } = this.props
+        const {
+            dataSource
+        } = this.state
         return self.isEditing(record) ? (
             <>
                 <Icon
@@ -307,6 +316,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                         const onSave = event!.onSave
                         if (onSave && form !== undefined) {
                             form.validateFields((err, values) => {
+
                                 if (!err) {
                                     const newRecord: any = {
                                         ...record
@@ -315,12 +325,23 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                                         const recordKey = key.split(';')
                                         newRecord[recordKey[0]] = values[key]
                                     })
+                                    
                                     onSave({
                                         ...newRecord
                                     }, 'UPDATE').then((respState) => {
                                         if (respState !== false) {
-                                            this.setState({
-                                                editingKey: undefined
+                                            // 修改表格中的数据
+                                            const newData: T[] = [...dataSource];
+                                            newData.forEach((data, dataIndex) => {
+                                                if (data[rowKey] === newRecord[rowKey]) {
+                                                    newData.splice(dataIndex, 1, {
+                                                        ...newRecord
+                                                    });
+                                                }
+                                            })
+                                            self.setState({
+                                                editingKey: undefined,
+                                                dataSource: newData
                                             })
                                         }
                                     })
@@ -616,8 +637,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
      * @param pageSize 当前页面显示的数据条数
      */
     protected requestLoadData({ page, pageSize, param, sorter }: { page: number, pageSize: number, param?: any, sorter?: TableSorter }) {
-        const defaultParam = this.props.defaultParam
-
+        const {defaultParam , rowKey } = this.props
         this.setState({
             loading: true,
         })
@@ -632,6 +652,17 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                 ...this.REQUEST_PARAM
             }, sorter
         }).then(({ dataSource, total }) => {
+
+            // fix https://github.com/Kotomi-Team/kotomi-ui/issues/13
+            dataSource.forEach((data)=>{
+                const keys = Object.keys(data)
+                if(keys.indexOf(rowKey) === -1){
+                    throw new Error(
+                        `KOTOMI-TABLE-5001: The returned data should have a unique rowKey field. rowKey is ['${rowKey}']. See https://github.com/Kotomi-Team/kotomi-ui/issues/13`
+                    )
+                }
+            })
+            
             this.setState({
                 dataSource,
                 total,

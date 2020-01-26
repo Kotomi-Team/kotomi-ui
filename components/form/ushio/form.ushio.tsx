@@ -1,11 +1,58 @@
 import React,{useState} from 'react'
 
 import { Form } from '../Form';
-import { Input, Button } from 'antd';
-
+import { Input, Button,Form as AntForm } from 'antd';
+import { FormComponentProps } from 'antd/lib/form/Form';
 
 export default { title: 'Form' };
 
+
+
+
+class AntDesignForm extends React.Component<FormComponentProps> {
+    render(){
+        const { form } = this.props
+        return (
+            <AntForm>
+                <AntForm.Item>
+                    {form.getFieldDecorator('u1', {
+                    })(
+                        <Input
+                        placeholder="u1"
+                        />
+                    )}
+                </AntForm.Item>
+                <AntForm.Item>
+                    {form.getFieldDecorator('u2', {
+                    })(
+                        <Input
+                        placeholder="u2"
+                        />
+                    )}
+                </AntForm.Item>
+                <AntForm.Item>
+                    {form.getFieldDecorator('u3', {
+                    })(
+                        <Input
+                        placeholder="u3"
+                        />
+                    )}
+                </AntForm.Item>
+            </AntForm>
+        )
+    }
+}
+
+
+const TempForm = AntForm.create({
+    onValuesChange:(props,changedValues,_allValues)=>{
+        console.log(changedValues)
+    }
+})(AntDesignForm)
+
+export const antDesignForm = ()=>{
+    return <TempForm />
+}
 
 export const baseForm = () => {
     return (
@@ -65,7 +112,11 @@ export const stateForm = () => {
                 }]}
                 event={{
                     onValuesChange:(changedValues: any, allValues: any)=>{
+                        console.log('----------------')
+                        console.log('changedValues: ')
                         console.log(changedValues)
+                        console.log('----------------')
+                        console.log('allValues: ')
                         console.log(allValues)
                     }
                 }}

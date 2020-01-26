@@ -8,7 +8,7 @@ export default { title: 'Table' };
 
 
 class UserMoment {
-    id: string
+    id?: string
     name: string
     six: string
     six1: string
