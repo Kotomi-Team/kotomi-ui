@@ -1,7 +1,7 @@
 import React from 'react'
 import { Form, Input } from 'antd'
 
-import { ColumnProps } from './Table'
+import { ColumnProps, TableContext } from './Table'
 import { WrappedFormUtils } from 'antd/lib/form/Form';
 
 
@@ -28,11 +28,6 @@ type State = {
     editing: boolean
 }
 
-export type EditableContextProps<T> = {
-    form?: WrappedFormUtils
-}
-
-export const EditableContext = React.createContext({} as EditableContextProps<any>);
 
 export class EditableCell<T> extends React.Component<Props<T>, State>{
 
@@ -116,7 +111,7 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
             },
             onBlur: () => {
                 if (editingType === 'cell') {
-                    self.onCellSave('none')
+                    self.onCellSave('hide')
                 }
             },
         }))
@@ -233,9 +228,9 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
     render() {
         return (
             <td>
-                <EditableContext.Consumer>
+                <TableContext.Consumer>
                     {this.renderCell}
-                </EditableContext.Consumer>
+                </TableContext.Consumer>
             </td>
         )
     }

@@ -240,7 +240,7 @@ class Form extends React.Component<Props & FormComponentProps, State> {
             })
             return respArray
         } catch (error) {
-            console.error("Failed to parse script: \n" + script)
+            console.error("KOTOMI-FORM-5001: Failed to parse script: \n" + script)
             throw error
         }
     }
