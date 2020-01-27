@@ -2,6 +2,7 @@ import React from 'react'
 import { Modal as AntModal } from 'antd'
 
 type Props = {
+
   // 按钮的标题
   title: string
 
@@ -10,7 +11,7 @@ type Props = {
 
   // 按钮取消事件，非必须
   onCancel?:(self: Modal) => Promise<boolean>
-
+  
   width: number
 }
 
@@ -87,7 +88,6 @@ export class Modal extends  React.Component<Props,State> {
             })
           }
         }}
-
       >
         {children}
       </AntModal>

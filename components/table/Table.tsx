@@ -2,9 +2,17 @@ import React from 'react'
 import { Table as AntTable, Form, Divider, Icon } from 'antd'
 import { TableSize, ColumnProps as AntColumnProps, TableRowSelection, TableEventListeners } from 'antd/lib/table/interface'
 import { WrappedFormUtils, ValidationRule } from 'antd/lib/form/Form';
-import { EditableContext, EditableCell } from './EditableCell'
+import { EditableCell } from './EditableCell'
 
 import './Table.less'
+
+export type TableContextProps<T> = {
+    form?: WrappedFormUtils
+    table?: Table<T>
+}
+
+export const TableContext = React.createContext({} as TableContextProps<any>);
+
 
 export interface ColumnProps<T> extends AntColumnProps<T> {
     // 是否可编辑，默认为false 不可编辑
@@ -410,7 +418,6 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                                     }
                                 })
                             }
-
                         }}
                     />
                 </>
@@ -700,8 +707,9 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
 
     render() {
         return (
-            <EditableContext.Provider value={{
-                form: this.props.form
+            <TableContext.Provider value={{
+                form: this.props.form,
+                table: this
             }}>
                 <AntTable
                     style={this.props.style}
@@ -710,7 +718,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                     rowClassName={() => 'kotomi-components-table-row'}
                     components={{
                         body: {
-                            cell: EditableCell,
+                            cell: EditableCell
                         }
                     }}
                     dataSource={this.getDataSource()}
@@ -754,7 +762,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                     }}
                 />
 
-            </EditableContext.Provider>
+            </TableContext.Provider>
         )
     }
 }
