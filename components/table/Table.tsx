@@ -55,7 +55,6 @@ type Props<T> = {
      */
     isAutoLoadData?: boolean
 
-
     /**
      * 表格显示大小
      */
@@ -168,6 +167,22 @@ export type TableEvent<T> = {
      * @returns 返回一个react组件对象
      */
     onBeforeRenderPromiseColumn?:(record:T , column: ColumnProps<T> ,render: JSX.Element) => JSX.Element
+
+    /**
+     * 表格渲染的行事件
+     * @param rowIndex 当前渲染的行号
+     * @param record   当前行渲染的数据
+     * @returns 返回一个css样式进行装饰
+     */
+    onRenderBodyRowCssStyle?:(rowIndex: number, record: T,style: React.CSSProperties ) => React.CSSProperties
+
+    /**
+     * 头部渲染的事件
+     * @param rowIndex 当前渲染的行号
+     * @param record   当前行渲染的数据
+     * @returns 返回一个css样式进行装饰
+     */
+    onRenderHeaderRowCssStyle?:(style: React.CSSProperties) => React.CSSProperties
 }
 
 /**
@@ -210,6 +225,14 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
             // 默认返回默认dom节点
             onBeforeRenderPromiseColumn: (_record: any , _column: any ,render: JSX.Element) => {
                 return render
+            },
+            // 默认不添加其他的css样式
+            onRenderBodyRowCssStyle:(_rowIndex: number, _record: any,style: React.CSSProperties)=>{
+                return style
+            },
+            // 默认不添加其他的css样式
+            onRenderHeaderRowCssStyle:(style: React.CSSProperties)=>{
+                return style
             }
         }
     }
@@ -481,7 +504,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
             return <a>{index + 1}</a>
         }
         if(column.width === undefined){
-            column.width = 20
+            column.width = 25
         }
         if(column.ellipsis === undefined){
             column.ellipsis = true
@@ -718,7 +741,31 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                     rowClassName={() => 'kotomi-components-table-row'}
                     components={{
                         body: {
-                            cell: EditableCell
+                            cell: EditableCell,
+                            row: (props)=>{
+                                debugger
+                                const { style, ...restProps} = props
+                                if(this.props.event!.onRenderBodyRowCssStyle){
+                                    const propsStyle = this.props.event!.onRenderBodyRowCssStyle!(
+                                        props.index as number,
+                                        props.record as T,
+                                        style)
+    
+                                    return <tr {...restProps} style={{ ...propsStyle }} />
+
+                                }
+                                return <tr {...restProps} style={{ ...style }} />
+                            }
+                        },
+                        header:{
+                            row: (props)=>{
+                                const { style, ...restProps} = props
+                                if(this.props.event!.onRenderHeaderRowCssStyle){
+                                    const propsStyle = this.props.event!.onRenderHeaderRowCssStyle!(style )
+                                    return <tr {...restProps} style={{ ...propsStyle }} />
+                                }
+                                return <tr {...restProps} style={{ ...style }} />
+                            }
                         }
                     }}
                     dataSource={this.getDataSource()}
@@ -750,10 +797,18 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                         // 如果当前行处于不可编辑状态，则不点击click事件
                         if (this.state.editingKey == undefined) {
                             const onRow = this.props.event!.onRow
-                            return onRow === undefined ? {} : onRow(record, index)
+                            const rowData = onRow === undefined ? {} : onRow(record, index)
+                            return {
+                                ...rowData,
+                                record,
+                                index
+                            }
                         }
                         // 否则不相应事件
-                        return {}
+                        return {
+                            record,
+                            index
+                        }
                     }}
                     size='small'
                     scroll={{
