@@ -89,8 +89,6 @@ export const baseTable = () => {
         dataIndex: '$index',
         title: '#',
     }, {
-        dataIndex: '$state'
-    }, {
         dataIndex: 'name',
         title: 'name',
         isEditing: true,
@@ -414,6 +412,122 @@ export const cellCheckboxTable = () => {
                             re({ dataSource: data, total: 2000 })
                         }, 3000)
 
+                    })
+                }}
+            />
+        </>
+    )
+}
+
+
+export const zebraCrossingTable = () => {
+    let table: any = null
+    let columns: ColumnProps<User>[] = [{
+        dataIndex: '$index',
+        title: '#',
+    }, {
+        dataIndex: 'name',
+        title: 'name',
+        isEditing: true,
+        width: 100
+    }, {
+        dataIndex: 'six',
+        title: 'six',
+        width: 100
+    }, {
+        dataIndex: 'six1',
+        title: 'six1',
+        width: 100
+    }, {
+        dataIndex: 'six2',
+        title: 'six2',
+        width: 100
+    }, {
+        dataIndex: 'six3',
+        title: 'six3',
+        width: 100
+    }, {
+        dataIndex: 'six4',
+        title: 'six4',
+        width: 100
+    }, {
+        dataIndex: '$operating',
+        title: '操作',
+    }]
+
+    return (
+        <>
+            <Button
+                onClick={() => {
+                    table.refresh({
+                        a: '1'
+                    })
+                }}
+            >
+                click query param
+        </Button>
+            <Table<User>
+                columns={columns}
+                isEditing
+                editingType="row"
+                rowSelection='multiple'
+                refExt={(tempTable: any) => {
+                    table = tempTable
+                }}
+                event={{
+                    onSelect: (selectedRowKeys: string[], selected: boolean) => {
+                        console.log(selectedRowKeys)
+                        console.log(selected)
+                    },
+
+                    onRow: (record: User) => {
+                        return {
+                            onClick: () => {
+                                console.log(record)
+                            }
+                        }
+                    },
+                    
+                    onSave: async (record, type) => {
+                        console.log(record)
+                        console.log(type)
+                        return true
+                    },
+
+                    onRenderBodyRowCssStyle: (rowIndex: number)=>{
+                        if(rowIndex%2 === 0){
+                            return {
+                                backgroundColor: '#f9f9f9'
+                            }
+                        }
+                        return {
+                            backgroundColor: '#ffffff'
+                        }
+                    },
+
+                    onRenderHeaderRowCssStyle:(style: React.CSSProperties) => {
+                        return {
+                            backgroundColor: '#f2f2f2'
+                        }
+                    }
+                } as TableEvent<User>}
+
+                loadData={({ page, pageSize, param }: { page: number, pageSize: number, param?: any, sorter?: TableSorter }) => {
+                    console.log(param)
+                    return new Promise<{ dataSource: User[], total: number }>((re) => {
+                        let data: User[] = []
+                        for (let i = 0; i < pageSize!; i++) {
+                            data.push({
+                                'id': `${page} id ${i}`,
+                                'name': `${page} name`,
+                                'six': `${page} six`,
+                                'six1': `${page} six`,
+                                'six2': `${page} six`,
+                                'six3': `${page} six`,
+                                'six4': `${page} six`,
+                            })
+                        }
+                        re({ dataSource: data, total: 2000 })
                     })
                 }}
             />

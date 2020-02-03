@@ -16,7 +16,11 @@
   ],
   "repository": "https://github.com/Kotomi-Team/kotomi-ui",
   "homepage": "https://github.com/Kotomi-Team/kotomi-ui",
-  "keywords": ["React","Ant Design","Table"],
+  "keywords": [
+    "React",
+    "Ant Design",
+    "Table"
+  ],
   "author": "zhangj",
   "license": "MIT",
   "husky": {
@@ -36,6 +40,8 @@
     "@types/jest": "24.0.23",
     "@typescript-eslint/eslint-plugin": "2.14.0",
     "@typescript-eslint/parser": "2.14.0",
+    "@types/lodash": "^4.14.149",
+    "@types/react-dom": "16.9.5",
     "babel-loader": "8.0.6",
     "cpx": "1.5.0",
     "eslint": "6.8.0",

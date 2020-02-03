@@ -1,7 +1,7 @@
 import React from 'react'
 import { Form, Input } from 'antd'
 
-import { ColumnProps, TableContext } from './Table'
+import { ColumnProps, TableContext, TableContextProps } from './Table'
 import { WrappedFormUtils } from 'antd/lib/form/Form';
 
 
@@ -142,11 +142,12 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
         return true
     }
 
-    renderCell = ({ form }: { form: WrappedFormUtils }) => {
+    renderCell = (tableContextProps: TableContextProps<T>) => {
         const { editingType, children, inputModal, column, currentEditorCell, rowIndex } = this.props
         const self = this
-        this.form = form
+        this.form = tableContextProps.form!
         const textAlign = column === undefined ?  undefined : column.align
+
         // 如果列允许编辑
         if (column !== undefined && column.isEditing) {
             if (inputModal === 'click') {
@@ -165,8 +166,7 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
                                 })
                                 if (
                                     // 如果数据没有点击过，则可以触发保存信息
-                                    filterKey.length === 0
-                                    &&
+                                    filterKey.length === 0 &&
                                     // 并且不是第一次点击
                                     currentEditorCell.length !== 0
                                 ) {
@@ -195,7 +195,7 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
                     return (
                         <>
                             <Form.Item>
-                                {this.renderFormItem(form)}
+                                {this.renderFormItem(tableContextProps.form!)}
                             </Form.Item>
                         </>
                     )
@@ -206,7 +206,7 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
                 return (
                     <>
                         <Form.Item>
-                            {this.renderFormItem(form)}
+                            {this.renderFormItem(tableContextProps.form!)}
                         </Form.Item>
                     </>
                 )
