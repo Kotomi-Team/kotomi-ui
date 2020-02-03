@@ -65,4 +65,10 @@
 
 #### 一个简单的表格进行数据显示
 
-<iframe src="https://codesandbox.io/s/basetable-v3609?view=editor"></iframe>
+<iframe 
+    src="https://codesandbox.io/s/basetable-v3609?view=editor"
+    frameborder="0" 
+    width="640" 
+    height="352" 
+>
+</iframe>
