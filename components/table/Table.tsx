@@ -210,7 +210,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
 
     static defaultProps = {
         theme: 'small',
-        defaultPageSize: 300,
+        defaultPageSize: 100,
         width: '100%',
         height: 400,
         rowKey: 'id',
