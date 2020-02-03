@@ -61,14 +61,6 @@
 |$state           | 显示当前表格的编辑状态
 |$index           | 显示当前表格的序号
 
-### 简单例子
+### CodeSandbox例子
 
-#### 一个简单的表格进行数据显示
-
-<iframe 
-    src="https://codesandbox.io/s/basetable-v3609?view=editor"
-    frameborder="0" 
-    width="640" 
-    height="352" 
->
-</iframe>
+- [一个简单的表格进行数据显示](https://codesandbox.io/s/basetable-v3609?view=editor)
