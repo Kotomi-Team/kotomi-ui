@@ -174,7 +174,7 @@ export type TableEvent<T> = {
      * @param record   当前行渲染的数据
      * @returns 返回一个css样式进行装饰
      */
-    onRenderBodyRowCssStyle?:(rowIndex: number, record: T,style: React.CSSProperties ) => React.CSSProperties
+    onRenderBodyRowCssStyle?:(rowIndex: number, record: T) => React.CSSProperties
 
     /**
      * 头部渲染的事件
@@ -182,7 +182,7 @@ export type TableEvent<T> = {
      * @param record   当前行渲染的数据
      * @returns 返回一个css样式进行装饰
      */
-    onRenderHeaderRowCssStyle?:(style: React.CSSProperties) => React.CSSProperties
+    onRenderHeaderRowCssStyle?:() => React.CSSProperties
 }
 
 /**
@@ -227,12 +227,12 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                 return render
             },
             // 默认不添加其他的css样式
-            onRenderBodyRowCssStyle:(_rowIndex: number, _record: any,style: React.CSSProperties)=>{
-                return style
+            onRenderBodyRowCssStyle:()=>{
+                return {}
             },
             // 默认不添加其他的css样式
-            onRenderHeaderRowCssStyle:(style: React.CSSProperties)=>{
-                return style
+            onRenderHeaderRowCssStyle:()=>{
+                return {}
             }
         }
     }
@@ -741,31 +741,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                     rowClassName={() => 'kotomi-components-table-row'}
                     components={{
                         body: {
-                            cell: EditableCell,
-                            row: (props)=>{
-                                debugger
-                                const { style, ...restProps} = props
-                                if(this.props.event!.onRenderBodyRowCssStyle){
-                                    const propsStyle = this.props.event!.onRenderBodyRowCssStyle!(
-                                        props.index as number,
-                                        props.record as T,
-                                        style)
-    
-                                    return <tr {...restProps} style={{ ...propsStyle }} />
-
-                                }
-                                return <tr {...restProps} style={{ ...style }} />
-                            }
-                        },
-                        header:{
-                            row: (props)=>{
-                                const { style, ...restProps} = props
-                                if(this.props.event!.onRenderHeaderRowCssStyle){
-                                    const propsStyle = this.props.event!.onRenderHeaderRowCssStyle!(style )
-                                    return <tr {...restProps} style={{ ...propsStyle }} />
-                                }
-                                return <tr {...restProps} style={{ ...style }} />
-                            }
+                            cell: EditableCell
                         }
                     }}
                     dataSource={this.getDataSource()}
@@ -793,21 +769,36 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                         })
                     }}
                     rowSelection={this.getRowSelection()}
+                    onHeaderRow={(columns: ColumnProps<T>[]) =>{
+                        let propsStyle = {}
+                        if(this.props.event!.onRenderHeaderRowCssStyle){
+                            propsStyle = this.props.event!.onRenderHeaderRowCssStyle!()
+                        }
+                        return {
+                            style: propsStyle
+                        } 
+                    }}
                     onRow={(record: T, index: number) => {
+
+                        let propsStyle = {}
+                        if(this.props.event!.onRenderBodyRowCssStyle){
+                            propsStyle = this.props.event!.onRenderBodyRowCssStyle!(
+                                index as number,
+                                record as T)
+                        }
+                      
                         // 如果当前行处于不可编辑状态，则不点击click事件
                         if (this.state.editingKey == undefined) {
                             const onRow = this.props.event!.onRow
                             const rowData = onRow === undefined ? {} : onRow(record, index)
                             return {
                                 ...rowData,
-                                record,
-                                index
+                                style: propsStyle
                             }
                         }
                         // 否则不相应事件
                         return {
-                            record,
-                            index
+                            style: propsStyle
                         }
                     }}
                     size='small'

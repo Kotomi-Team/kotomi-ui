@@ -505,7 +505,7 @@ export const zebraCrossingTable = () => {
                         }
                     },
 
-                    onRenderHeaderRowCssStyle:(style: React.CSSProperties) => {
+                    onRenderHeaderRowCssStyle:() => {
                         return {
                             backgroundColor: '#f2f2f2'
                         }
