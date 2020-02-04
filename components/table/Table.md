@@ -29,8 +29,8 @@
 |onRow      |(record: T, index: number) => TableEventListeners        |        |用户点击当前行触发的事件。
 |onSave     | (record: T, type: 'DELETE' | 'UPDATE' | 'CREATE') => Promise<boolean>| | 用户编辑保存会触发他的onSave事件。
 |onBeforeRenderPromiseColumn     | (record:T , column: ColumnProps<T> ,render: JSX.Element) => JSX.Element| |渲染特殊单元格触发的事件
-|onRenderBodyRowCssStyle     | (rowIndex: number, record: T,style: React.CSSProperties ) => React.CSSProperties| |控制body row的css样式
-|onRenderHeaderRowCssStyle     | (style: React.CSSProperties) => React.CSSProperties| |控制header row的css样式
+|onRenderBodyRowCssStyle     | (rowIndex: number, record: T ) => React.CSSProperties| |控制body row的css样式
+|onRenderHeaderRowCssStyle     | () => React.CSSProperties| |控制header row的css样式
 
 > 保存数据，只针对row编辑模式，cell编辑模式下onSave会在点击下一个单元格的时候触发
 
