@@ -12,7 +12,7 @@ type Props = {
   // 按钮取消事件，非必须
   onCancel?:(self: Modal) => Promise<boolean>
   
-  width: number
+  width?: number
 }
 
 type State = {

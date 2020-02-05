@@ -329,6 +329,7 @@ export const cellCheckboxTable = () => {
     }, {
         dataIndex: 'six2',
         title: 'six2',
+        align: 'right',
         isEditing: true,
         inputType: <DatePickerExt />,
 
@@ -402,8 +403,8 @@ export const cellCheckboxTable = () => {
                                 'name': '0',
                                 'six': `${page} six`,
                                 'six1': '2018-11-11',
-                                'six2': ``,
-                                'six3': `${page} six`,
+                                'six2': `1231`,
+                                'six3': `${page} six--------------sadasdasd---------asdadasdads---------asadas`,
                                 'six4': `${page} six`,
                             })
                         }
