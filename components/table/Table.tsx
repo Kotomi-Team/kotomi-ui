@@ -184,7 +184,7 @@ export type TableEvent<T> = {
      * @returns 返回一个css样式进行装饰
      */
     onRenderHeaderRowCssStyle?:() => React.CSSProperties
-    
+
 }
 
 /**
@@ -464,7 +464,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
         }
         column.width = 80
     }
-
+    
     // 获取操作列的信息
     protected getColumnOperating(column: ColumnProps<T>) {
         const self = this
