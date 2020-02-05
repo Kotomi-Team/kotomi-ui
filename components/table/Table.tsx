@@ -184,6 +184,7 @@ export type TableEvent<T> = {
      * @returns 返回一个css样式进行装饰
      */
     onRenderHeaderRowCssStyle?:() => React.CSSProperties
+    
 }
 
 /**

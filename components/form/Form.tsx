@@ -68,20 +68,16 @@ type Props = {
     refExt?: (form: WrappedFormUtils)=> void
 }
 
-
-
-
 type State = {
 }
-
 
 export type FormEvent= {
     /**
      * 表格数据改变后触发的事件。
      */
     onValuesChange?:(changedValues: any, allValues: any) => void
-    
 }
+
 class FormItemProps {
     name: string
     span: number
