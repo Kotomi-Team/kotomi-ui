@@ -1,12 +1,12 @@
 {
   "name": "kotomi-ui",
-  "version": "0.0.40",
+  "version": "0.0.41",
   "description": "基于Ant Design做的组件扩展，开发的一套组件库",
   "scripts": {
     "start": "start-storybook -p 3000",
     "build": "tsc && cpx \"components/**/*.less\" ./build/lib",
     "build:typedoc": "typedoc --out build/docs/typedoc",
-    "build:storybook": "build-storybook -o docs/storybook/",
+    "build:storybook": "build-storybook -o docs",
     "lint": "eslint components/* --ext .js,.jsx,.ts,.tsx",
     "test": "jest"
   },
