@@ -133,7 +133,7 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
         if (column === undefined) {
             return false
         }
-        
+
         if (editing) {
             return true
         }
@@ -143,6 +143,7 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
         }
         return true
     }
+    
     clickEditCell =()=>{
         const { editingType, column, currentEditorCell, rowIndex } = this.props
         const self = this
