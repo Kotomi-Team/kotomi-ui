@@ -1,5 +1,6 @@
 import React from 'react'
-import { Form, Input } from 'antd'
+import ReactDom from 'react-dom'
+import { Form, Input,Tooltip  } from 'antd'
 
 import { ColumnProps, TableContext, TableContextProps } from './Table'
 import { WrappedFormUtils } from 'antd/lib/form/Form';
@@ -22,10 +23,12 @@ type Props<T> = {
     inputModal?: 'click' | 'display'
     // 当前正在编辑的cell
     currentEditorCell: EditableCell<T>[]
+    className: string 
 }
 
 type State = {
     editing: boolean
+    ellipsis: boolean
 }
 
 
@@ -42,13 +45,20 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
     private form: WrappedFormUtils
 
     state = {
-        editing: false
+        editing: false,
+        ellipsis: false
     }
 
     componentDidMount() {
         this.setState({
             editing: this.props.editing!
         })
+        const element: Element = ReactDom.findDOMNode(this)! as Element
+        if(element.clientWidth< element.scrollWidth){
+            this.setState({
+                ellipsis: true
+            })
+        }
     }
 
     /**
@@ -84,7 +94,8 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
                     // 如果隐藏组件，则隐藏
                     if (isHideComponent === 'hide') {
                         self.setState({
-                            editing: false
+                            editing: false,
+                            ellipsis: true
                         })
                     }
                 }
@@ -170,29 +181,22 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
         // 如果是表格编辑，则表示点击即可编辑
         if (editingType === 'cell') {
             self.setState({
-                editing: true
+                editing: true,
+                ellipsis: false
             })
         }
     }
     renderCell = (tableContextProps: TableContextProps<T>) => {
         const {  children, inputModal, column } = this.props
         this.form = tableContextProps.form!
-        const textAlign = column === undefined ?  undefined : column.align
-
+        // const textAlign = column === undefined ?  undefined : column.align
+ 
         // 如果列允许编辑
         if (column !== undefined && column.isEditing) {
             if (inputModal === 'click') {
                 // 如果为只读则不能进行编辑 或者没有dataIndex的列
                 if (!this.isEditing()) {
-                    return (
-                        <div
-                            style={{
-                                textAlign
-                            }}
-                        >
-                            {children}
-                        </div>
-                    )
+                    return children
                 } else {
                     return (
                         <>
@@ -205,6 +209,7 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
             }
 
             if (inputModal === 'display') {
+        
                 return (
                     <>
                         <Form.Item>
@@ -215,23 +220,18 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
             }
 
         }
-        // 否则返回空
-        return (
-            <div
-                style={{
-                    textAlign
-                }}
-            >
-                {children}
-            </div>
-        )
+        return children
     }
 
     render() {
-
-        return (
+        const { column } = this.props
+        const textAlign = column === undefined ?  undefined : column.align
+        const td =  (
             <td
-                className={this.getClassName()}
+                className={ this.props.className + " " + this.getClassName() }
+                style={{
+                    textAlign
+                }}
                 onClick={()=>{
                       const { inputModal, column } = this.props
                       if(column !== undefined && column.isEditing && inputModal === 'click'){
@@ -244,5 +244,17 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
                 </TableContext.Consumer>
             </td>
         )
+        if(this.state.ellipsis){
+            return (
+                <Tooltip
+                    overlayClassName='kotomi-components-table-cell-ellipsis'
+                    title={this.props.record[this.props.column.dataIndex!]}
+                    placement='bottomLeft'
+                >
+                    {td}
+                </Tooltip>
+            )
+        }
+        return td
     }
 }
