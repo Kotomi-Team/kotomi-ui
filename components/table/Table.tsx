@@ -210,7 +210,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
 
     static defaultProps = {
         theme: 'small',
-        defaultPageSize: 100,
+        defaultPageSize: 50,
         width: '100%',
         height: 400,
         rowKey: 'id',
@@ -326,7 +326,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                 </>
             )
         }
-        column.width = 14
+        column.width = 20
     }
 
     protected getColumnOperatingRender(editor: JSX.Element, record: any) : JSX.Element {

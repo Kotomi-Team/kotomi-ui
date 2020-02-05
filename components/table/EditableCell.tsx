@@ -72,20 +72,21 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
                             newRecord[recordKey[0]] = values[key]
                         }
                     })
-                    onSave({
-                        ...newRecord
-                    }, 'UPDATE').then((respState)=>{
-                        // 成功则隐藏单元格
-                        if (respState) {
-                            // 如果隐藏组件，则隐藏
-                            if (isHideComponent === 'hide') {
-                                self.setState({
-                                    editing: false
-                                })
-                            }
-                        }
-                        resolve()
-                    })
+
+                    if(JSON.stringify(record) !== JSON.stringify(newRecord)){
+                        onSave({
+                            ...newRecord
+                        }, 'UPDATE').then((respState)=>{
+                            resolve()
+                        })
+                    }
+                    
+                    // 如果隐藏组件，则隐藏
+                    if (isHideComponent === 'hide') {
+                        self.setState({
+                            editing: false
+                        })
+                    }
                 }
             })
             
@@ -118,9 +119,9 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
     }
 
     getClassName(): string | undefined {
-        const { editingType, column } = this.props
+        const { editingType, column, inputModal } = this.props
         const className = 'kotomi-components-table-cell-value-wrap'
-        if (editingType === 'cell' && column !== undefined) {
+        if (editingType === 'cell' && column !== undefined && inputModal ==='click') {
             return className
         }
         return undefined
@@ -132,6 +133,7 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
         if (column === undefined) {
             return false
         }
+        
         if (editing) {
             return true
         }
@@ -141,10 +143,38 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
         }
         return true
     }
-
-    renderCell = (tableContextProps: TableContextProps<T>) => {
-        const { editingType, children, inputModal, column, currentEditorCell, rowIndex } = this.props
+    clickEditCell =()=>{
+        const { editingType, column, currentEditorCell, rowIndex } = this.props
         const self = this
+        const currentKey = column.dataIndex! + rowIndex
+        const filterKey = currentEditorCell.filter((currentDataIndex) => {
+            return currentDataIndex.props.column.dataIndex! + currentDataIndex.props.rowIndex === currentKey
+        })
+        if (
+            // 如果数据没有点击过，则可以触发保存信息
+            filterKey.length === 0 &&
+            // 并且不是第一次点击
+            currentEditorCell.length !== 0
+        ) {
+            if(editingType === 'cell'){
+                currentEditorCell.forEach((cell) => {
+                    cell.onCellSave('hide')
+                })
+                currentEditorCell.splice(0)
+            }
+        }
+        if(editingType === 'cell'){
+            currentEditorCell.push(self)
+        }
+        // 如果是表格编辑，则表示点击即可编辑
+        if (editingType === 'cell') {
+            self.setState({
+                editing: true
+            })
+        }
+    }
+    renderCell = (tableContextProps: TableContextProps<T>) => {
+        const {  children, inputModal, column } = this.props
         this.form = tableContextProps.form!
         const textAlign = column === undefined ?  undefined : column.align
 
@@ -157,35 +187,6 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
                         <div
                             style={{
                                 textAlign
-                            }}
-                            className={this.getClassName()}
-                            onClick={() => {
-                                const currentKey = column.dataIndex! + rowIndex
-                                const filterKey = currentEditorCell.filter((currentDataIndex) => {
-                                    return currentDataIndex.props.column.dataIndex! + currentDataIndex.props.rowIndex === currentKey
-                                })
-                                if (
-                                    // 如果数据没有点击过，则可以触发保存信息
-                                    filterKey.length === 0 &&
-                                    // 并且不是第一次点击
-                                    currentEditorCell.length !== 0
-                                ) {
-                                    if(editingType === 'cell'){
-                                        currentEditorCell.forEach((cell) => {
-                                            cell.onCellSave('hide')
-                                        })
-                                        currentEditorCell.splice(0)
-                                    }
-                                }
-                                if(editingType === 'cell'){
-                                    currentEditorCell.push(self)
-                                }
-                                // 如果是表格编辑，则表示点击即可编辑
-                                if (editingType === 'cell') {
-                                    self.setState({
-                                        editing: true
-                                    })
-                                }
                             }}
                         >
                             {children}
@@ -226,8 +227,17 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
     }
 
     render() {
+
         return (
-            <td>
+            <td
+                className={this.getClassName()}
+                onClick={()=>{
+                      const { inputModal, column } = this.props
+                      if(column !== undefined && column.isEditing && inputModal === 'click'){
+                        this.clickEditCell()
+                      }
+                }}
+            >
                 <TableContext.Consumer>
                     {this.renderCell}
                 </TableContext.Consumer>
