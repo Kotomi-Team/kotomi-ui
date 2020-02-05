@@ -269,19 +269,6 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
         self.setState({})
     }
 
-
-    protected editHide(): Promise<void[]>{
-        const promises: Promise<void>[] = []
-        promises.push(new Promise<void>((resolve)=>{
-            resolve()
-        }))
-        this.currentEditorCell.forEach(element => {
-            promises.push(element.onCellSave('hide'))
-        })
-        return Promise.all(promises)
-    }
-
-
     editStatus(): boolean {
         if (this.dataSourceState.create.length > 0) {
             return true
@@ -301,6 +288,19 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
         })
         this.editStash()
     }
+
+    protected editHide(): Promise<void[]>{
+        const promises: Promise<void>[] = []
+        promises.push(new Promise<void>((resolve)=>{
+            resolve()
+        }))
+        this.currentEditorCell.forEach(element => {
+            promises.push(element.onCellSave('hide'))
+        })
+        return Promise.all(promises)
+    }
+
+
     /**
      * 判断当前行的数据是否可以编辑
      * @param record 当前行的数据
