@@ -6,7 +6,7 @@
     "start": "start-storybook -p 3000",
     "build": "tsc && cpx \"components/**/*.less\" ./build/lib",
     "build:typedoc": "typedoc --out build/docs/typedoc",
-    "build:storybook": "build-storybook -o docs/storybook/",
+    "build:storybook": "build-storybook -o docs",
     "lint": "eslint components/* --ext .js,.jsx,.ts,.tsx",
     "test": "jest"
   },
