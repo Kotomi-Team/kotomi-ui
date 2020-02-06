@@ -51,16 +51,21 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
 
     componentDidMount() {
         this.setState({
-            editing: this.props.editing!
+            editing: this.props.editing!,
+            ellipsis: this.getEllipsisState()
         })
+       
+    }
+    getEllipsisState(): boolean{
+        
         const element: Element = ReactDom.findDOMNode(this)! as Element
         if(element.clientWidth< element.scrollWidth){
-            this.setState({
-                ellipsis: true
-            })
+            if(this.props.column !== undefined){
+                return true
+            }
         }
+        return false
     }
-
     /**
      * 调用onSave的方法
      * @param isHideComponent hide 表示隐藏表格上的输入组件，none 表示不做任何操作
@@ -95,7 +100,7 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
                     if (isHideComponent === 'hide') {
                         self.setState({
                             editing: false,
-                            ellipsis: true
+                            ellipsis: this.getEllipsisState()
                         })
                     }
                 }
