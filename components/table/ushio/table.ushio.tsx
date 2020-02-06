@@ -122,7 +122,7 @@ export const baseTable = () => {
         <>
             <Button
                 onClick={() => {
-                    table.refresh({
+                    table.reload({
                         a: '1'
                     })
                 }}
@@ -393,20 +393,31 @@ export const cellCheckboxTable = () => {
                         return render
                     }
                 } as TableEvent<UserMoment>}
-                defaultPageSize={10}
                 loadData={({ page, pageSize }: { page: number, pageSize: number, param?: any, sorter?: TableSorter }) => {
                     return new Promise<{ dataSource: UserMoment[], total: number }>((re) => {
                         let data: UserMoment[] = []
                         for (let i = 0; i < pageSize!; i++) {
-                            data.push({
-                                'id': `${page} id ${i}`,
-                                'name': '0',
-                                'six': `${page} six`,
-                                'six1': '2018-11-11',
-                                'six2': `1231`,
-                                'six3': `${page} six--------------sadasdasd---------asdadasdads---------asadas`,
-                                'six4': `${page} six`,
-                            })
+                            if(i === 0){
+                                data.push({
+                                    'id': `${page} id ${i}`,
+                                    'name': '0',
+                                    'six': `${page} six`,
+                                    'six1': '2018-11-11',
+                                    'six2': `1231`,
+                                    'six3': `${page} six3`,
+                                    'six4': `${page} six4`,
+                                })  
+                            }else{
+                                data.push({
+                                    'id': `${page} id ${i}`,
+                                    'name': '0',
+                                    'six': `${page} six`,
+                                    'six1': '2018-11-11',
+                                    'six2': `1231`,
+                                    'six3': `${page} six--------------sadasdasd---------asdadasdads---------asadas`,
+                                    'six4': `${page} six`,
+                                })
+                            }
                         }
                         re({ dataSource: data, total: 2000 })
                     })
@@ -456,7 +467,7 @@ export const zebraCrossingTable = () => {
         <>
             <Button
                 onClick={() => {
-                    table.refresh({
+                    table.reload({
                         a: '1'
                     })
                 }}
