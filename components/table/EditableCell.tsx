@@ -110,8 +110,7 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
     }
 
     renderFormItem = (form: WrappedFormUtils) => {
-        const { column, record, rowIndex, editingType } = this.props
-        const self = this
+        const { column, record, rowIndex } = this.props
         this.form = form
         const dataIndex: string = column.dataIndex as string
         const inputType: JSX.Element = column!.inputType || <Input />
@@ -125,12 +124,7 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
                         input.focus()
                     }
                 }
-            },
-            onBlur: () => {
-                if (editingType === 'cell') {
-                    self.onCellSave('hide')
-                }
-            },
+            }
         }))
     }
 
@@ -194,8 +188,7 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
     renderCell = (tableContextProps: TableContextProps<T>) => {
         const {  children, inputModal, column } = this.props
         this.form = tableContextProps.form!
-        // const textAlign = column === undefined ?  undefined : column.align
- 
+
         // 如果列允许编辑
         if (column !== undefined && column.isEditing) {
             if (inputModal === 'click') {
