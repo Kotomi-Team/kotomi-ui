@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { Modal } from '../Modal';
+import { Modal } from '../components/modal/Modal';
 import { Button } from 'antd';
 
 

@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { Table, ColumnProps, TableEvent, TableSorter } from '../Table';
+import { Table, ColumnProps, TableEvent, TableSorter } from '../components/table/Table';
 import { Button, Checkbox, Select, DatePicker } from 'antd';
 import moment from 'moment';
 
@@ -84,7 +84,6 @@ class User {
 }
 
 export const baseTable = () => {
-    let table: any = null
     let columns: ColumnProps<User>[] = [{
         dataIndex: '$index',
         title: '#',
@@ -120,45 +119,9 @@ export const baseTable = () => {
 
     return (
         <>
-            <Button
-                onClick={() => {
-                    table.reload({
-                        a: '1'
-                    })
-                }}
-            >
-                click query param
-        </Button>
             <Table<User>
                 columns={columns}
-                isEditing
-                editingType="row"
-                rowSelection='multiple'
-                refExt={(tempTable: any) => {
-                    table = tempTable
-                }}
-                event={{
-                    onSelect: (selectedRowKeys: string[], selected: boolean) => {
-                        console.log(selectedRowKeys)
-                        console.log(selected)
-                    },
-
-                    onRow: (record: User) => {
-                        return {
-                            onClick: () => {
-                                console.log(record)
-                            }
-                        }
-                    },
-                    onSave: async (record, type) => {
-                        console.log(record)
-                        console.log(type)
-                        return true
-                    }
-                } as TableEvent<User>}
-
-                loadData={({ page, pageSize, param }: { page: number, pageSize: number, param?: any, sorter?: TableSorter }) => {
-                    console.log(param)
+                loadData={({ page, pageSize }: { page: number, pageSize: number, sorter?: TableSorter }) => {
                     return new Promise<{ dataSource: User[], total: number }>((re) => {
                         let data: User[] = []
                         for (let i = 0; i < pageSize!; i++) {
@@ -181,8 +144,6 @@ export const baseTable = () => {
 }
 
 export const rowEditorTable = () => {
-    let tableDom: any = undefined
-
     let columns: ColumnProps<User>[] = [{
         dataIndex: '$index',
     }, {
@@ -223,49 +184,15 @@ export const rowEditorTable = () => {
         dataIndex: '$operating#del',
         title: '操作-删除',
     }*/, {
-        dataIndex: '$operating#edit',
-        title: '操作-修改',
+        dataIndex: '$operating',
+        title: '操作',
     }]
 
     return (
         <>
-            <Button
-                onClick={() => {
-                    const dataSourceState = tableDom.getDataSourceState()
-                    console.log(dataSourceState)
-                }}
-            > click get edit state</Button>
             <Table<User>
                 columns={columns}
-                refExt={(self: any) => { tableDom = self }}
-                rowSelection='multiple'
-                editingType="row"
-                event={{
-                    onSelect: (selectedRowKeys: string[], selected: boolean) => {
-                        console.log(selectedRowKeys)
-                        console.log(selected)
-                    },
-                    onRow: (record: User) => {
-                        return {
-                            onClick: () => {
-                                console.log(record)
-                            }
-                        }
-                    },
-                    onSave: async (record, type) => {
-                        console.log(record)
-                        console.log(type)
-                        return true
-                    },
-                    onBeforeRenderPromiseColumn:(record:User , column: ColumnProps<User> ,render: JSX.Element)=>{
-                        if(column.dataIndex === '$operating#edit'){
-                            if(record.id === '1 id 1'){
-                                return <></>
-                            }
-                        }
-                        return render
-                    }
-                } as TableEvent<User>}
+                // editingType="row"
                 loadData={({ page, pageSize }: { page: number, pageSize: number, param?: any, sorter?: TableSorter }) => {
                     return new Promise<{ dataSource: User[], total: number }>((re) => {
                         let data: User[] = []
@@ -376,23 +303,7 @@ export const cellCheckboxTable = () => {
             > click edit stash</Button>
             <Table<UserMoment>
                 columns={columns}
-                refExt={(self: any) => { tableDom = self }}
-                rowSelection='multiple'
                 editingType="cell"
-                event={{
-                    onSelect: (selectedRowKeys: string[], selected: boolean) => {
-                        console.log(selectedRowKeys)
-                        console.log(selected)
-                    },
-                    onSave: async (record) => {
-                        console.log(record)
-                        return true
-                    },
-                    onBeforeRenderPromiseColumn:(record: UserMoment , column: ColumnProps<UserMoment> ,render: JSX.Element)=>{
-                        console.log('--------------onBeforeRenderPromiseColumn------------')
-                        return render
-                    }
-                } as TableEvent<UserMoment>}
                 loadData={({ page, pageSize }: { page: number, pageSize: number, param?: any, sorter?: TableSorter }) => {
                     return new Promise<{ dataSource: UserMoment[], total: number }>((re) => {
                         let data: UserMoment[] = []
@@ -478,27 +389,12 @@ export const zebraCrossingTable = () => {
                 columns={columns}
                 isEditing
                 editingType="row"
-                rowSelection='multiple'
                 refExt={(tempTable: any) => {
                     table = tempTable
                 }}
-                event={{
-                    onSelect: (selectedRowKeys: string[], selected: boolean) => {
-                        console.log(selectedRowKeys)
-                        console.log(selected)
-                    },
-
-                    onRow: (record: User) => {
-                        return {
-                            onClick: () => {
-                                console.log(record)
-                            }
-                        }
-                    },
-                    
-                    onSave: async (record, type) => {
+                event={{                    
+                    onSave: async (record, _type) => {
                         console.log(record)
-                        console.log(type)
                         return true
                     },
 

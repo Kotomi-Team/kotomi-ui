@@ -1,6 +1,6 @@
 import React,{useState} from 'react'
 
-import { Form } from '../Form';
+import { Form } from '../components/form/Form';
 import { Input, Button,Form as AntForm } from 'antd';
 import { FormComponentProps } from 'antd/lib/form/Form';
 
@@ -45,7 +45,7 @@ class AntDesignForm extends React.Component<FormComponentProps> {
 
 
 const TempForm = AntForm.create({
-    onValuesChange:(props,changedValues,_allValues)=>{
+    onValuesChange:(_props,changedValues,_allValues)=>{
         console.log(changedValues)
     }
 })(AntDesignForm)

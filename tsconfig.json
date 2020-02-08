@@ -24,6 +24,6 @@
       "esModuleInterop": true,
       "downlevelIteration": true
     },
-    "include": ["components/**/*"],
+    "include": ["components/**/*", "test/form.ushio.tsx", "test/modal.ushio.tsx", "test/table.ushio.tsx"],
     "exclude": ["node_modules", "build", "scripts"]
 }
