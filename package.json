@@ -4,6 +4,7 @@
   "description": "基于Ant Design做的组件扩展，开发的一套组件库",
   "scripts": {
     "start": "start-storybook -p 3000",
+    "start:doc": "docsify serve docs -p 3100",
     "build": "antd-tools run compile",
     "build:typedoc": "typedoc --out build/docs/typedoc",
     "build:storybook": "build-storybook  -c .storybook -o docs",

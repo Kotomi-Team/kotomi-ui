@@ -421,15 +421,28 @@ export const zebraCrossingTable = () => {
                     return new Promise<{ dataSource: User[], total: number }>((re) => {
                         let data: User[] = []
                         for (let i = 0; i < pageSize!; i++) {
-                            data.push({
-                                'id': `${page} id ${i}`,
-                                'name': `${page} name`,
-                                'six': `${page} six`,
-                                'six1': `${page} six`,
-                                'six2': `${page} six`,
-                                'six3': `${page} six`,
-                                'six4': `${page} six`,
-                            })
+                            if(i ===0 ){
+                                data.push({
+                                    'id': `${page} id ${i}`,
+                                    'name': `我忘记了所有，被忘记了，被摧毁了，不完全被解雇了，据称 ，难忘的。`,
+                                    'six': `${page} six`,
+                                    'six1': `${page} six`,
+                                    'six2': `${page} six`,
+                                    'six3': `${page} six`,
+                                    'six4': `${page} six`,
+                                })
+                            }else{
+                                data.push({
+                                    'id': `${page} id ${i}`,
+                                    'name': `${page} name`,
+                                    'six': `${page} six`,
+                                    'six1': `${page} six`,
+                                    'six2': `${page} six`,
+                                    'six3': `${page} six`,
+                                    'six4': `${page} six`,
+                                })
+                            }
+                            
                         }
                         re({ dataSource: data, total: 2000 })
                     })

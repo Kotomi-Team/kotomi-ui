@@ -65,7 +65,11 @@ return (
 )
 ```
 
-## 一个简单的表格
+## 代码演示
+
+以下采用codesandbox，各种Table的Api使用的例子
+
+### 一个简单的表格
 
 <iframe
      src="https://codesandbox.io/embed/basetable-7up1w?fontsize=14&hidenavigation=1&theme=dark"
@@ -75,7 +79,7 @@ return (
      sandbox="allow-modals allow-forms allow-popups allow-scripts allow-same-origin"
    ></iframe>
 
-## 支持行编辑的表格
+### 支持行编辑的表格
 
 <iframe
      src="https://codesandbox.io/embed/rowedittable-qkywu?fontsize=14&hidenavigation=1&theme=dark"
@@ -86,7 +90,7 @@ return (
    ></iframe>
 
 
-### Table 属性
+## Table 属性
 
 |名称        | 类型                | 默认值  | 描述
 |----       |----                |-----   |------
@@ -106,7 +110,7 @@ return (
 |event          |  TableEvent<T>   |    |  当前表格的事件信息
 
 
-### Table 事件
+## Table 事件
 
 |名称        | 类型                                                    | 默认值  | 描述
 |----       |----                                                     |-----   |------
@@ -119,7 +123,7 @@ return (
 
 > 保存数据，只针对row编辑模式，cell编辑模式下onSave会在点击下一个单元格的时候触发
 
-### Table 方法
+## Table 方法
 
 |名称       | 描述
 |----       |------
@@ -128,7 +132,7 @@ return (
 |restore    | 恢复修改的数据，将当前表格恢复到未修改之前
 
 
-### Column 属性
+## Column 属性
  
 |名称        | 类型                | 默认值  | 描述
 |----       |----                |-----   |------
@@ -140,7 +144,7 @@ return (
 
 > 以上是对于Ant Design表格的扩展属性，其他常规属性参照 [https://ant.design/components/table-cn/#Column](https://ant.design/components/table-cn/#Column) 的表格的参数。
 
-#### Column.dataIndex 约定特殊字符
+### Column.dataIndex 约定特殊字符
 
 在Column的dataIndex中约定了一下的特殊字符具有特殊的含义
 

@@ -46,11 +46,11 @@ type Props = {
      */
     script: string
     form?: WrappedFormUtils
+
+    // 全局默认的lael宽度
     labelCol?: ColProps
     onSubmit?: React.FormEventHandler<HTMLFormElement>
     wrapperCol?: ColProps
-    key?: string 
-
     // 当前表单的校验规则
     rules?: Rule[]
 
@@ -245,7 +245,7 @@ class Form extends React.Component<Props & FormComponentProps, State> {
     renderFormItems():JSX.Element[]  {
         const formItemsProps = this.getScriptToJsonArray()
         const formItems:JSX.Element[] = []
-        const { form, labelCol, wrapperCol, key } = this.props
+        const { form, labelCol, wrapperCol } = this.props
         formItemsProps.forEach((itemProps,index) => {
             const cols:JSX.Element[] = []
             itemProps.forEach((itemCol) => {
@@ -267,7 +267,7 @@ class Form extends React.Component<Props & FormComponentProps, State> {
                         <Col
                             span={itemCol.span}
                             key={ 'form-item-col' + itemCol.name + index}
-                            className={`kotomi-components-form-${itemCol.name}${key === undefined ? '':`-${key}`}`}
+                            className={`kotomi-components-form-col`}
                         >
                              <AntForm.Item
                                 key={ 'form-item' + itemCol.name + index}
