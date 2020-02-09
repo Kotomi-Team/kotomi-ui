@@ -1,3 +1,7 @@
 /node_modules/
 /build/
+/es/
+/lib/
 package-lock.json
+yarn.lock
+*.log

@@ -5,6 +5,7 @@ import { Form, Input,Tooltip  } from 'antd'
 import { ColumnProps, TableContext, TableContextProps } from './Table'
 import { WrappedFormUtils } from 'antd/lib/form/Form';
 
+import './style/index'
 
 type Props<T> = {
     // 列的信息
@@ -91,7 +92,7 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
                     if(JSON.stringify(record) !== JSON.stringify(newRecord)){
                         onSave({
                             ...newRecord
-                        }, 'UPDATE').then((respState)=>{
+                        }, 'UPDATE').then((_respState)=>{
                             resolve()
                         })
                     }

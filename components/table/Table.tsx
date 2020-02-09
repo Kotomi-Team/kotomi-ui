@@ -5,7 +5,7 @@ import { WrappedFormUtils, ValidationRule } from 'antd/lib/form/Form';
 import { HotKeys } from 'react-hotkeys';
 import { EditableCell } from './EditableCell'
 
-import './Table.less'
+import './style/index'
 
 export type TableContextProps<T> = {
     form?: WrappedFormUtils
@@ -318,7 +318,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
             rowKey
         } = this.props
         const dataSourceState = this.dataSourceState
-        column.render = (text: string, record: T) => {
+        column.render = (_text: string, record: T) => {
             if (
                 dataSourceState.update.filter((data) => {
                     return data[rowKey] === record[rowKey]
@@ -472,7 +472,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
             event,
             rowKey
         } = this.props
-        column.render = (text: string, record: T) => {
+        column.render = (_text: string, record: T) => {
             const editor = (
                 <>
                     <Icon
@@ -512,7 +512,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
 
     // 获取index列的信息
     protected getColumnIndex(column: ColumnProps<T>) {
-        column.render = (text: any, record: T, index: number) => {
+        column.render = (_text: any, _record: T, index: number) => {
             return <a>{index + 1}</a>
         }
         if(column.width === undefined){
@@ -794,7 +794,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                             defaultPageSize: this.props.defaultPageSize,
                             total: this.state.total,
                         }}
-                        onChange={(pagination, filters, sorter) => {
+                        onChange={(pagination, _filters, sorter) => {
                             this.requestLoadData({
                                 page: pagination.current!,
                                 pageSize: pagination.pageSize!,
@@ -805,7 +805,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                             })
                         }}
                         rowSelection={this.getRowSelection()}
-                        onHeaderRow={(columns: ColumnProps<T>[]) =>{
+                        onHeaderRow={(_columns: ColumnProps<T>[]) =>{
                             let propsStyle = {}
                             if(this.props.event!.onRenderHeaderRowCssStyle){
                                 propsStyle = this.props.event!.onRenderHeaderRowCssStyle!()
