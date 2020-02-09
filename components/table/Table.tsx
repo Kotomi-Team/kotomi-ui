@@ -758,20 +758,11 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                     form: this.props.form,
                     table: this
                 }}>
-                    <div 
-                        style={{
-                            position: 'fixed',
-                            top: '0px',
-                            right: '0px',
-                            bottom: '0px',
-                            left: '0px',
-                        }}
-                        onClick={()=>{
-                            this.editHide()
-                        }}
-                    />
                     <AntTable
-                        style={this.props.style}
+                        style={{
+                            pointerEvents: 'auto',
+                            ...this.props.style
+                        }}
                         rowKey={this.props.rowKey}
                         columns={this.getColumns()}
                         rowClassName={() => 'kotomi-components-table-row'}

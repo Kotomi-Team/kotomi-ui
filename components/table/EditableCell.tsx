@@ -111,7 +111,7 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
     }
 
     renderFormItem = (form: WrappedFormUtils) => {
-        const { column, record, rowIndex } = this.props
+        const { column, record, rowIndex,editingType } = this.props
         this.form = form
         const dataIndex: string = column.dataIndex as string
         const inputType: JSX.Element = column!.inputType || <Input />
@@ -125,7 +125,15 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
                         input.focus()
                     }
                 }
+            },
+
+            onBlur:()=>{
+                // 失去焦点的时候隐藏输入框
+                if(editingType === 'cell'){
+                    this.onCellSave('hide')
+                }
             }
+            
         }))
     }
 
