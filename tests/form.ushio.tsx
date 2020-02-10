@@ -125,3 +125,28 @@ export const stateForm = () => {
     )
 }
 
+
+export const testColForm = () => {
+    return (
+        <Form
+            script={`
+                [name|Field0 input 8-8-16][name|Field1 input 8-8-16][name|Field2 input 8-8-16]
+                [name1|Field4 input 24-2.65-21.35]      
+            `}
+            rules={[{
+                name:'name',
+                rules:[{ required: true, message: '请输入用户名' }]
+            }]}
+            components={[{
+                name: 'drop',
+                component: <Input />
+            }]}
+            event={{
+                onValuesChange:(changedValues: any, allValues: any)=>{
+                    console.log(changedValues)
+                    console.log(allValues)
+                }
+            }}
+        />
+    )
+}
