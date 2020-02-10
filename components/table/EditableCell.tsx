@@ -57,6 +57,7 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
         })
        
     }
+    
     getEllipsisState(): boolean{
         
         const element: Element = ReactDom.findDOMNode(this)! as Element
