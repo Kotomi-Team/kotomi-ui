@@ -40,6 +40,7 @@
     }
   },
   "devDependencies": {
+    "@ant-design/tools": "^8.0.4",
     "@babel/core": "~7.8.3",
     "@storybook/addon-actions": "~5.2.8",
     "@storybook/addon-console": "~1.2.1",
@@ -50,21 +51,20 @@
     "@storybook/react": "~5.2.8",
     "@types/jest": "~24.0.23",
     "@types/lodash": "~4.14.149",
-    "@ant-design/tools": "^8.0.4",
+    "@types/react-color": "~3.0.1",
     "@types/react-dom": "~16.9.5",
     "@typescript-eslint/eslint-plugin": "~2.14.0",
     "@typescript-eslint/parser": "~2.14.0",
-    "@types/react-color": "~3.0.1",
-    "jest": "~24.9.0",
-    "husky": "~4.0.0",
+    "babel-loader": "~8.0.6",
     "eslint": "~6.8.0",
-    "typedoc": "~0.15.3",
+    "eslint-plugin-react": "~7.17.0",
+    "husky": "~4.0.0",
+    "jest": "~24.9.0",
+    "react-docgen-typescript-loader": "~3.6.0",
     "ts-jest": "~24.2.0",
     "ts-loader": "~6.2.1",
-    "typescript": "~3.7.2",
-    "babel-loader": "~8.0.6",
-    "eslint-plugin-react": "~7.17.0",
-    "react-docgen-typescript-loader": "~3.6.0"
+    "typedoc": "~0.15.3",
+    "typescript": "~3.7.2"
   },
   "dependencies": {
     "antd": "~3.26.8",
