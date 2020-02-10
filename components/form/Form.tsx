@@ -1,4 +1,5 @@
 import React from 'react'
+import ReactDom from 'react-dom'
 import { Form as AntForm, Row, Col, Input } from 'antd'
 import { WrappedFormUtils, ValidationRule, FormComponentProps } from 'antd/lib/form/Form';
 import { ColProps } from 'antd/lib/grid/col';
@@ -218,12 +219,12 @@ class Form extends React.Component<Props & FormComponentProps, State> {
                                 fromItemProps.span = Number.parseInt(cols[0])
                                 if(cols[1]){
                                     fromItemProps.labelCol = {
-                                        md: Number.parseInt(cols[1])
+                                        md: Number.parseFloat(cols[1])
                                     }
                                 }
                                 if(cols[2]){
                                     fromItemProps.wrapperCol =  {
-                                        md: Number.parseInt(cols[2])
+                                        md: Number.parseFloat(cols[2])
                                     }
                                 }
                             }
@@ -265,15 +266,33 @@ class Form extends React.Component<Props & FormComponentProps, State> {
 
                     const col:JSX.Element = (
                         <Col
-                            span={itemCol.span}
+                            span={Math.floor(itemCol.span)}
                             key={ 'form-item-col' + itemCol.name + index}
                             className={`kotomi-components-form-col`}
                         >
                              <AntForm.Item
                                 key={ 'form-item' + itemCol.name + index}
                                 label={itemCol.label}
-                                labelCol = {colLabelCol}
-                                wrapperCol = {colWrapperCol}
+                                labelCol = {{
+                                    md: Math.floor(colLabelCol!.md as number)
+                                }}
+                                wrapperCol = {{
+                                    md: Math.ceil(colWrapperCol!.md as number)
+                                }}
+                                ref={(dom)=>{
+                                    const element = ReactDom.findDOMNode(dom) as Element
+                                    if(element){
+                                        if(colLabelCol ){
+                                             const labelElement:Element = element.getElementsByClassName('ant-col-md-'+  Math.floor(colLabelCol.md as number) )[0]
+                                             labelElement.setAttribute('style',`width:${(colLabelCol.md as number/24) * 100}%`)
+                                        }
+                                        
+                                        if(colWrapperCol){
+                                             const wrapperElement:Element = element.getElementsByClassName('ant-col-md-'+ Math.ceil(colWrapperCol!.md as number) )[0]
+                                             wrapperElement.setAttribute('style',`width:${(colWrapperCol.md as number/24) * 100}%`)
+                                        }
+                                    }
+                                 }}
                              >
                                 {form.getFieldDecorator(itemCol.name, {
                                     rules,
