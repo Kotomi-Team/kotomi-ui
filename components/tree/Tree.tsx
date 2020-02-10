@@ -45,7 +45,7 @@ type Props = {
     checkedKeys?: string[]
 
     /**
-     * 当前表格的事件
+     * 当前Tree的事件
      */
     event?: TreeEvent
 }
