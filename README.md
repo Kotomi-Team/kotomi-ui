@@ -29,9 +29,3 @@ npm install kotomi-ui --save
 ```bash
 yarn add kotomi-ui
 ```
-
-## 🔨 文档
-
-- [Table 说明以及使用文档](./components/table/Table.md)
-
-
