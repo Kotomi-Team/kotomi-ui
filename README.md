@@ -1,6 +1,7 @@
 <h1 align="center">Kotomi UI</h1>
 <div align="center">基于Ant Design做的组件扩展，开发的一套组件库</div>
 
+
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/e250572478fe40f18b4164d325c78176)](https://www.codacy.com/gh/Kotomi-Team/kotomi-ui?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Kotomi-Team/kotomi-ui&amp;utm_campaign=Badge_Grade) ![![npm](https://www.npmjs.com/package/kotomi-ui)](https://img.shields.io/npm/dw/kotomi-ui?label=npm)
 
 ## ✨ 特性
@@ -9,6 +10,8 @@
 - 🌈 语义话的表单定义，无需构建复杂的xml或者json格式。
 - 🛡 使用 TypeScript 开发，提供完整的类型定义文件。
 - 🌍 使用storybook 包含大量例子
+
+> Day before yesterday I saw a rabbit, and yesterday a deer, and today, you.
 
 ## 🖥 支持环境
 
@@ -29,3 +32,6 @@ npm install kotomi-ui --save
 ```bash
 yarn add kotomi-ui
 ```
+
+
+
