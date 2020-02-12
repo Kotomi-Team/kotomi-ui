@@ -338,7 +338,9 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                 </>
             )
         }
-        column.width = 20
+        if(column.width === undefined){
+            column.width = 20
+        }
     }
 
     protected getColumnOperatingRender(editor: JSX.Element, record: any) : JSX.Element {
@@ -431,7 +433,9 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
             }
             return columnOperatingRender
         }
-        column.width = 80
+        if(column.width === undefined){
+            column.width = 80
+        }
     }
 
     protected getColumnOperatingDel(column: ColumnProps<T>) {
@@ -462,7 +466,9 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
             }
             return editor
         }
-        column.width = 80
+        if(column.width === undefined){
+            column.width = 80
+        }
     }
     
     // 获取操作列的信息
@@ -507,7 +513,9 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
             }
             return operatingRender
         }
-        column.width = 80
+        if(column.width === undefined){
+            column.width = 80
+        }
     }
 
     // 获取index列的信息
@@ -632,7 +640,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                     }
                 }
                 // 给一个宽度的默认值
-                if (column.width == null) {
+                if (column.width === undefined) {
                     column.width = 120
                 }
             }
