@@ -1,6 +1,6 @@
 import React,{useState} from 'react'
 
-import { Form } from '../components/form/Form';
+import { Form,FormUtils } from '../components/form/Form';
 import { Input, Button,Form as AntForm } from 'antd';
 import { FormComponentProps } from 'antd/lib/form/Form';
 
@@ -80,6 +80,7 @@ export const baseForm = () => {
     )
 }
 
+let form:FormUtils
 export const stateForm = () => {
     const [prohibit, setProhibit] = useState(true)
     const [clickNumber, setClickNumber] = useState(0)
@@ -87,9 +88,13 @@ export const stateForm = () => {
         <>
             <Button
                 onClick={()=>{
-                    console.log('event: stateForm onClick')
                     setClickNumber(clickNumber+1)
                     setProhibit(!prohibit)
+                    form.validateFieldsPromise().then(({errors,values})=>{
+                        if(!errors){
+                            console.log(values)
+                        }
+                    })
                 }}
             >
                 click number {clickNumber}
@@ -100,6 +105,10 @@ export const stateForm = () => {
                     [name1|Field4 drop 8]       [code2|Field5 drop 16-2-22]
                     [name2|Field6 drop 16-2-22] [code3|Field7 drop 8]
                 `}
+                refExt={(selfForm)=>{
+                    debugger
+                    form = selfForm
+                }}
                 /*
                 rules={[{
                     name:'name',
@@ -130,8 +139,8 @@ export const testColForm = () => {
     return (
         <Form
             script={`
-                [name|Field0 input 8-8-16][name|Field1 input 8-8-16][name|Field2 input 8-8-16]
-                [name1|Field4 input 24-2.65-21.35]      
+                [name    | Field0 input 8-8-16][name|Field1 input 8-8-16][name|Field2 input 8-8-16]
+                [name1   | Field4 input 24-2.65-21.35]      
             `}
             rules={[{
                 name:'name',
