@@ -54,7 +54,16 @@
 |initialValues|any                | 无                 | 初始化的默认值，仅仅只是在第一次设置有效
 |components   | EditorComponent[] | 无                 | 注册的组件信息,所有注册的组件都可以在语义化脚本中进行布局操作       
 |event        | FormEvent         | 无                 | 表格事件
-|refExt        | (form: WrappedFormUtils)=> void | 无  | 初始化，可拿到ref对象
+|refExt        | (form: FormUtils)=> void | 无  | 初始化，可拿到ref对象
+
+
+### FormUtils
+
+|名称                  | 类型                                     | 默认值   | 描述
+|----                  |----                                     |-----     |------
+|validateFieldsPromise |()=> Promise<{errors: any,values: V}>   |           | 采用validateFieldsPromise的方式进行校验
+
+> 其他参数参照 https://ant.design/components/form-cn/#Form 
 
 ### FormEvent 事件
 

@@ -4,6 +4,15 @@ import { Form as AntForm, Row, Col, Input } from 'antd'
 import { WrappedFormUtils, ValidationRule, FormComponentProps } from 'antd/lib/form/Form';
 import { ColProps } from 'antd/lib/grid/col';
 
+
+export interface FormUtils<V = any> extends WrappedFormUtils<V>{
+    /**
+     * 通过Promise方式进行校验
+     */
+    validateFieldsPromise: ()=> Promise<{errors: any,values: V}>
+}
+
+
 type EditorComponent = {
 
     /**
@@ -66,7 +75,7 @@ type Props = {
     event?: FormEvent
 
     // 扩展的表格信息
-    refExt?: (form: WrappedFormUtils)=> void
+    refExt?: (form: FormUtils)=> void
 }
 
 type State = {
@@ -119,7 +128,19 @@ class Form extends React.Component<Props & FormComponentProps, State> {
     componentDidMount(){
         const {refExt , form} = this.props
         if(refExt){
-            refExt(form)
+            const proxyForm: any = form 
+            // fix https://github.com/Kotomi-Team/kotomi-ui/issues/45
+            proxyForm.validateFieldsPromise =  () =>{
+                return new Promise<{errors: any,values: any}>((resolve)=>{
+                    form.validateFields((errors,values)=>{
+                        resolve({
+                            errors,
+                            values
+                        })
+                    })
+                })
+            }
+            refExt(form as FormUtils)
         }
     }
 
@@ -189,7 +210,6 @@ class Form extends React.Component<Props & FormComponentProps, State> {
                             }else{
                                 fromItemProps.label = ''
                             }
-                             
                             // 添加组件
                             fromItemProps.component = components.filter((component) => { 
                                 return component.name.trim() === realConfig[1].trim()
@@ -304,7 +324,7 @@ class Form extends React.Component<Props & FormComponentProps, State> {
                     cols.push(col)
                 }else{
                     // 如果默认找不到对应的组件，则抛出对应的错误信息
-                    throw Error(`Unsupported component. field name [${itemCol.name}]`)
+                    throw Error(`KOTOMI-FORM-5002: Unsupported component. field name [${itemCol.name}]`)
                 }
             })
             formItems.push((
