@@ -244,15 +244,14 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
 
     componentDidMount() {
         const { isAutoLoadData } = this.props
-        
         if(isAutoLoadData){
             this.requestLoadData({
                 page: 1,
                 pageSize: this.props.defaultPageSize!
             })
-            if (this.props.refExt) {
-                this.props.refExt(this)
-            }
+        }
+        if (this.props.refExt) {
+            this.props.refExt(this)
         }
     }
 
