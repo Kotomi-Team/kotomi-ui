@@ -47,7 +47,7 @@ export const baseTree = () => {
                         style={{
                             border: "1px solid #1890ff",
                             width: 40,
-                            height: 100,
+                            height: 500,
                         }}
                     >你好</div>
 

@@ -18,13 +18,12 @@ type Props = {
 }
 
 /**
- * 画布
+ * 添加一个画布,可以对画布的内容进行绘画
  */
 export class Canvas extends React.Component<Props> {
 
     private canvasElement:React.RefObject<HTMLCanvasElement> = React.createRef<HTMLCanvasElement>()
     private childrenElement:React.RefObject<HTMLDivElement> = React.createRef<HTMLDivElement>()
-
 
     componentDidMount(){
         const offsetHeight = this.childrenElement!.current!.offsetHeight
