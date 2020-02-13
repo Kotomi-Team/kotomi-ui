@@ -206,7 +206,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
     state = {
         dataSource: [],
         total: 0,
-        loading: true,
+        loading: false,
         page: 1,
         pageSize: 0,
         sorter: undefined,
