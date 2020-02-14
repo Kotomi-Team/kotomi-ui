@@ -1,6 +1,6 @@
 import React from 'react'
 import ReactDom from 'react-dom'
-import { Form, Input,Tooltip  } from 'antd'
+import { Form, Input, Tooltip } from 'antd'
 
 import { ColumnProps, TableContext, TableContextProps } from './Table'
 import { WrappedFormUtils } from 'antd/lib/form/Form';
@@ -24,14 +24,13 @@ type Props<T> = {
     inputModal?: 'click' | 'display'
     // 当前正在编辑的cell
     currentEditorCell: EditableCell<T>[]
-    className: string 
+    className: string,
 }
 
 type State = {
     editing: boolean
-    ellipsis: boolean
+    ellipsis: boolean,
 }
-
 
 export class EditableCell<T> extends React.Component<Props<T>, State>{
 
@@ -40,29 +39,30 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
         // 单元格编辑模式，默认为
         editingType: 'cell',
         // 默认为点击编辑模式，这个模式只在行编辑模式下生效
-        inputModal: 'click'
+        inputModal: 'click',
+    }
+
+    state = {
+        editing: false,
+        ellipsis: false,
     }
 
     private form: WrappedFormUtils
 
-    state = {
-        editing: false,
-        ellipsis: false
-    }
-
     componentDidMount() {
         this.setState({
             editing: this.props.editing!,
-            ellipsis: this.getEllipsisState()
+            ellipsis: this.getEllipsisState(),
         })
-       
+
     }
-    
-    getEllipsisState(): boolean{
-        
+
+    getEllipsisState(): boolean {
+
+        // eslint-disable-next-line react/no-find-dom-node
         const element: Element = ReactDom.findDOMNode(this)! as Element
-        if(element.clientWidth< element.scrollWidth){
-            if(this.props.column !== undefined){
+        if (element.clientWidth < element.scrollWidth) {
+            if (this.props.column !== undefined) {
                 return true
             }
         }
@@ -72,47 +72,47 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
      * 调用onSave的方法
      * @param isHideComponent hide 表示隐藏表格上的输入组件，none 表示不做任何操作
      */
-    onCellSave(isHideComponent: 'hide' | 'none'):Promise<void> {
-        return new Promise((resolve, _reject)=>{
+    onCellSave(isHideComponent: 'hide' | 'none'): Promise<void> {
+        return new Promise((resolve, _reject) => {
             const self = this
             const { onSave, record, rowIndex } = this.props
             this.form.validateFields((err, values: any) => {
                 if (!err) {
                     const newRecord: any = {
-                        ...record
+                        ...record,
                     }
                     Object.keys(values).forEach((key) => {
                         const recordKey = key.split(';')
-    
+
                         // 修复一列多个输入组件导致的BUG
-                        if (Number.parseInt(recordKey[1]) === rowIndex) {
+                        if (Number.parseInt(recordKey[1], 10) === rowIndex) {
                             newRecord[recordKey[0]] = values[key]
                         }
                     })
 
-                    if(JSON.stringify(record) !== JSON.stringify(newRecord)){
+                    if (JSON.stringify(record) !== JSON.stringify(newRecord)) {
                         onSave({
-                            ...newRecord
-                        }, 'UPDATE').then((_respState)=>{
+                            ...newRecord,
+                        }, 'UPDATE').then((_respState) => {
                             resolve()
                         })
                     }
-                    
+
                     // 如果隐藏组件，则隐藏
                     if (isHideComponent === 'hide') {
                         self.setState({
                             editing: false,
-                            ellipsis: this.getEllipsisState()
+                            ellipsis: this.getEllipsisState(),
                         })
                     }
                 }
             })
-            
+
         })
     }
 
     renderFormItem = (form: WrappedFormUtils) => {
-        const { column, record, rowIndex,editingType } = this.props
+        const { column, record, rowIndex, editingType } = this.props
         this.form = form
         const dataIndex: string = column.dataIndex as string
         const inputType: JSX.Element = column!.inputType || <Input />
@@ -122,26 +122,26 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
         })(React.cloneElement(inputType, {
             ref: (input: Input) => {
                 if (input.focus) {
-                    if(column.inputModal === 'click'){
+                    if (column.inputModal === 'click') {
                         input.focus()
                     }
                 }
             },
 
-            onBlur:()=>{
+            onBlur: () => {
                 // 失去焦点的时候隐藏输入框
-                if(editingType === 'cell'){
+                if (editingType === 'cell') {
                     this.onCellSave('hide')
                 }
-            }
-            
+            },
+
         }))
     }
 
     getClassName(): string | undefined {
         const { editingType, column, inputModal } = this.props
         const className = 'kotomi-components-table-cell-value-wrap'
-        if (editingType === 'cell' && column !== undefined && inputModal ==='click') {
+        if (editingType === 'cell' && column !== undefined && inputModal === 'click') {
             return className
         }
         return undefined
@@ -163,8 +163,8 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
         }
         return true
     }
-    
-    clickEditCell =()=>{
+
+    clickEditCell = () => {
         const { editingType, column, currentEditorCell, rowIndex } = this.props
         const self = this
         const currentKey = column.dataIndex! + rowIndex
@@ -177,26 +177,26 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
             // 并且不是第一次点击
             currentEditorCell.length !== 0
         ) {
-            if(editingType === 'cell'){
+            if (editingType === 'cell') {
                 currentEditorCell.forEach((cell) => {
                     cell.onCellSave('hide')
                 })
                 currentEditorCell.splice(0)
             }
         }
-        if(editingType === 'cell'){
+        if (editingType === 'cell') {
             currentEditorCell.push(self)
         }
         // 如果是表格编辑，则表示点击即可编辑
         if (editingType === 'cell') {
             self.setState({
                 editing: true,
-                ellipsis: false
+                ellipsis: false,
             })
         }
     }
     renderCell = (tableContextProps: TableContextProps<T>) => {
-        const {  children, inputModal, column } = this.props
+        const { children, inputModal, column } = this.props
         this.form = tableContextProps.form!
 
         // 如果列允许编辑
@@ -217,7 +217,7 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
             }
 
             if (inputModal === 'display') {
-        
+
                 return (
                     <>
                         <Form.Item>
@@ -232,17 +232,16 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
     }
 
     render() {
-        const { column } = this.props
-        const textAlign = column === undefined ?  undefined : column.align
-        const td =  (
+        const { column, inputModal } = this.props
+        const textAlign = column === undefined ? undefined : column.align
+        const td = (
             <td
                 className={ this.props.className + " " + this.getClassName() }
                 style={{
-                    textAlign
+                    textAlign,
                 }}
-                onClick={()=>{
-                      const { inputModal, column } = this.props
-                      if(column !== undefined && column.isEditing && inputModal === 'click'){
+                onClick={() => {
+                      if (column !== undefined && column.isEditing && inputModal === 'click') {
                         this.clickEditCell()
                       }
                 }}
@@ -252,7 +251,7 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
                 </TableContext.Consumer>
             </td>
         )
-        if(this.state.ellipsis){
+        if (this.state.ellipsis) {
             return (
                 <Tooltip
                     overlayClassName='kotomi-components-table-cell-ellipsis'

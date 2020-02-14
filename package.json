@@ -8,7 +8,7 @@
     "build": "antd-tools run compile && antd-tools run dist",
     "build:typedoc": "typedoc --out build/docs/typedoc",
     "build:storybook": "build-storybook  -c .storybook -o docs",
-    "lint": "eslint components/* --ext .js,.jsx,.ts,.tsx",
+    "lint": "antd-tools run ts-lint",
     "test": "jest"
   },
   "files": [

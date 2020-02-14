@@ -10,9 +10,9 @@ type Props = {
   onConfirm: (self: Modal) => Promise<boolean>
 
   // 按钮取消事件，非必须
-  onCancel?:(self: Modal) => Promise<boolean>
-  
-  width?:  string | number
+  onCancel?: (self: Modal) => Promise<boolean>
+
+  width?: string | number,
 }
 
 type State = {
@@ -20,69 +20,67 @@ type State = {
   loading: boolean
 
   // 是否显示当前状态
-  visible: boolean
+  visible: boolean,
 }
 
-
-export class Modal extends  React.Component<Props,State> {
-    
-  state = {
-    loading: false,
-    visible: false
-  }
+export class Modal extends React.Component<Props, State> {
 
   static defaultProps = {
     title: '',
-    width: 416
+    width: 416,
   }
 
-  
-  hide(){
+  state = {
+    loading: false,
+    visible: false,
+  }
+
+  hide() {
     this.setState({
       visible: false,
-      loading: false
-    })
-  }
-  
-  // 可以使用then来进行等待方法执行完成
-  async show(){
-    this.setState({
-      visible: true,
-      loading: false
+      loading: false,
     })
   }
 
-  render(){
-    const { loading,visible} = this.state
-    const { title, children , onConfirm, onCancel,width  } = this.props
+  // 可以使用then来进行等待方法执行完成
+  async show() {
+    this.setState({
+      visible: true,
+      loading: false,
+    })
+  }
+
+  render() {
+    const { loading, visible } = this.state
+    const { title, children , onConfirm, onCancel, width } = this.props
     return (
       <AntModal
         title={title}
         confirmLoading={loading}
         visible={visible}
-        onCancel={()=>{
+        onCancel={() => {
           const self = this
-          if(onCancel){
-            onCancel(self).then((respState)=>{
-              if(respState === true){
+          if (onCancel) {
+            onCancel(self).then((respState) => {
+              if (respState === true) {
                 self.hide()
               }
             })
-          }else{
+          }else {
             // 默认逻辑点击取消隐藏
             self.hide()
           }
         }}
         width={width}
         maskClosable={false}
-        onOk={()=>{
+        onOk={() => {
           const self = this
-          if(onConfirm){
+          if (onConfirm) {
             self.setState({
-              loading: true
+              loading: true,
             })
-            onConfirm(self).then((respState)=>{
-              if(respState === true){
+            onConfirm(self).then((respState) => {
+              if (respState === true) {
                 self.hide()
               }
             })
