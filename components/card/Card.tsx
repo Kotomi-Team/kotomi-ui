@@ -17,6 +17,7 @@ const Card = function (props: Props) {
             style={{
                 height: '0px',
                 paddingBottom: '100%',
+                overflow: 'scroll',
                 ...style,
             }}
             {...restProps}/>
