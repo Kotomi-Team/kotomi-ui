@@ -4,8 +4,14 @@ import { Form as AntForm, Row, Col, Input } from 'antd'
 import { WrappedFormUtils, ValidationRule, FormComponentProps } from 'antd/lib/form/Form';
 import { ColProps } from 'antd/lib/grid/col';
 
-type EditorComponent = {
+export interface FormUtils<V = any> extends WrappedFormUtils<V>{
+    /**
+     * 通过Promise方式进行校验
+     */
+    validateFieldsPromise: () => Promise<{errors: any , values: V}>
+}
 
+type EditorComponent = {
     /**
      * 组件的唯一名称
      */
@@ -66,7 +72,7 @@ type Props = {
     event?: FormEvent
 
     // 扩展的表格信息
-    refExt?: (form: WrappedFormUtils) => void,
+    refExt?: (form: FormUtils) => void,
 }
 
 type State = {
@@ -131,10 +137,37 @@ class Form extends React.Component<Props & FormComponentProps, State> {
         super(props);
     }
 
+    render() {
+        const { labelCol , wrapperCol, onSubmit } = this.props
+        return (
+            <AntForm
+                labelCol = {labelCol}
+                wrapperCol= {wrapperCol}
+                onSubmit= {onSubmit}
+            >
+                {
+                    this.renderFormItems()
+                }
+            </AntForm>
+        )
+    }
+
     componentDidMount() {
         const { refExt , form } = this.props
         if (refExt) {
-            refExt(form)
+            const proxyForm: any = form
+            // fix https://github.com/Kotomi-Team/kotomi-ui/issues/45
+            proxyForm.validateFieldsPromise = () => {
+                return new Promise<{errors: any, values: any}>((resolve) => {
+                    form.validateFields((errors, values) => {
+                        resolve({
+                            errors,
+                            values,
+                        })
+                    })
+                })
+            }
+            refExt(form as FormUtils)
         }
     }
 
@@ -214,22 +247,6 @@ class Form extends React.Component<Props & FormComponentProps, State> {
         })
         return formItems
     }
-
-    render() {
-        const { labelCol , wrapperCol, onSubmit } = this.props
-        return (
-            <AntForm
-                labelCol = {labelCol}
-                wrapperCol= {wrapperCol}
-                onSubmit= {onSubmit}
-            >
-                {
-                    this.renderFormItems()
-                }
-            </AntForm>
-        )
-    }
-
     protected getPropsComponents() {
         const { components } = this.props
         return [

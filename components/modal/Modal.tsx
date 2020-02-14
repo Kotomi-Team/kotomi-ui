@@ -83,6 +83,10 @@ export class Modal extends React.Component<Props, State> {
               if (respState === true) {
                 self.hide()
               }
+              // fix https://github.com/Kotomi-Team/kotomi-ui/issues/46
+              self.setState({
+                loading: false,
+              })
             })
           }
         }}

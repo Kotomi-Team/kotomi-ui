@@ -222,12 +222,13 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
     state = {
         dataSource: [],
         total: 0,
-        loading: true,
+        loading: false,
         page: 1,
         pageSize: 0,
         sorter: undefined,
         editingKey: undefined,
     }
+
     // 用户查询参数
     private REQUEST_PARAM = {}
 
@@ -248,9 +249,9 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                 page: 1,
                 pageSize: this.props.defaultPageSize!,
             })
-            if (this.props.refExt) {
-                this.props.refExt(this)
-            }
+        }
+        if (this.props.refExt) {
+            this.props.refExt(this)
         }
     }
 
@@ -458,7 +459,9 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                 </>
             )
         }
-        column.width = 20
+        if (column.width === undefined) {
+            column.width = 20
+        }
     }
 
     protected getColumnOperatingRender(editor: JSX.Element, record: any): JSX.Element {
@@ -551,7 +554,9 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
             }
             return columnOperatingRender
         }
-        column.width = 80
+        if (column.width === undefined) {
+            column.width = 80
+        }
     }
 
     protected getColumnOperatingDel(column: ColumnProps<T>) {
@@ -582,7 +587,9 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
             }
             return editor
         }
-        column.width = 80
+        if (column.width === undefined) {
+            column.width = 80
+        }
     }
 
     // 获取操作列的信息
@@ -627,7 +634,9 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
             }
             return operatingRender
         }
-        column.width = 80
+        if (column.width === undefined) {
+            column.width = 80
+        }
     }
 
     // 获取index列的信息
@@ -752,7 +761,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                     }
                 }
                 // 给一个宽度的默认值
-                if (column.width == null) {
+                if (column.width === undefined) {
                     column.width = 120
                 }
             }
