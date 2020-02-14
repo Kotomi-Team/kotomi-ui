@@ -13,7 +13,7 @@ export type TreeNodeData = {
     // 原数据信息
     dataRef: any
     // 子节点数据
-    children: TreeNodeData[]
+    children: TreeNodeData[],
 }
 
 export type TreeEvent = {
@@ -23,7 +23,7 @@ export type TreeEvent = {
      * @param data 当前树状节点的数据
      * @param render 当前渲染的节点数据
      */
-    onRenderTreeNodeTitle?: (data: TreeNodeData) => string | React.ReactNode
+    onRenderTreeNodeTitle?: (data: TreeNodeData) => string | React.ReactNode,
 }
 
 type Props = {
@@ -47,11 +47,11 @@ type Props = {
     /**
      * 当前Tree的事件
      */
-    event?: TreeEvent
+    event?: TreeEvent,
 }
 
 type State = {
-    treeData: TreeNodeData[]
+    treeData: TreeNodeData[],
 }
 
 /**
@@ -59,13 +59,13 @@ type State = {
  */
 export class Tree extends React.Component<Props, State>{
 
-    state = {
-        treeData: []
+    static defaultProps = {
+        checkable: false,
+        checkedKeys: [],
     }
 
-    static defaultProps={
-        checkable: false,
-        checkedKeys: []
+    state = {
+        treeData: [],
     }
 
     constructor(props: Props) {
@@ -75,17 +75,29 @@ export class Tree extends React.Component<Props, State>{
     }
 
     componentDidMount() {
-        this.props.loadData(undefined).then((treeData:TreeNodeData[])=>{
+        this.props.loadData(undefined).then((treeData: TreeNodeData[]) => {
             this.setState({
-                treeData
+                treeData,
             })
         })
+    }
+
+    render() {
+        return (
+            <AntTree
+                loadData={this.onLoadData}
+                checkedKeys={this.props.checkedKeys}
+                checkable = {this.props.checkable}
+            >
+                {this.renderTreeNodes(this.state.treeData)}
+            </AntTree>
+        )
     }
 
     // 装载节点数据
     protected async onLoadData(node: AntTreeNode) {
         const children = await this.props.loadData(node.props.dataRef)
-        if(children && children.length > 0){
+        if (children && children.length > 0) {
             node.props.dataRef.children = children
             this.setState({
                 treeData: [...this.state.treeData],
@@ -112,17 +124,5 @@ export class Tree extends React.Component<Props, State>{
             }
             return <AntTree.TreeNode title={title} key={item.key} dataRef={item} />;
         })
-    }
-
-    render() {
-        return (
-            <AntTree
-                loadData={this.onLoadData}
-                checkedKeys={this.props.checkedKeys}
-                checkable = {this.props.checkable}
-            >
-                {this.renderTreeNodes(this.state.treeData)}
-            </AntTree>
-        )
     }
 }

@@ -25,6 +25,8 @@
 
 ## 📦 安装
 
+### 使用npm 或者 yarn 进行安装
+
 ```bash
 npm install kotomi-ui --save
 ```
@@ -33,5 +35,14 @@ npm install kotomi-ui --save
 yarn add kotomi-ui
 ```
 
+### 浏览器引用
+
+我们在 npm 发布包内的 kotomi-ui/dist 目录下提供了kotomi.bundle.js。你也可以通过 CDNJS， 或 UNPKG 进行下载。
+
+```
+<script src="//unpkg.com/kotomi-ui@latest/dist/kotomi.bundle.js"></script>
+```
+
+> 强烈不推荐使用已构建文件，这样无法按需加载，而且难以获得底层依赖模块的 bug 快速修复支持。注意：你需要自行引入 moment。
 
 
