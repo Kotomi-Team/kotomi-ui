@@ -76,7 +76,8 @@
     "antd": "~3.26.8",
     "react": "~16.12.0",
     "react-dom": "~16.12.0",
-    "react-hotkeys": "~2.0.0"
+    "react-hotkeys": "~2.0.0",
+    "xlsx": "^0.15.5"
   },
   "peerDependencies": {
     "antd": "~3.26.8",
