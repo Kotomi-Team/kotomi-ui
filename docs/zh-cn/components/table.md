@@ -107,6 +107,7 @@ return (
 |style          | React.CSSProperties |  | 表格的css样式
 |refExt         | (self: Table<T>) => void |  | 初始化表格数据的时候，可通过self获取当前表格对象
 |isAutoLoadData | boolean   | true  | 是否第一次自动装载表格数据，默认为true，第一次初始化就装载数据
+|defaultExportFileName | string | new Date().getTime() | 当前默认导出的文件名，默认为当前时间戳
 |event          |  TableEvent<T>   |    |  当前表格的事件信息
 
 
