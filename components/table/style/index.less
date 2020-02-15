@@ -4,14 +4,28 @@
 }
 
 // 设置form item 的底部消除多余的空白
-.ant-table-tbody > tr > td > .ant-form-item{
-    margin-bottom: 0px;
+.ant-table-tbody {
+    >tr{
+        >td{
+            >.ant-form-item{
+                margin-bottom: 0px;
+                >.ant-form-item-control-wrapper{
+                    >.ant-form-item-control{
+                        line-height: 1.5;
+                        >.ant-form-item-children{
+                            display: flex;
+                        }
+                    }
+                }
+            }
+            >div{
+                // 修复空白无法编辑的问题
+                min-height: 20px;
+            }
+        }
+    }  
 }
 
-// 修复空白无法编辑的问题
-.ant-table-tbody > tr > td > div{
-    min-height: 20px;
-}
 
 // 设置单元格样式
 .kotomi-components-table-cell-value-wrap {
