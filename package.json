@@ -9,6 +9,7 @@
     "build:typedoc": "typedoc --out build/docs/typedoc",
     "build:storybook": "build-storybook  -c .storybook -o docs",
     "lint": "antd-tools run ts-lint",
+    "lint-fix": "antd-tools run ts-lint-fix",
     "test": "jest"
   },
   "files": [

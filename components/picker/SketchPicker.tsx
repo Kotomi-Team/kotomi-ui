@@ -11,40 +11,40 @@ type Props = {
     /**
      * 颜色选择器的宽度
      */
-    width?:  string | number
+    width?: string | number
 
     /**
      * 选择颜色后触发的事件
      */
-    onChange?: (color: Color) => void
+    onChange?: (color: Color) => void,
 }
 
 type State = {
     color?: Color
-    visible: boolean
+    visible: boolean,
 }
 
 /**
  * 颜色选择器
  */
-export class SketchPicker extends React.Component<Props,State>{
-
-    state={
-        color:  undefined,
-        visible: false
-    }
+export class SketchPicker extends React.Component<Props, State>{
 
     static defaultProps = {
-        width: '56px'
+        width: '56px',
     }
-    
-    render(){
+
+    state = {
+        color: undefined,
+        visible: false,
+    }
+
+    render() {
         const { color } = this.props
-        const { color:stateColor, visible } = this.state
+        const { color: stateColor, visible } = this.state
         const realColor = stateColor ? stateColor : color
         return (
             <>
-                <div 
+                <div
                     style={{
                         padding: '5px',
                         background: '#fff',
@@ -53,13 +53,13 @@ export class SketchPicker extends React.Component<Props,State>{
                         display: 'inline-block',
                         cursor: 'pointer',
                     }}
-                    onClick={()=>{
+                    onClick={() => {
                         this.setState({
-                            visible: !visible
+                            visible: !visible,
                         })
                     }}
                 >
-                    <div 
+                    <div
                         style={{
                             width: this.props.width,
                             height: '14px',
@@ -68,19 +68,19 @@ export class SketchPicker extends React.Component<Props,State>{
                         }}
                     />
                 </div>
-                {visible ? ( 
+                {visible ? (
                     <>
-                        <div 
+                        <div
                             style={{
                                 position: 'fixed',
                                 top: '0px',
                                 right: '0px',
                                 bottom: '0px',
                                 left: '0px',
-                            }} 
-                            onClick={()=>{
+                            }}
+                            onClick={() => {
                                 this.setState({
-                                    visible: !visible
+                                    visible: !visible,
                                 })
                             }}
                         />
@@ -92,12 +92,12 @@ export class SketchPicker extends React.Component<Props,State>{
                         >
                             <ReactSketchPicker
                                 color={realColor}
-                                onChange={(color: ColorResult)=>{
-                                    if(this.props.onChange){
-                                        this.props.onChange(color.hex)
+                                onChange={(colorResult: ColorResult) => {
+                                    if (this.props.onChange) {
+                                        this.props.onChange(colorResult.hex)
                                     }
                                     this.setState({
-                                        color: color.hex
+                                        color: colorResult.hex,
                                     })
                                 }}
                             />

@@ -1,10 +1,10 @@
 import React , { useState } from 'react'
 import { Upload as AntUpload, Icon } from 'antd'
-import { UploadChangeParam, UploadLocale, HttpRequestHeader,RcFile } from 'antd/lib/upload/interface'
+import { UploadChangeParam, UploadLocale, HttpRequestHeader, RcFile } from 'antd/lib/upload/interface'
 
 type Props = {
     // 上传到服务器的地址
-    action: string 
+    action: string
     // css样式
     style?: React.CSSProperties
     // 是否禁用当前组件
@@ -20,19 +20,19 @@ type Props = {
     // 当前图片的url地址，用作默认显示的图片地址
     defaultImageUrl?: string
     // 是否是图片集合 true表示显示多张图片，false表示显示一张图片，默认为false
-    showUploadList?: boolean
+    showUploadList?: boolean,
 }
 
 /**
  * 将File对象转换为base64
  */
-function toBase64(img : File | Blob, callback: (result: string | ArrayBuffer) => void) {
+function toBase64(img: File | Blob, callback: (result: string | ArrayBuffer) => void) {
     const reader = new FileReader();
     reader.addEventListener('load', () => callback(reader.result! as string));
     reader.readAsDataURL(img);
 }
 
-const ImageUpload = function(props: Props){
+const ImageUpload = function(props: Props) {
     const [loading, setLoading] = useState(false);
     const [imageUrl, setImageUrl] = useState('');
 
@@ -45,13 +45,13 @@ const ImageUpload = function(props: Props){
         <AntUpload
             {...props}
             listType="picture-card"
-            onChange={(info: UploadChangeParam)=>{
+            onChange={(info: UploadChangeParam) => {
                 if (info.file.status === 'uploading') {
                     setLoading(true)
                 }
                 if (info.file.status === 'done') {
-                    toBase64(info.file.originFileObj!,(result: string )=>{
-                        
+                    toBase64(info.file.originFileObj!, (result: string) => {
+
                         setImageUrl(result)
                         setLoading(false)
                     })
@@ -65,10 +65,9 @@ const ImageUpload = function(props: Props){
 
 ImageUpload.defaultProps = {
     // 默认单个文件上传
-    showUploadList: false
+    showUploadList: false,
 }
 
 export const Upload = {
-    ImageUpload
+    ImageUpload,
 }
-
