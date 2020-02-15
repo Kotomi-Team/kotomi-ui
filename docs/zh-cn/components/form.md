@@ -63,7 +63,7 @@
 |----                  |----                                     |-----     |------
 |validateFieldsPromise |()=> Promise<{errors: any,values: V}>   |           | 采用validateFieldsPromise的方式进行校验
 
-> 其他参数参照 https://ant.design/components/form-cn/#Form 
+> 其他参数参照 https://ant.design/components/form-cn/#Form  
 
 ### FormEvent 事件
 
