@@ -389,7 +389,6 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                                 y: this.props.height,
                             }}
                         />
-
                     </TableContext.Provider>
                 </HotKeys>
             </Dropdown>
@@ -863,6 +862,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
         XLSX.writeFile(book, filename);
     }
 
+    // 获取右键点击
     protected getDropdownMenu() {
         return (
             <Menu>

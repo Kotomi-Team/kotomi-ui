@@ -1,8 +1,9 @@
 import React from 'react'
 
-import { Table, ColumnProps, TableEvent, TableSorter } from '../components/table/Table';
 import { Button, Checkbox, Select, DatePicker } from 'antd';
 import moment from 'moment';
+import { Table, ColumnProps, TableEvent, TableSorter } from '../components/table/Table';
+import { SketchPicker } from '../components/index'
 
 export default { title: 'Table' };
 
@@ -178,7 +179,9 @@ export const rowEditorTable = () => {
         width: 100
     }, {
         dataIndex: 'six4',
-        title: 'six4',
+        title: 'color',
+        isEditing: true,
+        inputType: <SketchPicker />,
         width: 100
     }/*, {
         dataIndex: '$operating#del',
@@ -195,7 +198,7 @@ export const rowEditorTable = () => {
                 // editingType="row"
                 event={{
                     onSave: async ()=>{
-                        return false
+                        return true
                     }
                 }}
                 loadData={({ page, pageSize }: { page: number, pageSize: number, param?: any, sorter?: TableSorter }) => {
