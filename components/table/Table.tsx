@@ -504,7 +504,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                                     onSave({
                                         ...newRecord,
                                     }, 'UPDATE').then((respState) => {
-                                        if (respState !== false) {
+                                        if (respState === true) {
                                             // 修改表格中的数据
                                             const newData: T[] = [...dataSource];
                                             newData.forEach((data, dataIndex) => {

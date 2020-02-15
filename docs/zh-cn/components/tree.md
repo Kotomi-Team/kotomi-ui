@@ -46,6 +46,7 @@
 |名称        | 类型                        | 默认值  | 描述
 |----       |----                          |-----   |------
 |onRenderTreeNodeTitle |(data: TreeNodeData) => string | React.ReactNode| 无 | 渲染节点title的时候触发的事件，返回一个新的title对象
+|onTreeNodeClick       |(data: TreeNodeData,selected: boolean) => void | 无 | 点击树节点触发的事件
 
 ## TreeNodeData
 

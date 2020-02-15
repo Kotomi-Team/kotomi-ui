@@ -1,6 +1,6 @@
 import React from 'react'
 import { Tree as AntTree } from 'antd'
-import { AntTreeNode } from 'antd/lib/tree/Tree'
+import { AntTreeNode, AntTreeNodeSelectedEvent } from 'antd/lib/tree/Tree'
 
 /**
  * 节点数据信息
@@ -24,6 +24,13 @@ export type TreeEvent = {
      * @param render 当前渲染的节点数据
      */
     onRenderTreeNodeTitle?: (data: TreeNodeData) => string | React.ReactNode,
+
+    /**
+     * 点击树节点触发的事件
+     * @param data 当前节点的数据信息
+     * @param selected 当前节点是否选中，true表示选中，false表示不选中
+     */
+    onTreeNodeClick?: (data: TreeNodeData, selected: boolean) => void,
 }
 
 type Props = {
@@ -88,6 +95,13 @@ export class Tree extends React.Component<Props, State>{
                 loadData={this.onLoadData}
                 checkedKeys={this.props.checkedKeys}
                 checkable = {this.props.checkable}
+                onSelect={(_selectedKeys: string[], e: AntTreeNodeSelectedEvent) => {
+                    if (this.props.event) {
+                        if (this.props.event.onTreeNodeClick) {
+                            this.props.event.onTreeNodeClick(e.node.props.dataRef, e.selected!)
+                        }
+                    }
+                }}
             >
                 {this.renderTreeNodes(this.state.treeData)}
             </AntTree>

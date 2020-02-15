@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 const path = require('path');
 
 module.exports = {
@@ -42,6 +43,7 @@ module.exports = {
     externals: {
         "react": "React",
         "react-dom": "ReactDOM",
-        "antd": "Ant.Design"
+        "antd": "Ant.Design",
+        "xlsx": "js-xlsx",
     }
 };

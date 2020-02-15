@@ -28,6 +28,12 @@ export const baseTree = () => {
                     }
                     return [newData]
                 }}
+                event={{
+                    onTreeNodeClick:(data: TreeNodeData,select: boolean)=>{
+                        console.log(data)
+                        console.log(select)
+                    }
+                }}
           />
         </>
     )
