@@ -193,6 +193,11 @@ export const rowEditorTable = () => {
             <Table<User>
                 columns={columns}
                 // editingType="row"
+                event={{
+                    onSave: async ()=>{
+                        return false
+                    }
+                }}
                 loadData={({ page, pageSize }: { page: number, pageSize: number, param?: any, sorter?: TableSorter }) => {
                     return new Promise<{ dataSource: User[], total: number }>((re) => {
                         let data: User[] = []

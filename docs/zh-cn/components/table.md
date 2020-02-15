@@ -117,7 +117,7 @@ return (
 |----       |----                                                     |-----   |------
 |onSelect   |(selectedRowKeys: string[], selected: boolean) => void   |        | 用户点击选择框选中，或者取消的时候触发的事件
 |onRow      |(record: T, index: number) => TableEventListeners        |        |用户点击当前行触发的事件。
-|onSave     | (record: T, type: 'DELETE' | 'UPDATE' | 'CREATE') => Promise<boolean>| | 用户编辑保存会触发他的onSave事件。
+|onSave     | (record: T, type: 'DELETE' &#124; 'UPDATE' &#124; 'CREATE') => Promise<boolean>| | 用户编辑保存会触发他的onSave事件。
 |onBeforeRenderPromiseColumn     | (record:T , column: ColumnProps<T> ,render: JSX.Element) => JSX.Element| |渲染特殊单元格触发的事件
 |onRenderBodyRowCssStyle     | (rowIndex: number, record: T ) => React.CSSProperties| |控制body row的css样式
 |onRenderHeaderRowCssStyle     | () => React.CSSProperties| |控制header row的css样式
