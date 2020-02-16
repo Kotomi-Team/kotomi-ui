@@ -106,7 +106,6 @@ export const stateForm = () => {
                     [name2|Field6 drop 16-2-22] [code3|Field7 drop 8]
                 `}
                 refExt={(selfForm)=>{
-                    debugger
                     form = selfForm
                 }}
                 /*

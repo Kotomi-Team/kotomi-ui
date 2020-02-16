@@ -195,6 +195,11 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
             })
         }
     }
+
+    addBlank(tableContextProps: TableContextProps<T>) {
+        tableContextProps.table!.blankDivElement.current!.style.visibility = 'visible'
+    }
+
     renderCell = (tableContextProps: TableContextProps<T>) => {
         const { children, inputModal, column } = this.props
         this.form = tableContextProps.form!
@@ -206,6 +211,7 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
                 if (!this.isEditing()) {
                     return children
                 } else {
+                    this.addBlank(tableContextProps)
                     return (
                         <>
                             <Form.Item>
