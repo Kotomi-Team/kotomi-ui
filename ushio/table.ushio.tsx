@@ -195,7 +195,8 @@ export const rowEditorTable = () => {
         <>
             <Table<User>
                 columns={columns}
-                // editingType="row"
+                editingType="row"
+                rowSelection="multiple"
                 event={{
                     onSave: async ()=>{
                         return true
@@ -310,6 +311,7 @@ export const cellCheckboxTable = () => {
                 }}
             > click edit stash</Button>
             <Table<UserMoment>
+                rowSelection="multiple"
                 columns={columns}
                 editingType="cell"
                 loadData={({ page, pageSize }: { page: number, pageSize: number, param?: any, sorter?: TableSorter }) => {
