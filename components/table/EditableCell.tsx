@@ -196,8 +196,8 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
         }
     }
 
-    addBlank(tableContextProps: TableContextProps<T>){
-        tableContextProps.table!.blankDivElement.current!.style.visibility='visible'
+    addBlank(tableContextProps: TableContextProps<T>) {
+        tableContextProps.table!.blankDivElement.current!.style.visibility = 'visible'
     }
 
     renderCell = (tableContextProps: TableContextProps<T>) => {

@@ -195,7 +195,6 @@ export type TableEvent<T> = {
  *  和后台交互的表格对象，并且可编辑
  */
 class Table<T> extends React.Component<Props<T>, State<T>>{
-    public blankDivElement: React.RefObject<HTMLDivElement> = React.createRef<HTMLDivElement>()
     static defaultProps = {
         theme: 'small',
         defaultPageSize: 50,
@@ -225,6 +224,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
             },
         },
     }
+    public blankDivElement: React.RefObject<HTMLDivElement> = React.createRef<HTMLDivElement>()
 
     state = {
         dataSource: [],
@@ -298,7 +298,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
     render() {
         return (
             <div>
-                <div 
+                <div
                     style={{
                         position: 'fixed',
                         top: '0px',
@@ -307,9 +307,9 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                         left: '0px',
                     }}
                     ref={this.blankDivElement}
-                    onClick={()=>{
-                        if(this.blankDivElement.current){
-                            this.blankDivElement.current.style.visibility='hidden'
+                    onClick={() => {
+                        if (this.blankDivElement.current) {
+                            this.blankDivElement.current.style.visibility = 'hidden'
                         }
                         this.editHide()
                     }}
