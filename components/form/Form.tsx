@@ -280,7 +280,11 @@ class Form extends React.Component<Props & FormComponentProps, State> {
                 if (matchs) {
                     matchs.forEach((config) => {
                         if (config) {
-                            const realConfig = config.replace(/\[/g, '').replace(/\]/g, '').split(/\s/g)
+                            const realConfig = config
+                            .replace(/\s*\|\s*/g, '|')
+                            .replace(/\[/g, '')
+                            .replace(/\]/g, '')
+                            .split(/\s/g)
                             if (realConfig.length < 2) {
                                 // 如果参数小于二个则直接跳过
                                 return ;
