@@ -195,7 +195,7 @@ export type TableEvent<T> = {
  *  和后台交互的表格对象，并且可编辑
  */
 class Table<T> extends React.Component<Props<T>, State<T>>{
-
+    public blankDivElement: React.RefObject<HTMLDivElement> = React.createRef<HTMLDivElement>()
     static defaultProps = {
         theme: 'small',
         defaultPageSize: 50,
@@ -246,7 +246,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
     private backupDataSource: T[] = []
 
     // 当前正在编辑的cell列
-    private currentEditorCell: any[] = []
+    private currentEditorCell: EditableCell<T>[] = []
 
     componentDidMount() {
         const { isAutoLoadData } = this.props
@@ -297,101 +297,119 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
 
     render() {
         return (
-            <Dropdown overlay={this.getDropdownMenu()} trigger={['contextMenu']}>
-                <HotKeys
-                    keyMap={{
-                        REVOKE: 'ctrl+z',
+            <div>
+                <div 
+                    style={{
+                        position: 'fixed',
+                        top: '0px',
+                        right: '0px',
+                        bottom: '0px',
+                        left: '0px',
                     }}
-                    handlers={{
-                        // 撤销
-                        REVOKE: () => {
-                        this.restore()
-                        },
+                    ref={this.blankDivElement}
+                    onClick={()=>{
+                        if(this.blankDivElement.current){
+                            this.blankDivElement.current.style.visibility='hidden'
+                        }
+                        this.editHide()
                     }}
-                >
-                    <TableContext.Provider value={{
-                        form: this.props.form,
-                        table: this,
-                    }}>
-                        <AntTable
-                            style={{
-                                pointerEvents: 'auto',
-                                ...this.props.style,
-                            }}
-                            rowKey={this.props.rowKey}
-                            columns={this.getColumns()}
-                            rowClassName={() => 'kotomi-components-table-row'}
-                            components={{
-                                body: {
-                                    cell: EditableCell,
-                                },
-                            }}
-                            dataSource={this.getDataSource()}
-                            loading={{
-                                indicator: <Icon
-                                    type='loading'
-                                    style={{ fontSize: 24 }}
-                                    spin
-                                />,
-                                spinning: this.state.loading,
-                            }}
-                            pagination={{
-                                size: 'small',
-                                defaultPageSize: this.props.defaultPageSize,
-                                total: this.state.total,
-                            }}
-                            onChange={(pagination, _filters, sorter) => {
-                                this.requestLoadData({
-                                    page: pagination.current!,
-                                    pageSize: pagination.pageSize!,
-                                    sorter: {
-                                        name: sorter.field,
-                                        order: sorter.order,
-                                    } as TableSorter,
-                                })
-                            }}
-                            rowSelection={this.getRowSelection()}
-                            onHeaderRow={(_columns: ColumnProps<T>[]) => {
-                                let propsStyle = {}
-                                if (this.props.event!.onRenderHeaderRowCssStyle) {
-                                    propsStyle = this.props.event!.onRenderHeaderRowCssStyle!()
-                                }
-                                return {
-                                    style: propsStyle,
-                                }
-                            }}
-                            onRow={(record: T, index: number) => {
-
-                                let propsStyle = {}
-                                if (this.props.event!.onRenderBodyRowCssStyle) {
-                                    propsStyle = this.props.event!.onRenderBodyRowCssStyle!(
-                                        index as number,
-                                        record as T)
-                                }
-
-                                // 如果当前行处于不可编辑状态，则不点击click事件
-                                if (this.state.editingKey === undefined) {
-                                    const onRow = this.props.event!.onRow
-                                    const rowData = onRow === undefined ? {} : onRow(record, index)
+                />
+                <Dropdown overlay={this.getDropdownMenu()} trigger={['contextMenu']}>
+                    <HotKeys
+                        keyMap={{
+                            REVOKE: 'ctrl+z',
+                        }}
+                        handlers={{
+                            // 撤销
+                            REVOKE: () => {
+                            this.restore()
+                            },
+                        }}
+                    >
+                        <TableContext.Provider value={{
+                            form: this.props.form,
+                            table: this,
+                        }}>
+                            <AntTable
+                                style={{
+                                    pointerEvents: 'auto',
+                                    ...this.props.style,
+                                }}
+                                rowKey={this.props.rowKey}
+                                columns={this.getColumns()}
+                                rowClassName={() => 'kotomi-components-table-row'}
+                                components={{
+                                    body: {
+                                        cell: EditableCell,
+                                    },
+                                }}
+                                dataSource={this.getDataSource()}
+                                loading={{
+                                    indicator: <Icon
+                                        type='loading'
+                                        style={{ fontSize: 24 }}
+                                        spin
+                                    />,
+                                    spinning: this.state.loading,
+                                }}
+                                pagination={{
+                                    size: 'small',
+                                    defaultPageSize: this.props.defaultPageSize,
+                                    total: this.state.total,
+                                }}
+                                onChange={(pagination, _filters, sorter) => {
+                                    this.requestLoadData({
+                                        page: pagination.current!,
+                                        pageSize: pagination.pageSize!,
+                                        sorter: {
+                                            name: sorter.field,
+                                            order: sorter.order,
+                                        } as TableSorter,
+                                    })
+                                }}
+                                rowSelection={this.getRowSelection()}
+                                onHeaderRow={(_columns: ColumnProps<T>[]) => {
+                                    let propsStyle = {}
+                                    if (this.props.event!.onRenderHeaderRowCssStyle) {
+                                        propsStyle = this.props.event!.onRenderHeaderRowCssStyle!()
+                                    }
                                     return {
-                                        ...rowData,
                                         style: propsStyle,
                                     }
-                                }
-                                // 否则不相应事件
-                                return {
-                                    style: propsStyle,
-                                }
-                            }}
-                            size='small'
-                            scroll={{
-                                x: this.props.width,
-                                y: this.props.height,
-                            }}
-                        />
-                    </TableContext.Provider>
-                </HotKeys>
-            </Dropdown>
+                                }}
+                                onRow={(record: T, index: number) => {
+
+                                    let propsStyle = {}
+                                    if (this.props.event!.onRenderBodyRowCssStyle) {
+                                        propsStyle = this.props.event!.onRenderBodyRowCssStyle!(
+                                            index as number,
+                                            record as T)
+                                    }
+
+                                    // 如果当前行处于不可编辑状态，则不点击click事件
+                                    if (this.state.editingKey === undefined) {
+                                        const onRow = this.props.event!.onRow
+                                        const rowData = onRow === undefined ? {} : onRow(record, index)
+                                        return {
+                                            ...rowData,
+                                            style: propsStyle,
+                                        }
+                                    }
+                                    // 否则不相应事件
+                                    return {
+                                        style: propsStyle,
+                                    }
+                                }}
+                                size='small'
+                                scroll={{
+                                    x: this.props.width,
+                                    y: this.props.height,
+                                }}
+                            />
+                        </TableContext.Provider>
+                    </HotKeys>
+                </Dropdown>
+            </div>
         )
     }
 
@@ -419,7 +437,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
         })
     }
 
-    protected editHide(): Promise<void[]> {
+    public editHide(): Promise<void[]> {
         const promises: Promise<void>[] = []
         promises.push(new Promise<void>((resolve) => {
             resolve()

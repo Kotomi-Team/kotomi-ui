@@ -342,6 +342,10 @@ export const cellCheckboxTable = () => {
                     })
                 }}
             />
+            <div 
+            onClick={()=>{
+                console.log('----------')
+            }}>点击测试输出</div>
         </>
     )
 }
