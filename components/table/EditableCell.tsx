@@ -138,13 +138,13 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
         }))
     }
 
-    getClassName(): string | undefined {
+    getClassName(): string {
         const { editingType, column, inputModal } = this.props
         const className = 'kotomi-components-table-cell-value-wrap'
         if (editingType === 'cell' && column !== undefined && inputModal === 'click') {
             return className
         }
-        return undefined
+        return ''
     }
 
     isEditing() {
