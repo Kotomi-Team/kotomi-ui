@@ -2,7 +2,7 @@ import React from 'react'
 import { HotKeys } from 'react-hotkeys';
 import { Table as AntTable, Form, Divider, Icon, Menu, Dropdown } from 'antd'
 import { TableSize, ColumnProps as AntColumnProps, TableRowSelection, TableEventListeners } from 'antd/lib/table/interface'
-import { WrappedFormUtils, ValidationRule } from 'antd/lib/form/Form';
+import { WrappedFormUtils, ValidationRule, FormComponentProps } from 'antd/lib/form/Form';
 import XLSX from 'xlsx';
 import { EditableCell } from './EditableCell'
 
@@ -36,7 +36,7 @@ export type TableLocale = {
     deleteText: string,
 }
 
-type Props<T> = {
+interface Props<T> extends FormComponentProps<T> {
 
     /**
      * 列的信息，以下是一些约定的dataIndex的信息
@@ -87,7 +87,7 @@ type Props<T> = {
     /**
      * 数据中默认的key,默认字段为id
      */
-    rowKey: string
+    rowKey?: string
 
     /**
      * 是否可以选中行，默认为不显示选择框
@@ -98,9 +98,6 @@ type Props<T> = {
      *  当前表格的事件
      */
     event?: TableEvent<T>
-
-    // 无需传入，Form.create 进行创建即可
-    form?: WrappedFormUtils
 
     // 当前单元格编辑类型，cell表示单元格编辑，row表示行编辑,none 表示无编辑模式
     // 如果为cell编辑模式，则表格不会触发onSave操作
@@ -467,7 +464,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
     protected isEditing(record: T): boolean {
         const { rowKey } = this.props
         const { editingKey } = this.state
-        return record[rowKey] === editingKey
+        return record[rowKey!] === editingKey
     }
 
     // 获取当前表格操作的状态
@@ -479,10 +476,10 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
         column.render = (_text: string, record: T) => {
             if (
                 dataSourceState.update.filter((data) => {
-                    return data[rowKey] === record[rowKey]
+                    return data[rowKey!] === record[rowKey!]
                 }).length > 0 ||
                 dataSourceState.create.filter((data) => {
-                    return data[rowKey] === record[rowKey]
+                    return data[rowKey!] === record[rowKey!]
                 }).length > 0
             ) {
                 return (
@@ -536,7 +533,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                                             // 修改表格中的数据
                                             const newData: T[] = [...dataSource];
                                             newData.forEach((data, dataIndex) => {
-                                                if (data[rowKey] === newRecord[rowKey]) {
+                                                if (data[rowKey!] === newRecord[rowKey!]) {
                                                     newData.splice(dataIndex, 1, {
                                                         ...newRecord,
                                                     });
@@ -579,7 +576,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                         type="edit"
                         onClick={() => {
                             this.setState({
-                                editingKey: record[rowKey],
+                                editingKey: record[rowKey!],
                             })
                         }}
                     />
@@ -591,7 +588,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                         <a
                             onClick={() => {
                                 this.setState({
-                                    editingKey: record[rowKey],
+                                    editingKey: record[rowKey!],
                                 })
                             }}
                         >
@@ -679,7 +676,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                         type="edit"
                         onClick={() => {
                             this.setState({
-                                editingKey: record[rowKey],
+                                editingKey: record[rowKey!],
                             })
                         }}
                     />
@@ -706,7 +703,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                         <a
                             onClick={() => {
                                 this.setState({
-                                    editingKey: record[rowKey],
+                                    editingKey: record[rowKey!],
                                 })
                             }}
                         >{this.props.locale.editText}</a>
@@ -820,7 +817,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                             // 修改表格中的数据
                             const newData: T[] = [...dataSource];
                             newData.forEach((data, dataIndex) => {
-                                if (data[rowKey] === values[rowKey]) {
+                                if (data[rowKey!] === values[rowKey!]) {
                                     newData.splice(dataIndex, 1, {
                                         ...values,
                                     });
@@ -828,12 +825,12 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                                 }
                             })
 
-                            if (dataSourceState.update.filter((data) => data[rowKey] === values[rowKey]).length > 0) {
+                            if (dataSourceState.update.filter((data) => data[rowKey!] === values[rowKey!]).length > 0) {
                                 // 如果这个属性存在于更新状态中，则修改更新状态中的数据
                                 const { update } = dataSourceState
                                 for (let i = 0; i < update.length; i += 1) {
                                     const element = update[i]
-                                    if (element[rowKey] === values[rowKey]) {
+                                    if (element[rowKey!] === values[rowKey!]) {
                                         // 如果已经改变过状态，设置状态为可改变状态
                                         if (JSON.stringify(element) !== JSON.stringify(values)) {
                                             dataSourceState.update.splice(i, 1, {
@@ -902,7 +899,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
             // fix https://github.com/Kotomi-Team/kotomi-ui/issues/13
             dataSource.forEach((data) => {
                 const keys = Object.keys(data)
-                if (keys.indexOf(rowKey) === -1) {
+                if (keys.indexOf(rowKey!) === -1) {
                     throw new Error(
                         `KOTOMI-TABLE-5001: The returned data should have a unique rowKey field. rowKey is ['${rowKey}']. See https://github.com/Kotomi-Team/kotomi-ui/issues/13`,
                     )
@@ -926,10 +923,10 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
             type: 'checkbox',
             columnWidth: 16,
             onSelect: (record: T, selected: boolean) => {
-                onSelect(record[self.props.rowKey], selected)
+                onSelect(record[self.props.rowKey!], selected)
             },
             onSelectAll: (selected: boolean, _selectedRows: T[], changeRows: T[]) => {
-                onSelect(changeRows.map((record) => record[self.props.rowKey]), selected)
+                onSelect(changeRows.map((record) => record[self.props.rowKey!]), selected)
             },
         }
         switch (this.props.rowSelection) {
@@ -970,7 +967,6 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
     }
 }
 
-// @ts-ignore
-const EditableFormTable = Form.create()(Table);
+const EditableFormTable = Form.create<Props<any>>({})(Table as React.ComponentType<any>);
 
 export { EditableFormTable as Table };

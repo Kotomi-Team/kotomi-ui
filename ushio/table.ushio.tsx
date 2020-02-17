@@ -120,7 +120,7 @@ export const baseTable = () => {
 
     return (
         <>
-            <Table<User>
+            <Table
                 columns={columns}
                 loadData={({ page, pageSize }: { page: number, pageSize: number, sorter?: TableSorter }) => {
                     return new Promise<{ dataSource: User[], total: number }>((re) => {
@@ -193,7 +193,7 @@ export const rowEditorTable = () => {
 
     return (
         <>
-            <Table<User>
+            <Table
                 columns={columns}
                 editingType="row"
                 rowSelection="multiple"
@@ -314,7 +314,7 @@ export const cellCheckboxTable = () => {
                     tableDom.editStash()
                 }}
             > click edit stash</Button>
-            <Table<UserMoment>
+            <Table
                 rowSelection="multiple"
                 columns={columns}
                 editingType="cell"
@@ -403,9 +403,8 @@ export const zebraCrossingTable = () => {
             >
                 click query param
         </Button>
-            <Table<User>
+            <Table
                 columns={columns}
-                isEditing
                 editingType="row"
                 refExt={(tempTable: any) => {
                     table = tempTable
