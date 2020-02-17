@@ -72,7 +72,7 @@ type Props = {
     event?: FormEvent
 
     // 扩展的表格信息
-    refExt?: (form: FormUtils) => void,
+    refExt?: Function | any,
 }
 
 type State = {
@@ -153,21 +153,27 @@ class Form extends React.Component<Props & FormComponentProps, State> {
     }
 
     componentDidMount() {
-        const { refExt , form } = this.props
-        if (refExt) {
-            const proxyForm: any = form
-            // fix https://github.com/Kotomi-Team/kotomi-ui/issues/45
-            proxyForm.validateFieldsPromise = () => {
-                return new Promise<{errors: any, values: any}>((resolve) => {
-                    form.validateFields((errors, values) => {
-                        resolve({
-                            errors,
-                            values,
-                        })
+        const { form } = this.props
+        const proxyForm: any = form
+        // fix https://github.com/Kotomi-Team/kotomi-ui/issues/45
+        proxyForm.validateFieldsPromise = () => {
+            return new Promise<{errors: any, values: any}>((resolve) => {
+                form.validateFields((errors, values) => {
+                    resolve({
+                        errors,
+                        values,
                     })
                 })
+            })
+        }
+
+        if (this.props.refExt) {
+            if (this.props.refExt instanceof Function) {
+                this.props.refExt(form as FormUtils)
+            }else {
+                const refExt = this.props.refExt as any
+                refExt.current = this
             }
-            refExt(form as FormUtils)
         }
     }
 

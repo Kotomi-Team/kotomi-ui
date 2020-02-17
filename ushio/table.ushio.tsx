@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { createRef } from 'react'
 
 import { Button, Checkbox, Select, DatePicker } from 'antd';
 import moment from 'moment';
@@ -120,7 +120,7 @@ export const baseTable = () => {
 
     return (
         <>
-            <Table<User>
+            <Table
                 columns={columns}
                 loadData={({ page, pageSize }: { page: number, pageSize: number, sorter?: TableSorter }) => {
                     return new Promise<{ dataSource: User[], total: number }>((re) => {
@@ -193,7 +193,7 @@ export const rowEditorTable = () => {
 
     return (
         <>
-            <Table<User>
+            <Table
                 columns={columns}
                 editingType="row"
                 rowSelection="multiple"
@@ -314,7 +314,7 @@ export const cellCheckboxTable = () => {
                     tableDom.editStash()
                 }}
             > click edit stash</Button>
-            <Table<UserMoment>
+            <Table
                 rowSelection="multiple"
                 columns={columns}
                 editingType="cell"
@@ -358,7 +358,7 @@ export const cellCheckboxTable = () => {
 
 
 export const zebraCrossingTable = () => {
-    let table: any = null
+    let table = createRef<any>()
     let columns: ColumnProps<User>[] = [{
         dataIndex: '$index',
         title: '#',
@@ -396,20 +396,17 @@ export const zebraCrossingTable = () => {
         <>
             <Button
                 onClick={() => {
-                    table.reload({
+                    table.current!.reload({
                         a: '1'
                     })
                 }}
             >
                 click query param
         </Button>
-            <Table<User>
+            <Table
                 columns={columns}
-                isEditing
                 editingType="row"
-                refExt={(tempTable: any) => {
-                    table = tempTable
-                }}
+                refExt={table}
                 event={{                    
                     onSave: async (record, _type) => {
                         console.log(record)

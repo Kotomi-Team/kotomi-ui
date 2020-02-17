@@ -105,7 +105,7 @@ export const stateForm = () => {
                     [name1|Field4 drop 8]       [code2|Field5 drop 16-2-22]
                     [name2|Field6 drop 16-2-22] [code3|Field7 drop 8]
                 `}
-                refExt={(selfForm)=>{
+                refExt={(selfForm: FormUtils<any>)=>{
                     form = selfForm
                 }}
                 /*
