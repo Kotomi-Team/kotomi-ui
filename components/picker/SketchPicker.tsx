@@ -87,7 +87,7 @@ export class SketchPicker extends React.Component<Props, State>{
                         <div
                             style={{
                                 zIndex: 1000,
-                                position: 'absolute',
+                                position: 'fixed',
                             }}
                         >
                             <ReactSketchPicker
