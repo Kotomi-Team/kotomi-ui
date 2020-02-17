@@ -202,6 +202,10 @@ export const rowEditorTable = () => {
                         return true
                     }
                 }}
+                locale={{
+                    editText: '编辑',
+                    deleteText: '删除'
+                }}
                 loadData={({ page, pageSize }: { page: number, pageSize: number, param?: any, sorter?: TableSorter }) => {
                     return new Promise<{ dataSource: User[], total: number }>((re) => {
                         let data: User[] = []

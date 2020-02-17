@@ -28,6 +28,14 @@ export interface ColumnProps<T> extends AntColumnProps<T> {
     aliasDataIndex?: string
 }
 
+/**
+ * 默认文案设置
+ */
+export type TableLocale = {
+    editText: string
+    deleteText: string,
+}
+
 type Props<T> = {
 
     /**
@@ -98,6 +106,9 @@ type Props<T> = {
     // 如果为cell编辑模式，则表格不会触发onSave操作
     editingType?: 'cell' | 'row' | 'none'
 
+    // 默认文案设置
+    locale?: TableLocale
+
     // 当前表格样式
     style?: React.CSSProperties
 
@@ -113,7 +124,7 @@ type Props<T> = {
      */
     loadData({ page, pageSize, param, sorter }:
         { page: number, pageSize: number, param?: any, sorter?: TableSorter }):
-         Promise<{ dataSource: T[], total: number }>,
+        Promise<{ dataSource: T[], total: number }>,
 }
 
 // 数据状态
@@ -171,7 +182,7 @@ export type TableEvent<T> = {
      * @param render 当前数据渲染的react的节点数据
      * @returns 返回一个react组件对象
      */
-    onBeforeRenderPromiseColumn?: (record: T , column: ColumnProps<T> , render: JSX.Element) => JSX.Element
+    onBeforeRenderPromiseColumn?: (record: T, column: ColumnProps<T>, render: JSX.Element) => JSX.Element
 
     /**
      * 表格渲染的行事件
@@ -211,7 +222,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
             onRow: () => { },
             onSave: () => { },
             // 默认返回默认dom节点
-            onBeforeRenderPromiseColumn: (_record: any , _column: any , render: JSX.Element) => {
+            onBeforeRenderPromiseColumn: (_record: any, _column: any, render: JSX.Element) => {
                 return render
             },
             // 默认不添加其他的css样式
@@ -322,7 +333,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                         handlers={{
                             // 撤销
                             REVOKE: () => {
-                            this.restore()
+                                this.restore()
                             },
                         }}
                     >
@@ -562,7 +573,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
             event,
         } = this.props
         column.render = (_text: string, record: T) => {
-            const editor = (
+            let editor = (
                 <>
                     <Icon
                         type="edit"
@@ -574,6 +585,22 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                     />
                 </>
             )
+            if (this.props.locale && this.props.locale.editText) {
+                editor = (
+                    <>
+                        <a
+                            onClick={() => {
+                                this.setState({
+                                    editingKey: record[rowKey],
+                                })
+                            }}
+                        >
+                            {this.props.locale.editText}
+                        </a>
+                    </>
+                )
+            }
+
             const columnOperatingRender = this.getColumnOperatingRender(editor, record)
             if (event && event.onBeforeRenderPromiseColumn) {
                 return event.onBeforeRenderPromiseColumn(record, column, columnOperatingRender)
@@ -591,7 +618,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
             event,
         } = this.props
         column.render = (_text: string, record: T) => {
-            const editor = (
+            let editor = (
                 <>
                     <Icon
                         type='delete'
@@ -608,6 +635,26 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                     />
                 </>
             )
+            if (this.props.locale && this.props.locale.deleteText) {
+                editor = (
+                    <>
+                        <a
+                            onClick={() => {
+                                const onSave = event!.onSave
+                                if (onSave) {
+                                    onSave(record, 'DELETE').then((respState) => {
+                                        if (respState !== false) {
+                                            self.reload()
+                                        }
+                                    })
+                                }
+                            }}
+                        >
+                            {this.props.locale.deleteText}
+                        </a>
+                    </>
+                )
+            }
             if (event && event.onBeforeRenderPromiseColumn) {
                 return event.onBeforeRenderPromiseColumn(record, column, editor)
             }
@@ -626,7 +673,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
             rowKey,
         } = this.props
         column.render = (_text: string, record: T) => {
-            const editor = (
+            let editor = (
                 <>
                     <Icon
                         type="edit"
@@ -653,6 +700,33 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                     />
                 </>
             )
+            if (this.props.locale && this.props.locale.editText && this.props.locale.deleteText) {
+                editor = (
+                    <>
+                        <a
+                            onClick={() => {
+                                this.setState({
+                                    editingKey: record[rowKey],
+                                })
+                            }}
+                        >{this.props.locale.editText}</a>
+                        <Divider type='vertical' />
+                        <a
+                            onClick={() => {
+                                const onSave = event!.onSave
+                                if (onSave) {
+                                    onSave(record, 'DELETE').then((respState) => {
+                                        if (respState !== false) {
+                                            self.reload()
+                                        }
+                                    })
+                                }
+
+                            }}
+                        >{this.props.locale.deleteText}</a>
+                    </>
+                )
+            }
 
             const operatingRender = this.getColumnOperatingRender(editor, record)
             if (event && event.onBeforeRenderPromiseColumn) {
@@ -809,7 +883,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
      * @param pageSize 当前页面显示的数据条数
      */
     protected requestLoadData({ page, pageSize, param, sorter }: { page: number, pageSize: number, param?: any, sorter?: TableSorter }) {
-        const { defaultParam , rowKey } = this.props
+        const { defaultParam, rowKey } = this.props
         this.setState({
             loading: true,
         })
@@ -886,7 +960,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
             <Menu>
                 <Menu.Item
                     key="xls"
-                    onClick={() => { this.exportData('xls')}}
+                    onClick={() => { this.exportData('xls') }}
                 >
                     <Icon type="file-excel" />
                     Export xls

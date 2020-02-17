@@ -108,8 +108,16 @@ return (
 |refExt         | (self: Table<T>) => void |  | 初始化表格数据的时候，可通过self获取当前表格对象
 |isAutoLoadData | boolean   | true  | 是否第一次自动装载表格数据，默认为true，第一次初始化就装载数据
 |defaultExportFileName | string | new Date().getTime() | 当前默认导出的文件名，默认为当前时间戳
+|locale    |  TableLocale | undefined | 默认文案信息，用来以文字方式显示编辑和删除
 |event          |  TableEvent<T>   |    |  当前表格的事件信息
 
+## TableLocale
+|名称        | 类型                                                    | 默认值  | 描述
+|----       |----                                                     |-----   |------
+|editText   | string                                                   |无     | 表格行编辑下的编辑按钮的文字显示方式
+|deleteText | string                                                   |无     | 表格行编辑下的删除按钮的文字显示方式
+
+> 如果表格locale的值为undefined,那么将显示图标信息。 
 
 ## Table 事件
 
