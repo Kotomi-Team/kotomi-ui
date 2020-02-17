@@ -70,9 +70,9 @@ type Props = {
     components?: EditorComponent[]
 
     event?: FormEvent
-    
+
     // 扩展的表格信息
-    refExt?: (form: FormUtils) => void | any,
+    refExt?: Function | any,
 }
 
 type State = {
@@ -166,11 +166,11 @@ class Form extends React.Component<Props & FormComponentProps, State> {
                 })
             })
         }
-       
+
         if (this.props.refExt) {
-            if(this.props.refExt instanceof Function){
+            if (this.props.refExt instanceof Function) {
                 this.props.refExt(form as FormUtils)
-            }else{
+            }else {
                 const refExt = this.props.refExt as any
                 refExt.current = this
             }

@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { createRef } from 'react'
 
 import { Button, Checkbox, Select, DatePicker } from 'antd';
 import moment from 'moment';
@@ -358,7 +358,7 @@ export const cellCheckboxTable = () => {
 
 
 export const zebraCrossingTable = () => {
-    let table: any = null
+    let table = createRef<any>()
     let columns: ColumnProps<User>[] = [{
         dataIndex: '$index',
         title: '#',
@@ -396,7 +396,7 @@ export const zebraCrossingTable = () => {
         <>
             <Button
                 onClick={() => {
-                    table.reload({
+                    table.current!.reload({
                         a: '1'
                     })
                 }}
@@ -406,9 +406,7 @@ export const zebraCrossingTable = () => {
             <Table
                 columns={columns}
                 editingType="row"
-                refExt={(tempTable: any) => {
-                    table = tempTable
-                }}
+                refExt={table}
                 event={{                    
                     onSave: async (record, _type) => {
                         console.log(record)
