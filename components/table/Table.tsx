@@ -110,7 +110,7 @@ interface Props<T> extends FormComponentProps<T> {
     style?: React.CSSProperties
 
     // 扩展的表格信息
-    refExt?: (self: Table<T>) => void
+    refExt?: (self: Table<T>) => void | any
 
     /**
      * 装载数据的方法
@@ -266,7 +266,8 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
             })
         }
         if (this.props.refExt) {
-            this.props.refExt(this)
+            const refExt = this.props.refExt as any
+            refExt.current = this
         }
     }
 
