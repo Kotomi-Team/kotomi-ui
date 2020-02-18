@@ -169,10 +169,10 @@ class Form extends React.Component<Props & FormComponentProps, State> {
 
         if (this.props.refExt) {
             if (this.props.refExt instanceof Function) {
-                this.props.refExt(form as FormUtils)
+                this.props.refExt(proxyForm as FormUtils)
             }else {
                 const refExt = this.props.refExt as any
-                refExt.current = this
+                refExt.current = proxyForm
             }
         }
     }
