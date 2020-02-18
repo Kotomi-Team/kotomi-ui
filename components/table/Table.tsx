@@ -603,10 +603,11 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                     </>
                 )
             }
-
             const columnOperatingRender = this.getColumnOperatingRender(editor, record)
-            if (event && event.onBeforeRenderPromiseColumn) {
-                return event.onBeforeRenderPromiseColumn(record, column, columnOperatingRender)
+            if (!this.isEditing(record) && this.state.editingKey === undefined) {
+                if (event && event.onBeforeRenderPromiseColumn) {
+                    return event.onBeforeRenderPromiseColumn(record, column, columnOperatingRender)
+                }
             }
             return columnOperatingRender
         }
@@ -658,8 +659,10 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                     </>
                 )
             }
-            if (event && event.onBeforeRenderPromiseColumn) {
-                return event.onBeforeRenderPromiseColumn(record, column, editor)
+            if (!this.isEditing(record) && this.state.editingKey === undefined) {
+                if (event && event.onBeforeRenderPromiseColumn) {
+                    return event.onBeforeRenderPromiseColumn(record, column, editor)
+                }
             }
             return editor
         }
@@ -732,8 +735,10 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
             }
 
             const operatingRender = this.getColumnOperatingRender(editor, record)
-            if (event && event.onBeforeRenderPromiseColumn) {
-                return event.onBeforeRenderPromiseColumn(record, column, operatingRender)
+            if (!this.isEditing(record) && this.state.editingKey === undefined) {
+                if (event && event.onBeforeRenderPromiseColumn) {
+                    return event.onBeforeRenderPromiseColumn(record, column, operatingRender)
+                }
             }
             return operatingRender
         }
@@ -916,6 +921,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                 dataSource,
                 total,
                 loading: false,
+                editingKey: undefined,
             })
             this.backupDataSource = JSON.parse(JSON.stringify(dataSource))
             this.editStash()

@@ -145,6 +145,7 @@ export const baseTable = () => {
 }
 
 export const rowEditorTable = () => {
+    const table = createRef<any>()
     let columns: ColumnProps<User>[] = [{
         dataIndex: '$index',
     }, {
@@ -193,13 +194,28 @@ export const rowEditorTable = () => {
 
     return (
         <>
+            <Button
+                onClick={()=>{
+                    // table.reload()
+                    table.current!.reload()
+                }}
+            >reload</Button>
             <Table
                 columns={columns}
                 editingType="row"
                 rowSelection="multiple"
+                refExt={table}
                 event={{
                     onSave: async ()=>{
                         return true
+                    },
+                    onBeforeRenderPromiseColumn:(_record: any, _column: ColumnProps<any>, render: JSX.Element)=>{
+                        return (
+                            <>
+                                <a>test</a>
+                                {render}
+                            </>
+                        )
                     }
                 }}
                 locale={{
