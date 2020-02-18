@@ -1,6 +1,6 @@
 import React,{useState} from 'react'
 
-import { Form,FormUtils } from '../components/form/Form';
+import { Form } from '../components/form/Form';
 import { Input, Button,Form as AntForm } from 'antd';
 import { FormComponentProps } from 'antd/lib/form/Form';
 
@@ -80,7 +80,7 @@ export const baseForm = () => {
     )
 }
 
-let form:FormUtils
+const form = React.createRef<any>()
 export const stateForm = () => {
     const [prohibit, setProhibit] = useState(true)
     const [clickNumber, setClickNumber] = useState(0)
@@ -90,7 +90,7 @@ export const stateForm = () => {
                 onClick={()=>{
                     setClickNumber(clickNumber+1)
                     setProhibit(!prohibit)
-                    form.validateFieldsPromise().then(({errors,values})=>{
+                    form.current!.validateFieldsPromise().then(({errors,values}:{errors: any,values: any})=>{
                         if(!errors){
                             console.log(values)
                         }
@@ -105,9 +105,7 @@ export const stateForm = () => {
                     [name1|Field4 drop 8-8-16]       [code2|Field5 drop 16-2-22]
                     [name2|Field6 drop 16-2-22] [code3|Field7 drop 8-8-16]
                 `}
-                refExt={(selfForm: FormUtils<any>)=>{
-                    form = selfForm
-                }}
+                refExt={form}
                 /*
                 rules={[{
                     name:'name',

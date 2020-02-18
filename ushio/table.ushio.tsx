@@ -206,8 +206,12 @@ export const rowEditorTable = () => {
                 rowSelection="multiple"
                 refExt={table}
                 event={{
-                    onSave: async ()=>{
-                        return true
+                    onSave:  ()=>{
+                        return new Promise((re)=>{
+                            setTimeout(()=>{
+                                re(true)
+                            },3000)
+                        })
                     },
                     onBeforeRenderPromiseColumn:(_record: any, _column: ColumnProps<any>, render: JSX.Element)=>{
                         return (

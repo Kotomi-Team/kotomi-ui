@@ -32,8 +32,9 @@ export interface ColumnProps<T> extends AntColumnProps<T> {
  * 默认文案设置
  */
 export type TableLocale = {
-    editText: string
-    deleteText: string,
+    editText?: string
+    deleteText?: string
+    saveLoadingText?: string,
 }
 
 interface Props<T> extends FormComponentProps<T> {
@@ -139,6 +140,7 @@ type State<T> = {
     pageSize: number
     sorter?: TableSorter
     editingKey?: string,
+    disabledCheck: boolean,
 }
 
 export type TableSorter = {
@@ -242,6 +244,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
         pageSize: 0,
         sorter: undefined,
         editingKey: undefined,
+        disabledCheck: false,
     }
 
     // 用户查询参数
@@ -268,7 +271,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
         if (this.props.refExt) {
             if (this.props.refExt instanceof Function) {
                 this.props.refExt(this)
-            }else {
+            } else {
                 const refExt = this.props.refExt as any
                 refExt.current = this
             }
@@ -518,6 +521,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
             <>
                 <Icon
                     type='check'
+                    style={this.state.disabledCheck ? { opacity: 0.2 } : {}}
                     onClick={() => {
                         const onSave = event!.onSave
                         if (onSave && form !== undefined) {
@@ -531,7 +535,6 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                                         const recordKey = key.split(';')
                                         newRecord[recordKey[0]] = values[key]
                                     })
-
                                     onSave({
                                         ...newRecord,
                                     }, 'UPDATE').then((respState) => {
@@ -554,7 +557,6 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                                 }
                             })
                         }
-
                     }}
                 />
                 <Divider type='vertical' />
@@ -572,37 +574,15 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
 
     protected getColumnOperatingEdit(column: ColumnProps<T>) {
         const {
-            rowKey,
             event,
         } = this.props
         column.render = (_text: string, record: T) => {
-            let editor = (
+            const editor = (
                 <>
-                    <Icon
-                        type="edit"
-                        onClick={() => {
-                            this.setState({
-                                editingKey: record[rowKey!],
-                            })
-                        }}
-                    />
+                    {this.getColumnEditElement(record)}
                 </>
             )
-            if (this.props.locale && this.props.locale.editText) {
-                editor = (
-                    <>
-                        <a
-                            onClick={() => {
-                                this.setState({
-                                    editingKey: record[rowKey!],
-                                })
-                            }}
-                        >
-                            {this.props.locale.editText}
-                        </a>
-                    </>
-                )
-            }
+
             const columnOperatingRender = this.getColumnOperatingRender(editor, record)
             if (!this.isEditing(record) && this.state.editingKey === undefined) {
                 if (event && event.onBeforeRenderPromiseColumn) {
@@ -622,43 +602,12 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
             event,
         } = this.props
         column.render = (_text: string, record: T) => {
-            let editor = (
+            const editor = (
                 <>
-                    <Icon
-                        type='delete'
-                        onClick={() => {
-                            const onSave = event!.onSave
-                            if (onSave) {
-                                onSave(record, 'DELETE').then((respState) => {
-                                    if (respState !== false) {
-                                        self.reload()
-                                    }
-                                })
-                            }
-                        }}
-                    />
+                    {self.getColumnDelElement(record)}
                 </>
             )
-            if (this.props.locale && this.props.locale.deleteText) {
-                editor = (
-                    <>
-                        <a
-                            onClick={() => {
-                                const onSave = event!.onSave
-                                if (onSave) {
-                                    onSave(record, 'DELETE').then((respState) => {
-                                        if (respState !== false) {
-                                            self.reload()
-                                        }
-                                    })
-                                }
-                            }}
-                        >
-                            {this.props.locale.deleteText}
-                        </a>
-                    </>
-                )
-            }
+
             if (!this.isEditing(record) && this.state.editingKey === undefined) {
                 if (event && event.onBeforeRenderPromiseColumn) {
                     return event.onBeforeRenderPromiseColumn(record, column, editor)
@@ -673,66 +622,17 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
 
     // 获取操作列的信息
     protected getColumnOperating(column: ColumnProps<T>) {
-        const self = this
         const {
             event,
-            rowKey,
         } = this.props
         column.render = (_text: string, record: T) => {
-            let editor = (
+            const editor = (
                 <>
-                    <Icon
-                        type="edit"
-                        onClick={() => {
-                            this.setState({
-                                editingKey: record[rowKey!],
-                            })
-                        }}
-                    />
+                    {this.getColumnEditElement(record)}
                     <Divider type='vertical' />
-                    <Icon
-                        type='delete'
-                        onClick={() => {
-                            const onSave = event!.onSave
-                            if (onSave) {
-                                onSave(record, 'DELETE').then((respState) => {
-                                    if (respState !== false) {
-                                        self.reload()
-                                    }
-                                })
-                            }
-
-                        }}
-                    />
+                    {this.getColumnDelElement(record)}
                 </>
             )
-            if (this.props.locale && this.props.locale.editText && this.props.locale.deleteText) {
-                editor = (
-                    <>
-                        <a
-                            onClick={() => {
-                                this.setState({
-                                    editingKey: record[rowKey!],
-                                })
-                            }}
-                        >{this.props.locale.editText}</a>
-                        <Divider type='vertical' />
-                        <a
-                            onClick={() => {
-                                const onSave = event!.onSave
-                                if (onSave) {
-                                    onSave(record, 'DELETE').then((respState) => {
-                                        if (respState !== false) {
-                                            self.reload()
-                                        }
-                                    })
-                                }
-
-                            }}
-                        >{this.props.locale.deleteText}</a>
-                    </>
-                )
-            }
 
             const operatingRender = this.getColumnOperatingRender(editor, record)
             if (!this.isEditing(record) && this.state.editingKey === undefined) {
@@ -745,6 +645,60 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
         if (column.width === undefined) {
             column.width = 80
         }
+    }
+
+    protected getColumnDelElement(record: T) {
+        const self = this
+        const { event } = this.props
+        const onClick = () => {
+            const onSave = event!.onSave
+            if (onSave) {
+                onSave(record, 'DELETE').then((respState) => {
+                    if (respState !== false) {
+                        self.reload()
+                    }
+                })
+            }
+        }
+        if (this.props.locale && this.props.locale.deleteText) {
+            return (
+                <a
+                    onClick={onClick}
+                >
+                    {this.props.locale.deleteText}
+                </a>
+            )
+        }
+        return (
+            <Icon
+                type='delete'
+                onClick={onClick}
+            />
+        )
+    }
+
+    protected getColumnEditElement(record: T) {
+        const { rowKey } = this.props
+        const onClick = () => {
+            this.setState({
+                editingKey: record[rowKey!],
+            })
+        }
+        if (this.props.locale && this.props.locale.editText) {
+            return (
+                <a
+                    onClick={onClick}
+                >
+                    {this.props.locale.editText}
+                </a>
+            )
+        }
+        return (
+            <Icon
+                type="edit"
+                onClick={onClick}
+            />
+        )
     }
 
     // 获取index列的信息
