@@ -266,8 +266,12 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
             })
         }
         if (this.props.refExt) {
-            const refExt = this.props.refExt as any
-            refExt.current = this
+            if (this.props.refExt instanceof Function) {
+                this.props.refExt(this)
+            }else {
+                const refExt = this.props.refExt as any
+                refExt.current = this
+            }
         }
     }
 
@@ -314,6 +318,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                         right: '0px',
                         bottom: '0px',
                         left: '0px',
+                        visibility: 'hidden',
                     }}
                     ref={this.blankDivElement}
                     onClick={() => {

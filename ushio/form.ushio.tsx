@@ -58,8 +58,8 @@ export const baseForm = () => {
     return (
         <Form
             script={`
-                [name|Field1 drop 8]        [code|Field2 input 8 ]        [code1|Field3 input 8] 
-                [name1|Field4 input 8]       [code2|Field5 input 16-2-22]
+                [name|Field1 drop 8-8-16]        [code|Field2 input 8-8-16 ]        [code1|Field3 input 8-8-16] 
+                [name1|Field4 input 8-8-16]       [code2|Field5 input 16-2-22]
                 [name2|Field6 input 16-2-22] [code3|Field7 input 8]
             `}
             rules={[{
@@ -101,9 +101,9 @@ export const stateForm = () => {
             </Button>
             <Form
                 script={`
-                    [name|Field4 drop 8]        [code|Field2 drop 8 ]        [code1|Field3 drop 8] 
-                    [name1|Field4 drop 8]       [code2|Field5 drop 16-2-22]
-                    [name2|Field6 drop 16-2-22] [code3|Field7 drop 8]
+                    [name|Field4 drop 8-8-16]        [code|Field2 drop 8-8-16 ]        [code1|Field3 drop 8-8-16] 
+                    [name1|Field4 drop 8-8-16]       [code2|Field5 drop 16-2-22]
+                    [name2|Field6 drop 16-2-22] [code3|Field7 drop 8-8-16]
                 `}
                 refExt={(selfForm: FormUtils<any>)=>{
                     form = selfForm
