@@ -84,6 +84,7 @@ class User {
     six4: string
 }
 
+const baseTableRef = createRef<any>()
 export const baseTable = () => {
     let columns: ColumnProps<User>[] = [{
         dataIndex: '$index',
@@ -120,8 +121,16 @@ export const baseTable = () => {
 
     return (
         <>
+            <Button
+                onClick={()=>{
+                    console.log(baseTableRef.current!.getSelectRowKeys())
+                }}
+            >click select
+            </Button>
             <Table
+                refExt={baseTableRef}
                 columns={columns}
+                rowSelection="multiple"
                 loadData={({ page, pageSize }: { page: number, pageSize: number, sorter?: TableSorter }) => {
                     return new Promise<{ dataSource: User[], total: number }>((re) => {
                         let data: User[] = []

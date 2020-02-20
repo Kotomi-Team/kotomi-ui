@@ -96,6 +96,11 @@ interface Props<T> extends FormComponentProps<T> {
     rowSelection?: 'single' | 'multiple' | undefined
 
     /**
+     * 选中的key
+     */
+    rowSelectedKeys?: string[]
+
+    /**
      *  当前表格的事件
      */
     event?: TableEvent<T>
@@ -141,6 +146,7 @@ type State<T> = {
     sorter?: TableSorter
     editingKey?: string,
     disabledCheck: boolean,
+    rowSelectedKeys: string[],
 }
 
 export type TableSorter = {
@@ -157,7 +163,7 @@ export type TableEvent<T> = {
      * @param selectedRowKeys 当前所有变化的Row的key
      * @param selected        变化状态true表示选中，false表示取消
      */
-    onSelect?: (selectedRowKeys: string[], selected: boolean) => void
+    onSelect?: (selectedRowKeys: string[], selected: boolean) => boolean | undefined
 
     /**
      * 当前行的事件
@@ -216,8 +222,9 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
         isAutoLoadData: true,
         defaultParam: {},
         defaultExportFileName: `${new Date().getTime()}`,
+        rowSelectedKeys: [],
         event: {
-            onSelect: () => { },
+            onSelect: () => true,
             onRow: () => { },
             onSave: () => { },
             // 默认返回默认dom节点
@@ -245,6 +252,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
         sorter: undefined,
         editingKey: undefined,
         disabledCheck: false,
+        rowSelectedKeys: [],
     }
 
     // 用户查询参数
@@ -463,6 +471,13 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
             promises.push(element.onCellSave('hide'))
         })
         return Promise.all(promises)
+    }
+
+    /**
+     * 获取当前选中的key的信息
+     */
+    public getSelectRowKeys() {
+        return this.state.rowSelectedKeys
     }
 
     /**
@@ -888,11 +903,34 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
         const rowProps: TableRowSelection<T> = {
             type: 'checkbox',
             columnWidth: 16,
+            selectedRowKeys: this.state.rowSelectedKeys,
             onSelect: (record: T, selected: boolean) => {
-                onSelect(record[self.props.rowKey!], selected)
+                const respState: boolean | undefined = onSelect(record[self.props.rowKey!], selected)
+                if (respState) {
+                    const id = record[self.props.rowKey!] as string
+                    if (selected) {
+                        const rowSelectedKeys: string[] = self.state.rowSelectedKeys
+                        rowSelectedKeys.push(id)
+                        self.setState({
+                            rowSelectedKeys,
+                        })
+                    }else {
+                        const rowSelectedKeys: string[] = self.state.rowSelectedKeys
+                        rowSelectedKeys.slice(rowSelectedKeys.indexOf(id), 1)
+                        self.setState({
+                            rowSelectedKeys,
+                        })
+                    }
+                }
             },
-            onSelectAll: (selected: boolean, _selectedRows: T[], changeRows: T[]) => {
-                onSelect(changeRows.map((record) => record[self.props.rowKey!]), selected)
+            onSelectAll: (selected: boolean, selectedRows: T[], changeRows: T[]) => {
+                const respState: boolean | undefined = onSelect(changeRows.map((record) => record[self.props.rowKey!]), selected)
+                if (respState) {
+                    const selectKeys = selectedRows.map<string>((record) => record[self.props.rowKey!] as string)
+                    self.setState({
+                        rowSelectedKeys: selectKeys,
+                    })
+                }
             },
         }
         switch (this.props.rowSelection) {
