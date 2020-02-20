@@ -149,6 +149,21 @@ export const baseTable = () => {
                     })
                 }}
                 event={{
+                    onLoadChildren: async ()=>{
+                        const data = []
+                        for (let i = 0; i < 30; i++) {
+                            data.push({
+                                'id': `id ${i}`,
+                                'name': `name`,
+                                'six': `six`,
+                                'six1': `six`,
+                                'six2': `six`,
+                                'six3': `six`,
+                                'six4': `six`,
+                            })
+                        }
+                        return data
+                    }
                 }}
             />
         </>
