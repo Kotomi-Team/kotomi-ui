@@ -24,6 +24,7 @@ type Props<T> = {
     inputModal?: 'click' | 'display'
     // 当前正在编辑的cell
     currentEditorCell: EditableCell<T>[]
+    isEditing: boolean
     className: string,
 }
 
@@ -139,9 +140,9 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
     }
 
     getClassName(): string {
-        const { editingType, column, inputModal } = this.props
+        const { editingType, column, inputModal, isEditing } = this.props
         const className = 'kotomi-components-table-cell-value-wrap'
-        if (editingType === 'cell' && column !== undefined && inputModal === 'click') {
+        if (editingType === 'cell' && column !== undefined && inputModal === 'click' && isEditing === true) {
             return className
         }
         return ''

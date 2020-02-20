@@ -33,8 +33,7 @@ export interface ColumnProps<T> extends AntColumnProps<T> {
  */
 export type TableLocale = {
     editText?: string
-    deleteText?: string
-    saveLoadingText?: string,
+    deleteText?: string,
 }
 
 interface Props<T> extends FormComponentProps<T> {
@@ -111,6 +110,9 @@ interface Props<T> extends FormComponentProps<T> {
 
     // 默认文案设置
     locale?: TableLocale
+
+    // 在第几列上显示展开的信息
+    expandIconColumnIndex?: number
 
     // 当前表格样式
     style?: React.CSSProperties
@@ -246,6 +248,16 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
             },
         },
     }
+
+    static getDerivedStateFromProps<T>(props: Props<T>, prevState: State<T>) {
+        if (props.rowSelectedKeys !== prevState.rowSelectedKeys) {
+            return {
+                rowSelectedKeys: props.rowSelectedKeys,
+            }
+        }
+        return null
+    }
+
     public blankDivElement: React.RefObject<HTMLDivElement> = React.createRef<HTMLDivElement>()
 
     state = {
@@ -325,6 +337,15 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
     }
 
     render() {
+        const extProps = {
+            expandIconColumnIndex: 0,
+        }
+        if (this.props.expandIconColumnIndex) {
+            extProps.expandIconColumnIndex = this.props.expandIconColumnIndex
+        }else {
+            delete extProps.expandIconColumnIndex
+        }
+
         return (
             <div>
                 <div
@@ -384,6 +405,8 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                                                     const dsChildren: T[] = dataSource[i].$children
                                                     dsChildren.splice(0)
                                                     children.forEach((childrenElement) => {
+                                                        // @ts-ignore
+                                                        childrenElement.$isChildren = true
                                                         dsChildren.push(childrenElement)
                                                     })
                                                 }
@@ -456,6 +479,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                                     x: this.props.width,
                                     y: this.props.height,
                                 }}
+                                {...extProps}
                             />
                         </TableContext.Provider>
                     </HotKeys>
@@ -744,7 +768,11 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
 
     // 获取index列的信息
     protected getColumnIndex(column: ColumnProps<T>) {
-        column.render = (_text: any, _record: T, index: number) => {
+        column.render = (_text: any, record: T, index: number) => {
+            // @ts-ignore
+            if (record.$isChildren) {
+                return <a/>
+            }
             return <a>{index + 1}</a>
         }
         if (column.width === undefined) {
@@ -815,6 +843,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                         record,
                         rowIndex,
                         editing: this.isEditing(record),
+                        isEditing: column.isEditing,
                         editingType: editingType,
                         inputModal: column.inputModal,
                         currentEditorCell: this.currentEditorCell,

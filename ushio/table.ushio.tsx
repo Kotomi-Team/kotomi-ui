@@ -322,12 +322,10 @@ export const cellCheckboxTable = () => {
         width: 100
     }, {
         dataIndex: 'six3',
-        isEditing: true,
         title: 'six3',
         width: 100
     }, {
         dataIndex: 'six4',
-        isEditing: true,
         title: 'six4',
         width: 100
     }, {
