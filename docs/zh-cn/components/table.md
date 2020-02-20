@@ -102,7 +102,7 @@ return (
 |height          |boolean &#124; number &#124; string  | 400 | 表格的高度，默认为400px
 |width           |boolean &#124; number &#124; string  | `100%` | 表格的宽度，默认为百分之百
 |rowKey          |string         | `id`       | 当前表格默认的rowKey，默认为id字段，可手动设置为其他字段
-|rowSelection   | 'single' &#124; 'multiple' &#124; undefined &#124; undefined | 表格的选择模式，默认为undefined不显示选择框
+|rowSelection   | 'single' &#124; 'multiple' &#124; undefined | undefined | 表格的选择模式，默认为undefined不显示选择框
 |editingType    | 'cell' &#124; 'row' &#124; 'none' | 'none' | 当前单元格编辑类型，cell表示单元格编辑，row表示行编辑,none 表示无编辑模式
 |style          | React.CSSProperties |  | 表格的css样式
 |refExt         | (self: Table<T>) => void |  | 初始化表格数据的时候，可通过self获取当前表格对象

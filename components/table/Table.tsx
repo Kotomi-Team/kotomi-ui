@@ -899,13 +899,15 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
 
     protected getRowSelection(): TableRowSelection<T> | undefined {
         const self = this
-        const onSelect = self.props.event!.onSelect!
         const rowProps: TableRowSelection<T> = {
             type: 'checkbox',
             columnWidth: 16,
             selectedRowKeys: this.state.rowSelectedKeys,
             onSelect: (record: T, selected: boolean) => {
-                const respState: boolean | undefined = onSelect(record[self.props.rowKey!], selected)
+                let respState: boolean | undefined = true
+                if (self.props.event!.onSelect) {
+                    respState = self.props.event!.onSelect(record[self.props.rowKey!], selected)
+                }
                 if (respState) {
                     const id = record[self.props.rowKey!] as string
                     if (selected) {
@@ -916,7 +918,8 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                         })
                     }else {
                         const rowSelectedKeys: string[] = self.state.rowSelectedKeys
-                        rowSelectedKeys.slice(rowSelectedKeys.indexOf(id), 1)
+                        rowSelectedKeys.splice(rowSelectedKeys.indexOf(id), 1)
+
                         self.setState({
                             rowSelectedKeys,
                         })
@@ -924,7 +927,10 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                 }
             },
             onSelectAll: (selected: boolean, selectedRows: T[], changeRows: T[]) => {
-                const respState: boolean | undefined = onSelect(changeRows.map((record) => record[self.props.rowKey!]), selected)
+                let respState: boolean | undefined = true
+                if (self.props.event!.onSelect) {
+                    respState = self.props.event!.onSelect(changeRows.map((record) => record[self.props.rowKey!]), selected)
+                }
                 if (respState) {
                     const selectKeys = selectedRows.map<string>((record) => record[self.props.rowKey!] as string)
                     self.setState({
