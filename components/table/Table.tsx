@@ -205,6 +205,11 @@ export type TableEvent<T> = {
      */
     onRenderHeaderRowCssStyle?: () => React.CSSProperties,
 
+    /**
+     * 装载子节点数据
+     * @param record 当前展开的节点数据
+     */
+    onLoadChildren?: (record: T) => Promise<T[]>,
 }
 
 /**
@@ -360,6 +365,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                                     pointerEvents: 'auto',
                                     ...this.props.style,
                                 }}
+                                childrenColumnName="$children"
                                 rowKey={this.props.rowKey}
                                 columns={this.getColumns()}
                                 rowClassName={() => 'kotomi-components-table-row'}
@@ -367,6 +373,26 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                                     body: {
                                         cell: EditableCell,
                                     },
+                                }}
+                                onExpand={(expanded: boolean, record: T) => {
+                                    if (expanded && this.props.event!.onLoadChildren) {
+                                        this.props.event!.onLoadChildren(record).then((children: T[]) => {
+                                            const dataSource = this.state.dataSource
+                                            for (let i = 0; i < dataSource.length; i++) {
+                                                if (dataSource[i][this.props.rowKey!] === record[this.props.rowKey!]) {
+                                                    // @ts-ignore
+                                                    const dsChildren: T[] = dataSource[i].$children
+                                                    dsChildren.splice(0)
+                                                    children.forEach((childrenElement) => {
+                                                        dsChildren.push(childrenElement)
+                                                    })
+                                                }
+                                            }
+                                            this.setState({
+                                                dataSource,
+                                            })
+                                        })
+                                    }
                                 }}
                                 dataSource={this.getDataSource()}
                                 loading={{
@@ -879,6 +905,13 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
             // fix https://github.com/Kotomi-Team/kotomi-ui/issues/13
             dataSource.forEach((data) => {
                 const keys = Object.keys(data)
+
+                if (this.props.event!.onLoadChildren) {
+
+                    // @ts-ignore
+                    data.$children = []
+                }
+
                 if (keys.indexOf(rowKey!) === -1) {
                     throw new Error(
                         `KOTOMI-TABLE-5001: The returned data should have a unique rowKey field. rowKey is ['${rowKey}']. See https://github.com/Kotomi-Team/kotomi-ui/issues/13`,
