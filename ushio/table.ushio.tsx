@@ -148,6 +148,8 @@ export const baseTable = () => {
                         re({ dataSource: data, total: 2000 })
                     })
                 }}
+                event={{
+                }}
             />
         </>
     )
