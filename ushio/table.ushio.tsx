@@ -84,6 +84,7 @@ class User {
     six4: string
 }
 
+const baseTableRef = createRef<any>()
 export const baseTable = () => {
     let columns: ColumnProps<User>[] = [{
         dataIndex: '$index',
@@ -120,8 +121,16 @@ export const baseTable = () => {
 
     return (
         <>
+            <Button
+                onClick={()=>{
+                    console.log(baseTableRef.current!.getSelectRowKeys())
+                }}
+            >click select
+            </Button>
             <Table
+                refExt={baseTableRef}
                 columns={columns}
+                rowSelection="multiple"
                 loadData={({ page, pageSize }: { page: number, pageSize: number, sorter?: TableSorter }) => {
                     return new Promise<{ dataSource: User[], total: number }>((re) => {
                         let data: User[] = []
@@ -145,6 +154,7 @@ export const baseTable = () => {
 }
 
 export const rowEditorTable = () => {
+    const table = createRef<any>()
     let columns: ColumnProps<User>[] = [{
         dataIndex: '$index',
     }, {
@@ -193,13 +203,32 @@ export const rowEditorTable = () => {
 
     return (
         <>
+            <Button
+                onClick={()=>{
+                    // table.reload()
+                    table.current!.reload()
+                }}
+            >reload</Button>
             <Table
                 columns={columns}
                 editingType="row"
                 rowSelection="multiple"
+                refExt={table}
                 event={{
-                    onSave: async ()=>{
-                        return true
+                    onSave:  ()=>{
+                        return new Promise((re)=>{
+                            setTimeout(()=>{
+                                re(true)
+                            },3000)
+                        })
+                    },
+                    onBeforeRenderPromiseColumn:(_record: any, _column: ColumnProps<any>, render: JSX.Element)=>{
+                        return (
+                            <>
+                                <a>test</a>
+                                {render}
+                            </>
+                        )
                     }
                 }}
                 locale={{

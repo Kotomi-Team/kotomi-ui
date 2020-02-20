@@ -108,7 +108,8 @@ return (
 |refExt         | (self: Table<T>) => void |  | 初始化表格数据的时候，可通过self获取当前表格对象
 |isAutoLoadData | boolean   | true  | 是否第一次自动装载表格数据，默认为true，第一次初始化就装载数据
 |defaultExportFileName | string | new Date().getTime() | 当前默认导出的文件名，默认为当前时间戳
-|locale    |  TableLocale | undefined | 默认文案信息，用来以文字方式显示编辑和删除
+|locale           |  TableLocale | undefined | 默认文案信息，用来以文字方式显示编辑和删除
+|rowSelectedKeys |  string[]     | []         | 当前选中的数据，默认选中未空
 |event          |  TableEvent<T>   |    |  当前表格的事件信息
 
 ## TableLocale
@@ -139,7 +140,8 @@ return (
 |editStash  | 暂存当前所有状态，并且确认当前所有的修改状态
 |editStatus | 判断当前是否有编辑的数据，返回true表示当前表格有修改的数据，false表示当前没有修改的数据
 |restore    | 恢复修改的数据，将当前表格恢复到未修改之前
-
+|getDataSourceState |获取当前数据的状态
+|getSelectRowKeys   |获取当前选中的数据id
 
 ## Column 属性
  

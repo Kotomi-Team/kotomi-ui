@@ -32,8 +32,9 @@ export interface ColumnProps<T> extends AntColumnProps<T> {
  * 默认文案设置
  */
 export type TableLocale = {
-    editText: string
-    deleteText: string,
+    editText?: string
+    deleteText?: string
+    saveLoadingText?: string,
 }
 
 interface Props<T> extends FormComponentProps<T> {
@@ -95,6 +96,11 @@ interface Props<T> extends FormComponentProps<T> {
     rowSelection?: 'single' | 'multiple' | undefined
 
     /**
+     * 选中的key
+     */
+    rowSelectedKeys?: string[]
+
+    /**
      *  当前表格的事件
      */
     event?: TableEvent<T>
@@ -139,6 +145,8 @@ type State<T> = {
     pageSize: number
     sorter?: TableSorter
     editingKey?: string,
+    disabledCheck: boolean,
+    rowSelectedKeys: string[],
 }
 
 export type TableSorter = {
@@ -155,7 +163,7 @@ export type TableEvent<T> = {
      * @param selectedRowKeys 当前所有变化的Row的key
      * @param selected        变化状态true表示选中，false表示取消
      */
-    onSelect?: (selectedRowKeys: string[], selected: boolean) => void
+    onSelect?: (selectedRowKeys: string[], selected: boolean) => boolean | undefined
 
     /**
      * 当前行的事件
@@ -214,8 +222,9 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
         isAutoLoadData: true,
         defaultParam: {},
         defaultExportFileName: `${new Date().getTime()}`,
+        rowSelectedKeys: [],
         event: {
-            onSelect: () => { },
+            onSelect: () => true,
             onRow: () => { },
             onSave: () => { },
             // 默认返回默认dom节点
@@ -242,6 +251,8 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
         pageSize: 0,
         sorter: undefined,
         editingKey: undefined,
+        disabledCheck: false,
+        rowSelectedKeys: [],
     }
 
     // 用户查询参数
@@ -268,7 +279,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
         if (this.props.refExt) {
             if (this.props.refExt instanceof Function) {
                 this.props.refExt(this)
-            }else {
+            } else {
                 const refExt = this.props.refExt as any
                 refExt.current = this
             }
@@ -463,6 +474,13 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
     }
 
     /**
+     * 获取当前选中的key的信息
+     */
+    public getSelectRowKeys() {
+        return this.state.rowSelectedKeys
+    }
+
+    /**
      * 判断当前行的数据是否可以编辑
      * @param record 当前行的数据
      * @returns true表示可编辑 false表示不可编辑
@@ -518,6 +536,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
             <>
                 <Icon
                     type='check'
+                    style={this.state.disabledCheck ? { opacity: 0.2 } : {}}
                     onClick={() => {
                         const onSave = event!.onSave
                         if (onSave && form !== undefined) {
@@ -531,7 +550,6 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                                         const recordKey = key.split(';')
                                         newRecord[recordKey[0]] = values[key]
                                     })
-
                                     onSave({
                                         ...newRecord,
                                     }, 'UPDATE').then((respState) => {
@@ -554,7 +572,6 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                                 }
                             })
                         }
-
                     }}
                 />
                 <Divider type='vertical' />
@@ -572,41 +589,20 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
 
     protected getColumnOperatingEdit(column: ColumnProps<T>) {
         const {
-            rowKey,
             event,
         } = this.props
         column.render = (_text: string, record: T) => {
-            let editor = (
+            const editor = (
                 <>
-                    <Icon
-                        type="edit"
-                        onClick={() => {
-                            this.setState({
-                                editingKey: record[rowKey!],
-                            })
-                        }}
-                    />
+                    {this.getColumnEditElement(record)}
                 </>
             )
-            if (this.props.locale && this.props.locale.editText) {
-                editor = (
-                    <>
-                        <a
-                            onClick={() => {
-                                this.setState({
-                                    editingKey: record[rowKey!],
-                                })
-                            }}
-                        >
-                            {this.props.locale.editText}
-                        </a>
-                    </>
-                )
-            }
 
             const columnOperatingRender = this.getColumnOperatingRender(editor, record)
-            if (event && event.onBeforeRenderPromiseColumn) {
-                return event.onBeforeRenderPromiseColumn(record, column, columnOperatingRender)
+            if (!this.isEditing(record) && this.state.editingKey === undefined) {
+                if (event && event.onBeforeRenderPromiseColumn) {
+                    return event.onBeforeRenderPromiseColumn(record, column, columnOperatingRender)
+                }
             }
             return columnOperatingRender
         }
@@ -621,45 +617,16 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
             event,
         } = this.props
         column.render = (_text: string, record: T) => {
-            let editor = (
+            const editor = (
                 <>
-                    <Icon
-                        type='delete'
-                        onClick={() => {
-                            const onSave = event!.onSave
-                            if (onSave) {
-                                onSave(record, 'DELETE').then((respState) => {
-                                    if (respState !== false) {
-                                        self.reload()
-                                    }
-                                })
-                            }
-                        }}
-                    />
+                    {self.getColumnDelElement(record)}
                 </>
             )
-            if (this.props.locale && this.props.locale.deleteText) {
-                editor = (
-                    <>
-                        <a
-                            onClick={() => {
-                                const onSave = event!.onSave
-                                if (onSave) {
-                                    onSave(record, 'DELETE').then((respState) => {
-                                        if (respState !== false) {
-                                            self.reload()
-                                        }
-                                    })
-                                }
-                            }}
-                        >
-                            {this.props.locale.deleteText}
-                        </a>
-                    </>
-                )
-            }
-            if (event && event.onBeforeRenderPromiseColumn) {
-                return event.onBeforeRenderPromiseColumn(record, column, editor)
+
+            if (!this.isEditing(record) && this.state.editingKey === undefined) {
+                if (event && event.onBeforeRenderPromiseColumn) {
+                    return event.onBeforeRenderPromiseColumn(record, column, editor)
+                }
             }
             return editor
         }
@@ -670,76 +637,83 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
 
     // 获取操作列的信息
     protected getColumnOperating(column: ColumnProps<T>) {
-        const self = this
         const {
             event,
-            rowKey,
         } = this.props
         column.render = (_text: string, record: T) => {
-            let editor = (
+            const editor = (
                 <>
-                    <Icon
-                        type="edit"
-                        onClick={() => {
-                            this.setState({
-                                editingKey: record[rowKey!],
-                            })
-                        }}
-                    />
+                    {this.getColumnEditElement(record)}
                     <Divider type='vertical' />
-                    <Icon
-                        type='delete'
-                        onClick={() => {
-                            const onSave = event!.onSave
-                            if (onSave) {
-                                onSave(record, 'DELETE').then((respState) => {
-                                    if (respState !== false) {
-                                        self.reload()
-                                    }
-                                })
-                            }
-
-                        }}
-                    />
+                    {this.getColumnDelElement(record)}
                 </>
             )
-            if (this.props.locale && this.props.locale.editText && this.props.locale.deleteText) {
-                editor = (
-                    <>
-                        <a
-                            onClick={() => {
-                                this.setState({
-                                    editingKey: record[rowKey!],
-                                })
-                            }}
-                        >{this.props.locale.editText}</a>
-                        <Divider type='vertical' />
-                        <a
-                            onClick={() => {
-                                const onSave = event!.onSave
-                                if (onSave) {
-                                    onSave(record, 'DELETE').then((respState) => {
-                                        if (respState !== false) {
-                                            self.reload()
-                                        }
-                                    })
-                                }
-
-                            }}
-                        >{this.props.locale.deleteText}</a>
-                    </>
-                )
-            }
 
             const operatingRender = this.getColumnOperatingRender(editor, record)
-            if (event && event.onBeforeRenderPromiseColumn) {
-                return event.onBeforeRenderPromiseColumn(record, column, operatingRender)
+            if (!this.isEditing(record) && this.state.editingKey === undefined) {
+                if (event && event.onBeforeRenderPromiseColumn) {
+                    return event.onBeforeRenderPromiseColumn(record, column, operatingRender)
+                }
             }
             return operatingRender
         }
         if (column.width === undefined) {
             column.width = 80
         }
+    }
+
+    protected getColumnDelElement(record: T) {
+        const self = this
+        const { event } = this.props
+        const onClick = () => {
+            const onSave = event!.onSave
+            if (onSave) {
+                onSave(record, 'DELETE').then((respState) => {
+                    if (respState !== false) {
+                        self.reload()
+                    }
+                })
+            }
+        }
+        if (this.props.locale && this.props.locale.deleteText) {
+            return (
+                <a
+                    onClick={onClick}
+                >
+                    {this.props.locale.deleteText}
+                </a>
+            )
+        }
+        return (
+            <Icon
+                type='delete'
+                onClick={onClick}
+            />
+        )
+    }
+
+    protected getColumnEditElement(record: T) {
+        const { rowKey } = this.props
+        const onClick = () => {
+            this.setState({
+                editingKey: record[rowKey!],
+            })
+        }
+        if (this.props.locale && this.props.locale.editText) {
+            return (
+                <a
+                    onClick={onClick}
+                >
+                    {this.props.locale.editText}
+                </a>
+            )
+        }
+        return (
+            <Icon
+                type="edit"
+                onClick={onClick}
+            />
+        )
     }
 
     // 获取index列的信息
@@ -916,6 +890,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                 dataSource,
                 total,
                 loading: false,
+                editingKey: undefined,
             })
             this.backupDataSource = JSON.parse(JSON.stringify(dataSource))
             this.editStash()
@@ -928,11 +903,34 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
         const rowProps: TableRowSelection<T> = {
             type: 'checkbox',
             columnWidth: 16,
+            selectedRowKeys: this.state.rowSelectedKeys,
             onSelect: (record: T, selected: boolean) => {
-                onSelect(record[self.props.rowKey!], selected)
+                const respState: boolean | undefined = onSelect(record[self.props.rowKey!], selected)
+                if (respState) {
+                    const id = record[self.props.rowKey!] as string
+                    if (selected) {
+                        const rowSelectedKeys: string[] = self.state.rowSelectedKeys
+                        rowSelectedKeys.push(id)
+                        self.setState({
+                            rowSelectedKeys,
+                        })
+                    }else {
+                        const rowSelectedKeys: string[] = self.state.rowSelectedKeys
+                        rowSelectedKeys.slice(rowSelectedKeys.indexOf(id), 1)
+                        self.setState({
+                            rowSelectedKeys,
+                        })
+                    }
+                }
             },
-            onSelectAll: (selected: boolean, _selectedRows: T[], changeRows: T[]) => {
-                onSelect(changeRows.map((record) => record[self.props.rowKey!]), selected)
+            onSelectAll: (selected: boolean, selectedRows: T[], changeRows: T[]) => {
+                const respState: boolean | undefined = onSelect(changeRows.map((record) => record[self.props.rowKey!]), selected)
+                if (respState) {
+                    const selectKeys = selectedRows.map<string>((record) => record[self.props.rowKey!] as string)
+                    self.setState({
+                        rowSelectedKeys: selectKeys,
+                    })
+                }
             },
         }
         switch (this.props.rowSelection) {
