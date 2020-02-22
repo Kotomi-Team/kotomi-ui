@@ -143,6 +143,7 @@ return (
 |restore    | 恢复修改的数据，将当前表格恢复到未修改之前
 |getDataSourceState |获取当前数据的状态
 |getSelectRowKeys   |获取当前选中的数据id
+|appendRow(data:T)         |添加一行数据，参数未添加的数据类型
 
 ## Column 属性
  
