@@ -239,14 +239,6 @@ export const rowEditorTable = () => {
                             },3000)
                         })
                     },
-                    onBeforeRenderPromiseColumn:(_record: any, _column: ColumnProps<any>, render: JSX.Element)=>{
-                        return (
-                            <>
-                                <a>test</a>
-                                {render}
-                            </>
-                        )
-                    }
                 }}
                 locale={{
                     editText: '编辑',
@@ -277,8 +269,8 @@ export const rowEditorTable = () => {
 
 
 
+let tableDom: any = createRef<any>()
 export const cellCheckboxTable = () => {
-    let tableDom: any = undefined
 
     let columns: ColumnProps<User>[] = [{
         dataIndex: '$index',
@@ -349,8 +341,7 @@ export const cellCheckboxTable = () => {
         <>
             <Button
                 onClick={() => {
-                    const dataSourceState = tableDom.getDataSourceState()
-                    console.log(dataSourceState)
+                    tableDom.current.appendRow({id: '2'})
                 }}
             > click get edit state</Button>
             <Button
@@ -362,17 +353,16 @@ export const cellCheckboxTable = () => {
                 rowSelection="multiple"
                 columns={columns}
                 editingType="cell"
+                refExt={tableDom}
                 loadData={({ page, pageSize }: { page: number, pageSize: number, param?: any, sorter?: TableSorter }) => {
                     return new Promise<{ dataSource: UserMoment[], total: number }>((re) => {
-                        let data: UserMoment[] = []
+                        let data: any[] = []
                         for (let i = 0; i < pageSize!; i++) {
                             if(i === 0){
                                 data.push({
                                     'id': `${page} id ${i}`,
                                     'name': '0',
                                     'six': `${page} six`,
-                                    'six1': '2018-11-11',
-                                    'six2': `1231`,
                                     'six3': `${page} six3`,
                                     'six4': `${page} six4`,
                                 })  
@@ -381,8 +371,6 @@ export const cellCheckboxTable = () => {
                                     'id': `${page} id ${i}`,
                                     'name': '0',
                                     'six': `${page} six`,
-                                    'six1': '2018-11-11',
-                                    'six2': `1231`,
                                     'six3': `${page} six--------------sadasdasd---------asdadasdads---------asadas`,
                                     'six4': `${page} six`,
                                 })

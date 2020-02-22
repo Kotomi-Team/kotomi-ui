@@ -4,6 +4,7 @@ import { Table as AntTable, Form, Divider, Icon, Menu, Dropdown } from 'antd'
 import { TableSize, ColumnProps as AntColumnProps, TableRowSelection, TableEventListeners } from 'antd/lib/table/interface'
 import { WrappedFormUtils, ValidationRule, FormComponentProps } from 'antd/lib/form/Form';
 import XLSX from 'xlsx';
+import ReactDOM from 'react-dom';
 import { EditableCell } from './EditableCell'
 
 import './style/index'
@@ -301,6 +302,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                 refExt.current = this
             }
         }
+
     }
 
     /**
@@ -428,7 +430,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                                 }}
                                 pagination={{
                                     size: 'small',
-                                    defaultPageSize: this.props.defaultPageSize,
+                                    pageSize: this.getDefaultPageSize(),
                                     total: this.state.total,
                                 }}
                                 onChange={(pagination, _filters, sorter) => {
@@ -524,10 +526,34 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
     }
 
     /**
+     * 新增一条数据
+     * @param 添加的数据
+     */
+    public appendRow(data: T) {
+        const { dataSource } = this.state
+        const proxyDataSource: T[] = dataSource
+        // @ts-ignore
+        data.$state = 'CREATE'
+        proxyDataSource.push(data)
+
+        // 添加到对应的数据
+        this.dataSourceState.create.push(data)
+        this.setState({
+            dataSource: proxyDataSource,
+        }, () => {
+           this.toScrollBottom()
+        })
+    }
+
+    /**
      * 获取当前选中的key的信息
      */
     public getSelectRowKeys() {
         return this.state.rowSelectedKeys
+    }
+
+    protected getDefaultPageSize() {
+        return this.props.defaultPageSize! + this.getDataSourceState().create.length
     }
 
     /**
@@ -600,9 +626,14 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                                         const recordKey = key.split(';')
                                         newRecord[recordKey[0]] = values[key]
                                     })
+
+                                    // @ts-ignore
+                                    const state = newRecord.$state === 'CREATE' ? 'CREATE' : 'UPDATE'
+
                                     onSave({
                                         ...newRecord,
-                                    }, 'UPDATE').then((respState) => {
+                                    },
+                                    state).then((respState) => {
                                         if (respState === true) {
                                             // 修改表格中的数据
                                             const newData: T[] = [...dataSource];
@@ -859,30 +890,53 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
 
                                 }
                             })
-
-                            if (dataSourceState.update.filter((data) => data[rowKey!] === values[rowKey!]).length > 0) {
-                                // 如果这个属性存在于更新状态中，则修改更新状态中的数据
-                                const { update } = dataSourceState
-                                for (let i = 0; i < update.length; i += 1) {
-                                    const element = update[i]
-                                    if (element[rowKey!] === values[rowKey!]) {
-                                        // 如果已经改变过状态，设置状态为可改变状态
-                                        if (JSON.stringify(element) !== JSON.stringify(values)) {
-                                            dataSourceState.update.splice(i, 1, {
-                                                ...values,
-                                            })
+                            // @ts-ignore
+                            const state = values.$state === 'CREATE' ? 'CREATE' : 'UPDATE'
+                            if (state === 'UPDATE') {
+                                if (dataSourceState.update.filter((data) => data[rowKey!] === values[rowKey!]).length > 0) {
+                                    // 如果这个属性存在于更新状态中，则修改更新状态中的数据
+                                    const { update } = dataSourceState
+                                    for (let i = 0; i < update.length; i += 1) {
+                                        const element = update[i]
+                                        if (element[rowKey!] === values[rowKey!]) {
+                                            // 如果已经改变过状态，设置状态为可改变状态
+                                            if (JSON.stringify(element) !== JSON.stringify(values)) {
+                                                dataSourceState.update.splice(i, 1, {
+                                                    ...values,
+                                                })
+                                            }
+                                            break
                                         }
-                                        break
+                                    }
+                                } else {
+                                    // 如果不存在与update中，则添加一个标识信息
+                                    dataSourceState.update.push(values)
+                                }
+                            }
+
+                            if (state === 'CREATE') {
+                                if (dataSourceState.create.filter((data) => data[rowKey!] === values[rowKey!]).length > 0) {
+                                    // 如果这个属性存在于更新状态中，则修改更新状态中的数据
+                                    const { create } = dataSourceState
+                                    for (let i = 0; i < create.length; i += 1) {
+                                        const element = create[i]
+                                        if (element[rowKey!] === values[rowKey!]) {
+                                            // 如果已经改变过状态，设置状态为可改变状态
+                                            if (JSON.stringify(element) !== JSON.stringify(values)) {
+                                                dataSourceState.create.splice(i, 1, {
+                                                    ...values,
+                                                })
+                                            }
+                                            break
+                                        }
                                     }
                                 }
-                            } else {
-                                // 如果不存在与update中，则添加一个标识信息
-                                dataSourceState.update.push(values)
                             }
+
                             self.setState({ dataSource: newData });
                             const onSave = event!.onSave
                             if (onSave) {
-                                const respState = await onSave(values, 'UPDATE')
+                                const respState = await onSave(values, state)
                                 if (respState === undefined) {
                                     return true
                                 }
@@ -907,6 +961,16 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
      */
     protected getDataSource(): T[] {
         return this.state.dataSource
+    }
+
+    /**
+     * 滚动到最底部
+     */
+    protected toScrollBottom() {
+        // eslint-disable-next-line react/no-find-dom-node
+        const element = ReactDOM.findDOMNode(this) as Element
+        const bodyElement = element.getElementsByClassName('ant-table-body')[0]!
+        bodyElement.scrollTop = bodyElement.scrollHeight;
     }
 
     /**
