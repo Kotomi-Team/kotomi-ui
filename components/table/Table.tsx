@@ -101,6 +101,11 @@ interface Props<T> extends FormComponentProps<T> {
     rowSelectedKeys?: string[]
 
     /**
+     * 当前key绑定的名称
+     */
+    rowSelectedKeyName?: string
+
+    /**
      *  当前表格的事件
      */
     event?: TableEvent<T>
@@ -163,10 +168,11 @@ export type TableEvent<T> = {
 
     /**
      * 当前表格的选择状态
-     * @param selectedRowKeys 当前所有变化的Row的key
+     * @param changeRowsKeys  当前所有变化的Row的key
+     * @param changeRows      当前选中的行数据
      * @param selected        变化状态true表示选中，false表示取消
      */
-    onSelect?: (selectedRowKeys: string[], selected: boolean) => boolean | undefined
+    onSelect?: (changeRowsKeys: string[] , changeRows: T[], selected: boolean) => boolean | undefined
 
     /**
      * 当前行的事件
@@ -201,12 +207,16 @@ export type TableEvent<T> = {
     onRenderBodyRowCssStyle?: (rowIndex: number, record: T) => React.CSSProperties
 
     /**
+     * 表格渲染选择框
+     */
+    onRenderCheckboxProps?: (record: T) => Object
+    /**
      * 头部渲染的事件
      * @param rowIndex 当前渲染的行号
      * @param record   当前行渲染的数据
      * @returns 返回一个css样式进行装饰
      */
-    onRenderHeaderRowCssStyle?: () => React.CSSProperties,
+    onRenderHeaderRowCssStyle?: () => React.CSSProperties
 
     /**
      * 装载子节点数据
@@ -230,7 +240,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
         isAutoLoadData: true,
         defaultParam: {},
         defaultExportFileName: `${new Date().getTime()}`,
-        rowSelectedKeys: [],
+        rowSelectedKeys: new Array<string>(),
         event: {
             onSelect: () => true,
             onRow: () => { },
@@ -250,15 +260,6 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
         },
     }
 
-    static getDerivedStateFromProps<T>(props: Props<T>, prevState: State<T>) {
-        if (props.rowSelectedKeys !== prevState.rowSelectedKeys) {
-            return {
-                rowSelectedKeys: props.rowSelectedKeys,
-            }
-        }
-        return null
-    }
-
     public blankDivElement: React.RefObject<HTMLDivElement> = React.createRef<HTMLDivElement>()
 
     state = {
@@ -270,7 +271,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
         sorter: undefined,
         editingKey: undefined,
         disabledCheck: false,
-        rowSelectedKeys: [],
+        rowSelectedKeys: new Array<string>(),
     }
 
     // 用户查询参数
@@ -285,6 +286,17 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
     // 当前正在编辑的cell列
     private currentEditorCell: EditableCell<T>[] = []
 
+    constructor(props: Props<T>) {
+        super(props)
+        if (props.rowSelectedKeys) {
+            this.state.rowSelectedKeys = props.rowSelectedKeys
+        }
+    }
+
+    static create(){
+        return Form.create<Props<any>>({})(Table as React.ComponentType<any>);
+    }
+    
     componentDidMount() {
         const { isAutoLoadData } = this.props
 
@@ -302,7 +314,6 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                 refExt.current = this
             }
         }
-
     }
 
     /**
@@ -499,6 +510,15 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
     }
 
     /**
+     * 设置选中的key
+     * @param rowSelectedKeys 表格选中的key
+     */
+    public setRowSelectedKeys(rowSelectedKeys: string []) {
+        this.setState({
+            rowSelectedKeys,
+        })
+    }
+    /**
      * 用来进行表格的数据刷新，如果参数为空，则是使用上一次的参数进行数据请求
      * @param param 刷新表格的参数
      */
@@ -543,13 +563,6 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
         }, () => {
            this.toScrollBottom()
         })
-    }
-
-    /**
-     * 获取当前选中的key的信息
-     */
-    public getSelectRowKeys() {
-        return this.state.rowSelectedKeys
     }
 
     protected getDefaultPageSize() {
@@ -893,25 +906,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                             // @ts-ignore
                             const state = values.$state === 'CREATE' ? 'CREATE' : 'UPDATE'
                             if (state === 'UPDATE') {
-                                if (dataSourceState.update.filter((data) => data[rowKey!] === values[rowKey!]).length > 0) {
-                                    // 如果这个属性存在于更新状态中，则修改更新状态中的数据
-                                    const { update } = dataSourceState
-                                    for (let i = 0; i < update.length; i += 1) {
-                                        const element = update[i]
-                                        if (element[rowKey!] === values[rowKey!]) {
-                                            // 如果已经改变过状态，设置状态为可改变状态
-                                            if (JSON.stringify(element) !== JSON.stringify(values)) {
-                                                dataSourceState.update.splice(i, 1, {
-                                                    ...values,
-                                                })
-                                            }
-                                            break
-                                        }
-                                    }
-                                } else {
-                                    // 如果不存在与update中，则添加一个标识信息
-                                    dataSourceState.update.push(values)
-                                }
+                               this.updateDataSource(values)
                             }
 
                             if (state === 'CREATE') {
@@ -954,6 +949,32 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
 
         })
         return this.props.columns
+    }
+
+    protected updateDataSource(values: T) {
+        const {
+            rowKey,
+        } = this.props
+        const dataSourceState = this.dataSourceState
+        if (dataSourceState.update.filter((data) => data[rowKey!] === values[rowKey!]).length > 0) {
+            // 如果这个属性存在于更新状态中，则修改更新状态中的数据
+            const { update } = dataSourceState
+            for (let i = 0; i < update.length; i += 1) {
+                const element = update[i]
+                if (element[rowKey!] === values[rowKey!]) {
+                    // 如果已经改变过状态，设置状态为可改变状态
+                    if (JSON.stringify(element) !== JSON.stringify(values)) {
+                        dataSourceState.update.splice(i, 1, {
+                            ...values,
+                        })
+                    }
+                    break
+                }
+            }
+        } else {
+            // 如果不存在与update中，则添加一个标识信息
+            dataSourceState.update.push(values)
+        }
     }
 
     /**
@@ -1011,39 +1032,81 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                     )
                 }
             })
+            const rowSelectedKeys = this.state.rowSelectedKeys
+            if (this.props.rowSelectedKeyName) {
+                dataSource.forEach((element) => {
+                    const isSelect = element[this.props.rowSelectedKeyName!] || true
+                    if (isSelect === true) {
+                        rowSelectedKeys.push(element[this.props.rowKey!])
+                    }
+                })
 
+            }
             this.setState({
                 dataSource,
                 total,
                 loading: false,
                 editingKey: undefined,
+                rowSelectedKeys,
             })
             this.backupDataSource = JSON.parse(JSON.stringify(dataSource))
             this.editStash()
         })
+    }
+    protected onSelect(changeRowsKeys: string[] , changeRows: T[], selected: boolean) {
+        const { dataSource } = this.state
+        const id = this.props.rowKey!
+        const self = this
+        changeRows.forEach((element) => {
+
+            const data = dataSource.filter(record => record[id] === element[id])
+            data.forEach((record) => {
+                // @ts-ignore
+                record[this.props.rowSelectedKeyName] = selected
+                self.updateDataSource(record as T)
+            })
+        })
+        if (this.props.event!.onSelect) {
+            return this.props.event!.onSelect(changeRowsKeys , changeRows, selected)
+        }
+        return true
     }
 
     protected getRowSelection(): TableRowSelection<T> | undefined {
         const self = this
         const rowProps: TableRowSelection<T> = {
             type: 'checkbox',
-            columnWidth: 16,
-            selectedRowKeys: this.state.rowSelectedKeys,
+            columnWidth: 28,
+            selections: true,
+            getCheckboxProps: (record: T) => {
+                let checked = false
+                if (this.state.rowSelectedKeys.indexOf(record[this.props.rowKey!] as string) !== -1) {
+                    checked = true
+                }else {
+                    checked = false
+                }
+                let checkBoxProps = {}
+                if (this.props.event && this.props.event.onRenderCheckboxProps) {
+                    checkBoxProps = this.props.event.onRenderCheckboxProps(record)
+                }
+                return {
+                    ...checkBoxProps,
+                    checked,
+                }
+            },
             onSelect: (record: T, selected: boolean) => {
                 let respState: boolean | undefined = true
-                if (self.props.event!.onSelect) {
-                    respState = self.props.event!.onSelect(record[self.props.rowKey!], selected)
-                }
+                respState = this.onSelect([record[self.props.rowKey!] as string], [record], selected)
                 if (respState) {
                     const id = record[self.props.rowKey!] as string
                     if (selected) {
-                        const rowSelectedKeys: string[] = self.state.rowSelectedKeys
+                        const rowSelectedKeys: string[] = self.state.rowSelectedKeys || []
                         rowSelectedKeys.push(id)
                         self.setState({
                             rowSelectedKeys,
                         })
                     }else {
-                        const rowSelectedKeys: string[] = self.state.rowSelectedKeys
+                        const rowSelectedKeys: string[] = self.state.rowSelectedKeys || []
                         rowSelectedKeys.splice(rowSelectedKeys.indexOf(id), 1)
 
                         self.setState({
@@ -1052,15 +1115,25 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                     }
                 }
             },
+
             onSelectAll: (selected: boolean, selectedRows: T[], changeRows: T[]) => {
                 let respState: boolean | undefined = true
-                if (self.props.event!.onSelect) {
-                    respState = self.props.event!.onSelect(changeRows.map((record) => record[self.props.rowKey!]), selected)
-                }
+                respState = this.onSelect(changeRows.map(record => record[self.props.rowKey!] as string), changeRows, selected)
+
                 if (respState) {
                     const selectKeys = selectedRows.map<string>((record) => record[self.props.rowKey!] as string)
                     self.setState({
                         rowSelectedKeys: selectKeys,
+                    })
+                }
+            },
+            onSelectInvert: (selectedRowKeys: string[]) => {
+                let respState: boolean | undefined = true
+                const selectedRows = this.state.dataSource.filter(record => selectedRowKeys.indexOf(record[self.props.rowKey!]) !== -1)
+                respState = this.onSelect(selectedRowKeys, selectedRows, true)
+                if (respState) {
+                    self.setState({
+                        rowSelectedKeys: selectedRowKeys,
                     })
                 }
             },
@@ -1103,6 +1176,6 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
     }
 }
 
-const EditableFormTable = Form.create<Props<any>>({})(Table as React.ComponentType<any>);
+const EditableFormTable = Table.create()
 
 export { EditableFormTable as Table };
