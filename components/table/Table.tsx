@@ -260,6 +260,10 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
         },
     }
 
+    static create() {
+        return Form.create<Props<any>>({})(Table as React.ComponentType<any>);
+    }
+
     public blankDivElement: React.RefObject<HTMLDivElement> = React.createRef<HTMLDivElement>()
 
     state = {
@@ -293,10 +297,6 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
         }
     }
 
-    static create(){
-        return Form.create<Props<any>>({})(Table as React.ComponentType<any>);
-    }
-    
     componentDidMount() {
         const { isAutoLoadData } = this.props
 
