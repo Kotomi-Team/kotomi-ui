@@ -2,7 +2,7 @@ import React, { createRef } from 'react'
 
 import { Button, Checkbox, Select, DatePicker } from 'antd';
 import moment from 'moment';
-import { Table, ColumnProps, TableEvent, TableSorter } from '../components/table/Table';
+import {Table, ColumnProps, TableEvent, TableSorter } from '../components/table/Table';
 import { SketchPicker } from '../components/index'
 
 export default { title: 'Table' };
@@ -118,11 +118,12 @@ export const baseTable = () => {
         dataIndex: '$operating',
         title: '操作',
     }]
-
+    const [rowSelectedKeys, setRowSelectedKeys] = React.useState(['1 id 1'])
     return (
         <>
             <Button
                 onClick={()=>{
+                    setRowSelectedKeys([])
                     console.log(baseTableRef.current!.getSelectRowKeys())
                 }}
             >click select
@@ -131,6 +132,7 @@ export const baseTable = () => {
                 refExt={baseTableRef}
                 columns={columns}
                 rowSelection="multiple"
+                rowSelectedKeys={rowSelectedKeys}
                 loadData={({ page, pageSize }: { page: number, pageSize: number, sorter?: TableSorter }) => {
                     return new Promise<{ dataSource: User[], total: number }>((re) => {
                         let data: User[] = []
@@ -341,7 +343,7 @@ export const cellCheckboxTable = () => {
         <>
             <Button
                 onClick={() => {
-                    tableDom.current.appendRow({id: '2'})
+                    console.log(tableDom.current.getDataSourceState())
                 }}
             > click get edit state</Button>
             <Button
@@ -349,10 +351,16 @@ export const cellCheckboxTable = () => {
                     tableDom.editStash()
                 }}
             > click edit stash</Button>
+            <Button
+                onClick={() => {
+                    tableDom.current.appendRow({id: '2'})
+                }}
+            > click appendRow</Button>
             <Table
                 rowSelection="multiple"
                 columns={columns}
                 editingType="cell"
+                rowSelectedKeyName="name"
                 refExt={tableDom}
                 loadData={({ page, pageSize }: { page: number, pageSize: number, param?: any, sorter?: TableSorter }) => {
                     return new Promise<{ dataSource: UserMoment[], total: number }>((re) => {
@@ -378,6 +386,13 @@ export const cellCheckboxTable = () => {
                         }
                         re({ dataSource: data, total: 2000 })
                     })
+                }}
+                event={{
+                    onSave: async (data: any , type: 'DELETE' | 'UPDATE' | 'CREATE')=>{
+                        console.log(data)
+                        console.log(type)
+                        return true
+                    }
                 }}
             />
             <div 
