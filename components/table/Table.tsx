@@ -1,6 +1,6 @@
 import React from 'react'
 import { HotKeys } from 'react-hotkeys';
-import { Table as AntTable, Form, Divider, Icon, Menu, Dropdown } from 'antd'
+import { Table as AntTable, Form, Divider, Icon, Menu, Dropdown, Pagination } from 'antd'
 import { TableSize, ColumnProps as AntColumnProps, TableRowSelection, TableEventListeners } from 'antd/lib/table/interface'
 import { WrappedFormUtils, ValidationRule, FormComponentProps } from 'antd/lib/form/Form';
 import XLSX from 'xlsx';
@@ -439,9 +439,11 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                                     />,
                                     spinning: this.state.loading,
                                 }}
+                                pagination={false}
+                                /*
                                 pagination={{
                                     size: 'small',
-                                    pageSize: this.getDefaultPageSize(),
+                                    pageSize: this.state.pageSize,
                                     total: this.state.total,
                                 }}
                                 onChange={(pagination, _filters, sorter) => {
@@ -453,7 +455,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                                             order: sorter.order,
                                         } as TableSorter,
                                     })
-                                }}
+                                }}*/
                                 rowSelection={this.getRowSelection()}
                                 onHeaderRow={(_columns: ColumnProps<T>[]) => {
                                     let propsStyle = {}
@@ -495,6 +497,20 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                                 {...extProps}
                             />
                         </TableContext.Provider>
+                        <Pagination
+                            className="kotomi-components-table-pagination"
+                            defaultCurrent={1}
+                            size='small'
+                            total={this.state.total}
+                            pageSize={this.props.defaultPageSize!}
+                            onChange={(page: number, pageSize?: number) => {
+                                this.requestLoadData({
+                                    page,
+                                    pageSize: pageSize!,
+                                    sorter: { } as TableSorter,
+                                })
+                            }}
+                        />
                     </HotKeys>
                 </Dropdown>
             </div>
@@ -551,22 +567,29 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
      */
     public appendRow(data: T) {
         const { dataSource } = this.state
-        const proxyDataSource: T[] = dataSource
+        const proxyDataSource: T[] = JSON.parse(JSON.stringify(dataSource))
         // @ts-ignore
         data.$state = 'CREATE'
+        if (
+            // 判断添加的id不能为空
+            data[this.props.rowKey!] === undefined
+            ||
+            // 判断添加的数据id不能重复
+            proxyDataSource.filter(element => element[this.props.rowKey!] === data[this.props.rowKey!])
+        ) {
+            throw new Error(`KOTOMI-TABLE-5002: The added data ID must be unique and cannot be duplicate. [${JSON.stringify(data)}]`)
+        }
+
         proxyDataSource.push(data)
 
         // 添加到对应的数据
         this.dataSourceState.create.push(data)
         this.setState({
             dataSource: proxyDataSource,
+            pageSize: this.props.defaultPageSize! + this.dataSourceState.create.length,
         }, () => {
            this.toScrollBottom()
         })
-    }
-
-    protected getDefaultPageSize() {
-        return this.props.defaultPageSize! + this.getDataSourceState().create.length
     }
 
     /**
@@ -1000,7 +1023,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
      * @param pageSize 当前页面显示的数据条数
      */
     protected requestLoadData({ page, pageSize, param, sorter }: { page: number, pageSize: number, param?: any, sorter?: TableSorter }) {
-        const { defaultParam, rowKey } = this.props
+        const { defaultParam, rowKey, defaultPageSize } = this.props
         this.setState({
             loading: true,
         })
@@ -1042,11 +1065,13 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                 })
 
             }
+            this.dataSourceState.create.splice(0)
             this.setState({
                 dataSource,
                 total,
                 loading: false,
                 editingKey: undefined,
+                pageSize: defaultPageSize!,
                 rowSelectedKeys,
             })
             this.backupDataSource = JSON.parse(JSON.stringify(dataSource))

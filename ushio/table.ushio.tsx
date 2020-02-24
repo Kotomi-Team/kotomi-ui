@@ -272,6 +272,7 @@ export const rowEditorTable = () => {
 
 
 let tableDom: any = createRef<any>()
+let i = 0
 export const cellCheckboxTable = () => {
 
     let columns: ColumnProps<User>[] = [{
@@ -344,6 +345,7 @@ export const cellCheckboxTable = () => {
             <Button
                 onClick={() => {
                     console.log(tableDom.current.getDataSourceState())
+                    console.log(tableDom.current.state)
                 }}
             > click get edit state</Button>
             <Button
@@ -353,7 +355,7 @@ export const cellCheckboxTable = () => {
             > click edit stash</Button>
             <Button
                 onClick={() => {
-                    tableDom.current.appendRow({id: '2'})
+                    tableDom.current.appendRow({id: i++})
                 }}
             > click appendRow</Button>
             <Table

@@ -136,7 +136,7 @@ export const testColForm = () => {
     return (
         <Form
             script={`
-                [name    | Field0 input 8-8-16][name|Field1 input 8-8-16][name|Field2 input 8-8-16]
+                [name    | Field0 input 8-8-16][name|Field1 input 8-2-16][name|Field2 input 8-8-16]
                 [name1   | Field4 input 24-2.65-21.35]      
             `}
             rules={[{
