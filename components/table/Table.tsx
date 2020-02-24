@@ -1,6 +1,6 @@
 import React from 'react'
 import { HotKeys } from 'react-hotkeys';
-import { Table as AntTable, Form, Divider, Icon, Menu, Dropdown, Pagination } from 'antd'
+import { Table as AntTable, Divider, Icon, Menu, Dropdown, Pagination, Form } from 'antd'
 import { TableSize, ColumnProps as AntColumnProps, TableRowSelection, TableEventListeners } from 'antd/lib/table/interface'
 import { WrappedFormUtils, ValidationRule, FormComponentProps } from 'antd/lib/form/Form';
 import XLSX from 'xlsx';
@@ -240,7 +240,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
         isAutoLoadData: true,
         defaultParam: {},
         defaultExportFileName: `${new Date().getTime()}`,
-        rowSelectedKeys: new Array<string>(),
+        rowSelectedKeys: [],
         event: {
             onSelect: () => true,
             onRow: () => { },
@@ -260,10 +260,6 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
         },
     }
 
-    static create() {
-        return Form.create<Props<any>>({})(Table as React.ComponentType<any>);
-    }
-
     public blankDivElement: React.RefObject<HTMLDivElement> = React.createRef<HTMLDivElement>()
 
     state = {
@@ -275,7 +271,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
         sorter: undefined,
         editingKey: undefined,
         disabledCheck: false,
-        rowSelectedKeys: new Array<string>(),
+        rowSelectedKeys: [],
     }
 
     // 用户查询参数
@@ -292,9 +288,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
 
     constructor(props: Props<T>) {
         super(props)
-        if (props.rowSelectedKeys) {
-            this.state.rowSelectedKeys = props.rowSelectedKeys
-        }
+        this.state.rowSelectedKeys = (props.rowSelectedKeys || []) as never[]
     }
 
     componentDidMount() {
@@ -577,7 +571,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
             // 判断添加的数据id不能重复
             proxyDataSource.filter(element => element[this.props.rowKey!] === data[this.props.rowKey!])
         ) {
-            throw new Error(`KOTOMI-TABLE-5002: The added data ID must be unique and cannot be duplicate. [${JSON.stringify(data)}]`)
+            throw new Error(`KOTOMI-TABLE-5002: The added rowKey must be unique and cannot be duplicate. rowKey [${this.props.rowKey}] , data  [${JSON.stringify(data)}]`)
         }
 
         proxyDataSource.push(data)
@@ -852,6 +846,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
             column.title = '#'
         }
     }
+
     /**
      * 获得当前列的信息
      */
@@ -1055,12 +1050,13 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                     )
                 }
             })
+
             const rowSelectedKeys = this.state.rowSelectedKeys
             if (this.props.rowSelectedKeyName) {
                 dataSource.forEach((element) => {
                     const isSelect = element[this.props.rowSelectedKeyName!] || true
                     if (isSelect === true) {
-                        rowSelectedKeys.push(element[this.props.rowKey!])
+                        rowSelectedKeys.push(element[this.props.rowKey!] as never)
                     }
                 })
 
@@ -1105,14 +1101,14 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
             selections: true,
             getCheckboxProps: (record: T) => {
                 let checked = false
-                if (this.state.rowSelectedKeys.indexOf(record[this.props.rowKey!] as string) !== -1) {
+                if (self.state.rowSelectedKeys.indexOf(record[self.props.rowKey!] as never) !== -1) {
                     checked = true
                 }else {
                     checked = false
                 }
                 let checkBoxProps = {}
-                if (this.props.event && this.props.event.onRenderCheckboxProps) {
-                    checkBoxProps = this.props.event.onRenderCheckboxProps(record)
+                if (self.props.event && self.props.event.onRenderCheckboxProps) {
+                    checkBoxProps = self.props.event.onRenderCheckboxProps(record)
                 }
                 return {
                     ...checkBoxProps,
@@ -1121,17 +1117,16 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
             },
             onSelect: (record: T, selected: boolean) => {
                 let respState: boolean | undefined = true
-                respState = this.onSelect([record[self.props.rowKey!] as string], [record], selected)
+                respState = self.onSelect([record[self.props.rowKey!] as string], [record], selected)
                 if (respState) {
                     const id = record[self.props.rowKey!] as string
                     if (selected) {
-                        const rowSelectedKeys: string[] = self.state.rowSelectedKeys || []
-                        rowSelectedKeys.push(id)
+                        const rowSelectedKeys: string[] = JSON.parse(JSON.stringify(self.state.rowSelectedKeys)) || []
                         self.setState({
-                            rowSelectedKeys,
+                            rowSelectedKeys: [...rowSelectedKeys, id],
                         })
                     }else {
-                        const rowSelectedKeys: string[] = self.state.rowSelectedKeys || []
+                        const rowSelectedKeys: string[] = JSON.parse(JSON.stringify(self.state.rowSelectedKeys)) || []
                         rowSelectedKeys.splice(rowSelectedKeys.indexOf(id), 1)
 
                         self.setState({
@@ -1143,7 +1138,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
 
             onSelectAll: (selected: boolean, selectedRows: T[], changeRows: T[]) => {
                 let respState: boolean | undefined = true
-                respState = this.onSelect(changeRows.map(record => record[self.props.rowKey!] as string), changeRows, selected)
+                respState = self.onSelect(changeRows.map(record => record[self.props.rowKey!] as string), changeRows, selected)
 
                 if (respState) {
                     const selectKeys = selectedRows.map<string>((record) => record[self.props.rowKey!] as string)
@@ -1154,8 +1149,8 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
             },
             onSelectInvert: (selectedRowKeys: string[]) => {
                 let respState: boolean | undefined = true
-                const selectedRows = this.state.dataSource.filter(record => selectedRowKeys.indexOf(record[self.props.rowKey!]) !== -1)
-                respState = this.onSelect(selectedRowKeys, selectedRows, true)
+                const selectedRows = self.state.dataSource.filter(record => selectedRowKeys.indexOf(record[self.props.rowKey!]) !== -1)
+                respState = self.onSelect(selectedRowKeys, selectedRows, true)
                 if (respState) {
                     self.setState({
                         rowSelectedKeys: selectedRowKeys,
@@ -1201,6 +1196,4 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
     }
 }
 
-const EditableFormTable = Table.create()
-
-export { EditableFormTable as Table };
+export default Form.create<Props<any>>({})(Table as React.ComponentType<any>);
