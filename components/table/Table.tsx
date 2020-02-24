@@ -447,7 +447,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                                 onChange={(pagination, _filters, sorter) => {
                                     this.requestLoadData({
                                         page: pagination.current!,
-                                        pageSize: pagination.pageSize!,
+                                        pageSize: this.props.defaultPageSize!,
                                         sorter: {
                                             name: sorter.field,
                                             order: sorter.order,
