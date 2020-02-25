@@ -1,8 +1,12 @@
 import React, { createRef } from 'react'
 
-import { Button, Checkbox, Select, DatePicker } from 'antd';
+import { Button, Select, DatePicker } from 'antd';
 import moment from 'moment';
+
 import Table, { ColumnProps, TableEvent, TableSorter } from '../components/table/Table';
+import Checkbox from '../components/checkbox/Checkbox';
+
+// Checkbox
 import { SketchPicker } from '../components/index'
 
 export default { title: 'Table' };
@@ -24,6 +28,7 @@ type Props = {
     value?: string
     onChange?: (value: string) => void
     onFinish?: () => void
+    disabled?: boolean
 }
 
 class DatePickerExt extends React.Component<Props> {
@@ -52,11 +57,12 @@ class CheckboxExt extends React.Component<Props>{
     }
 
     render() {
-        const { value, onChange, onFinish } = this.props
+        const { value, onChange, onFinish, disabled } = this.props
         const defaultValue = value === '0' ? [] : ['1']
         return (
             <Checkbox.Group
                 value={defaultValue}
+                disabled={disabled}
                 onChange={(values) => {
                     if (values.length === 0) {
                         onChange!('0')
@@ -79,6 +85,7 @@ class User {
     name: string
     six: string
     six1: string
+    sixbool?: boolean
     six2: string
     six3: string
     six4: string
@@ -188,17 +195,13 @@ class RowEditorTable extends React.Component {
             isEditing: true,
             width: 300
         }, {
-            dataIndex: 'six',
-            title: 'six',
+            dataIndex: 'sixbool',
+            title: 'sixbool',
             isEditing: true,
-            width: 100,
+            inputModal: 'display',
             inputType: (
-                <CheckboxExt />
-            )
-        }, {
-            dataIndex: 'six1',
-            title: 'six1',
-            isEditing: true,
+                <Checkbox />
+            ),
             width: 100
         }, {
             dataIndex: 'six2',
@@ -243,12 +246,8 @@ class RowEditorTable extends React.Component {
                     rowSelection="multiple"
                     refExt={this.table}
                     event={{
-                        onSave:  ()=>{
-                            return new Promise((re)=>{
-                                setTimeout(()=>{
-                                    re(true)
-                                },3000)
-                            })
+                        onSave: async ()=>{
+                            return true
                         },
                     }}
                     locale={{
@@ -264,6 +263,7 @@ class RowEditorTable extends React.Component {
                                     'name': `${page} name`,
                                     'six': `${page} six`,
                                     'six1': `${page} six`,
+                                    'sixbool': false,
                                     'six2': `${page} six`,
                                     'six3': `${page} six`,
                                     'six4': `${page} six`,
@@ -525,6 +525,15 @@ export const zebraCrossingTable = () => {
     )
 }
 
+export const rowEditorTable= () => {
+    return (
+        <>
+            <RowEditorTable />
+        </>
+    )
+}
+
+
 export const testSelectTable = () => {
     return (
         <>
@@ -533,3 +542,4 @@ export const testSelectTable = () => {
         </>
     )
 }
+

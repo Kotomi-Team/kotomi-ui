@@ -1,4 +1,5 @@
 import Table from './table/Table'
+import Checkbox from './checkbox/Checkbox'
 import { Form } from './form/Form'
 import { Modal } from './modal/Modal'
 import { Tree } from './tree/Tree'
@@ -11,5 +12,6 @@ export {
     Modal,
     Tree,
     Upload,
-    SketchPicker
+    SketchPicker,
+    Checkbox
 }
