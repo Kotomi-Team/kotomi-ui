@@ -24,7 +24,7 @@ export interface ColumnProps<T> extends AntColumnProps<T> {
     // 校验规则
     rules?: ValidationRule[]
     // 编辑模式，默认为点击编辑，可选为直接显示编辑
-    inputModal?: 'click' | 'display',
+    inputModal?: 'click' | 'display' | 'display-only',
     // 显示列的别名
     aliasDataIndex?: string
 }
@@ -654,9 +654,13 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                                     }
                                     Object.keys(values).forEach((key) => {
                                         const recordKey = key.split(';')
-                                        newRecord[recordKey[0]] = values[key]
+                                        const recordKeyNumber = Number.parseInt(recordKey[1], 10)
+                                        if (recordKey[1]) {
+                                            if (self.getEditorRowIndex() === recordKeyNumber) {
+                                                newRecord[recordKey[0]] = values[key]
+                                            }
+                                        }
                                     })
-
                                     // @ts-ignore
                                     const state = newRecord.$state === 'CREATE' ? 'CREATE' : 'UPDATE'
 
@@ -669,9 +673,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                                             const newData: T[] = [...dataSource];
                                             newData.forEach((data, dataIndex) => {
                                                 if (data[rowKey!] === newRecord[rowKey!]) {
-                                                    newData.splice(dataIndex, 1, {
-                                                        ...newRecord,
-                                                    });
+                                                    newData[dataIndex] = { ...newRecord }
                                                 }
                                             })
                                             self.setState({
@@ -689,6 +691,23 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                 <Icon
                     type='undo'
                     onClick={() => {
+                        const dataIndex = this.getEditorRowIndex()
+                        if (dataIndex !== undefined) {
+                            const fields: string[] = []
+                            this.props.columns.forEach((column) => {
+                                if (column.inputModal === 'display-only') {
+                                    const fieldName = column.dataIndex as string + ';' + dataIndex
+                                    const oldData = this.state.dataSource[dataIndex][column.dataIndex as string]
+                                    const newData = this.props.form.getFieldValue(fieldName)
+                                    if (oldData !== newData) {
+                                        fields.push(fieldName)
+                                    }
+                                }
+                            })
+                            if (fields.length > 0) {
+                                this.props.form.resetFields(fields)
+                            }
+                        }
                         this.setState({
                             editingKey: undefined,
                         })
@@ -698,6 +717,14 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
         ) : self.state.editingKey === undefined ? editor : <></>
     }
 
+    protected getEditorRowIndex() {
+        for (let i = 0; i < this.state.dataSource.length ; i++) {
+            if (this.state.dataSource[i][this.props.rowKey!] === this.state.editingKey) {
+                return i;
+            }
+        }
+        return undefined
+    }
     protected getColumnOperatingEdit(column: ColumnProps<T>) {
         const {
             event,

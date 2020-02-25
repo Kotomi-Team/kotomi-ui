@@ -21,7 +21,7 @@ type Props<T> = {
     // 用户触发保存的信息
     onSave: (record: T, type: 'DELETE' | 'UPDATE' | 'CREATE') => Promise<boolean>
     // 显示模式，点击编辑，或者直接显示
-    inputModal?: 'click' | 'display'
+    inputModal?: 'click' | 'display' | 'display-only'
     // 当前正在编辑的cell
     currentEditorCell: EditableCell<T>[]
     isEditing: boolean
@@ -113,14 +113,18 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
     }
 
     renderFormItem = (form: WrappedFormUtils) => {
-        const { column, record, rowIndex, editingType } = this.props
+        const { column, record, rowIndex, editingType, inputModal } = this.props
         this.form = form
         const dataIndex: string = column.dataIndex as string
         const inputType: JSX.Element = column!.inputType || <Input />
-        return form.getFieldDecorator(column!.dataIndex as string + ';' + rowIndex, {
+
+        const key = column!.dataIndex as string + ';' + rowIndex
+        return form.getFieldDecorator(key, {
             rules: column!.rules,
             initialValue: record[dataIndex],
+
         })(React.cloneElement(inputType, {
+            disabled: inputModal === 'display-only' && !this.isEditing(),
             ref: (input: Input) => {
                 if (input.focus) {
                     if (column.inputModal === 'click') {
@@ -128,7 +132,6 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
                     }
                 }
             },
-
             onBlur: () => {
                 // 失去焦点的时候隐藏输入框
                 if (editingType === 'cell') {
@@ -223,11 +226,16 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
                 }
             }
 
-            if (inputModal === 'display') {
+            if (
+                inputModal === 'display' ||
+                inputModal === 'display-only'
+            ) {
 
                 return (
                     <>
-                        <Form.Item>
+                        <Form.Item
+                            key={new Date().getTime()}
+                        >
                             {this.renderFormItem(tableContextProps.form!)}
                         </Form.Item>
                     </>
