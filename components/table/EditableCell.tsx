@@ -205,12 +205,12 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
     }
 
     renderCell = (tableContextProps: TableContextProps<T>) => {
-        const { children, inputModal, column } = this.props
+        const { children, inputModal, column, editingType } = this.props
         this.form = tableContextProps.form!
 
         // 如果列允许编辑
         if (column !== undefined && column.isEditing) {
-            if (inputModal === 'click') {
+            if (inputModal === 'click' && editingType === 'cell') {
                 // 如果为只读则不能进行编辑 或者没有dataIndex的列
                 if (!this.isEditing()) {
                     return children
@@ -226,11 +226,7 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
                 }
             }
 
-            if (
-                inputModal === 'display' ||
-                inputModal === 'display-only'
-            ) {
-
+            if ((inputModal === 'display' || inputModal === 'display-only') && (editingType === 'row' || editingType === 'cell')) {
                 return (
                     <>
                         <Form.Item
