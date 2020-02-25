@@ -198,7 +198,7 @@ class RowEditorTable extends React.Component {
             dataIndex: 'sixbool',
             title: 'sixbool',
             isEditing: true,
-            inputModal: 'display-only',
+            inputModal: 'display',
             inputType: (
                 <Checkbox />
             ),

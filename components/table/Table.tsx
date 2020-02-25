@@ -24,7 +24,7 @@ export interface ColumnProps<T> extends AntColumnProps<T> {
     // 校验规则
     rules?: ValidationRule[]
     // 编辑模式，默认为点击编辑，可选为直接显示编辑
-    inputModal?: 'click' | 'display' | 'display-only',
+    inputModal?: 'click' | 'display',
     // 显示列的别名
     aliasDataIndex?: string
 }
@@ -692,10 +692,10 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                     type='undo'
                     onClick={() => {
                         const dataIndex = this.getEditorRowIndex()
-                        if (dataIndex !== undefined) {
+                        if (dataIndex !== undefined && this.props.editingType === 'row') {
                             const fields: string[] = []
                             this.props.columns.forEach((column) => {
-                                if (column.inputModal === 'display-only') {
+                                if (column.inputModal === 'display') {
                                     const fieldName = column.dataIndex as string + ';' + dataIndex
                                     const oldData = this.state.dataSource[dataIndex][column.dataIndex as string]
                                     const newData = this.props.form.getFieldValue(fieldName)

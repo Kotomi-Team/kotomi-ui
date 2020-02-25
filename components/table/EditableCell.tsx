@@ -21,7 +21,7 @@ type Props<T> = {
     // 用户触发保存的信息
     onSave: (record: T, type: 'DELETE' | 'UPDATE' | 'CREATE') => Promise<boolean>
     // 显示模式，点击编辑，或者直接显示
-    inputModal?: 'click' | 'display' | 'display-only'
+    inputModal?: 'click' | 'display'
     // 当前正在编辑的cell
     currentEditorCell: EditableCell<T>[]
     isEditing: boolean
@@ -124,7 +124,8 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
             initialValue: record[dataIndex],
 
         })(React.cloneElement(inputType, {
-            disabled: inputModal === 'display-only' && !this.isEditing(),
+            // 如果是行编辑模式下，并且是display的模式，则显示为不可编辑
+            disabled: inputModal === 'display' && !this.isEditing() && editingType === 'row',
             ref: (input: Input) => {
                 if (input.focus) {
                     if (column.inputModal === 'click') {
@@ -210,12 +211,26 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
 
         // 如果列允许编辑
         if (column !== undefined && column.isEditing) {
-            if (inputModal === 'click' && editingType === 'cell') {
-                // 如果为只读则不能进行编辑 或者没有dataIndex的列
-                if (!this.isEditing()) {
-                    return children
-                } else {
-                    this.addBlank(tableContextProps)
+
+            // 如果是单元格编辑模式
+            if (editingType === 'cell') {
+                if (inputModal === 'click') {
+                    // 如果为只读则不能进行编辑 或者没有dataIndex的列
+                    if (!this.isEditing()) {
+                        return children
+                    } else {
+                        this.addBlank(tableContextProps)
+                        return (
+                            <>
+                                <Form.Item>
+                                    {this.renderFormItem(tableContextProps.form!)}
+                                </Form.Item>
+                            </>
+                        )
+                    }
+                }
+
+                if (inputModal === 'display') {
                     return (
                         <>
                             <Form.Item>
@@ -226,16 +241,19 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
                 }
             }
 
-            if ((inputModal === 'display' || inputModal === 'display-only') && (editingType === 'row' || editingType === 'cell')) {
-                return (
-                    <>
-                        <Form.Item
-                            key={new Date().getTime()}
-                        >
-                            {this.renderFormItem(tableContextProps.form!)}
-                        </Form.Item>
-                    </>
-                )
+            // 如果是行编辑模式
+            if (editingType === 'row') {
+                if (this.isEditing() || inputModal === 'display') {
+                    return (
+                        <>
+                            <Form.Item
+                                key={new Date().getTime()}
+                            >
+                                {this.renderFormItem(tableContextProps.form!)}
+                            </Form.Item>
+                        </>
+                    )
+                }
             }
 
         }
