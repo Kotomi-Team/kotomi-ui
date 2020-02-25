@@ -2,7 +2,7 @@ import React, { createRef } from 'react'
 
 import { Button, Checkbox, Select, DatePicker } from 'antd';
 import moment from 'moment';
-import {Table, ColumnProps, TableEvent, TableSorter } from '../components/table/Table';
+import Table, { ColumnProps, TableEvent, TableSorter } from '../components/table/Table';
 import { SketchPicker } from '../components/index'
 
 export default { title: 'Table' };
@@ -118,7 +118,7 @@ export const baseTable = () => {
         dataIndex: '$operating',
         title: '操作',
     }]
-    const [rowSelectedKeys, setRowSelectedKeys] = React.useState(['1 id 1'])
+    const [rowSelectedKeys, setRowSelectedKeys] = React.useState([])
     return (
         <>
             <Button
@@ -172,106 +172,116 @@ export const baseTable = () => {
     )
 }
 
-export const rowEditorTable = () => {
-    const table = createRef<any>()
-    let columns: ColumnProps<User>[] = [{
-        dataIndex: '$index',
-    }, {
-        dataIndex: '$state',
-        width: 100
-    }, {
-        dataIndex: 'name',
-        title: 'name',
-        align: 'center',
-        isEditing: true,
-        width: 300
-    }, {
-        dataIndex: 'six',
-        title: 'six',
-        isEditing: true,
-        width: 100,
-        inputType: (
-            <CheckboxExt />
-        )
-    }, {
-        dataIndex: 'six1',
-        title: 'six1',
-        isEditing: true,
-        width: 100
-    }, {
-        dataIndex: 'six2',
-        title: 'six2',
-        width: 100
-    }, {
-        dataIndex: 'six3',
-        title: 'six3',
-        width: 100
-    }, {
-        dataIndex: 'six4',
-        title: 'color',
-        isEditing: true,
-        inputType: <SketchPicker />,
-        width: 100
-    }/*, {
-        dataIndex: '$operating#del',
-        title: '操作-删除',
-    }*/, {
-        dataIndex: '$operating',
-        title: '操作',
-    }]
-
-    return (
-        <>
-            <Button
-                onClick={()=>{
-                    // table.reload()
-                    table.current!.reload()
-                }}
-            >reload</Button>
-            <Table
-                columns={columns}
-                editingType="row"
-                rowSelection="multiple"
-                refExt={table}
-                event={{
-                    onSave:  ()=>{
-                        return new Promise((re)=>{
-                            setTimeout(()=>{
-                                re(true)
-                            },3000)
-                        })
-                    },
-                }}
-                locale={{
-                    editText: '编辑',
-                    deleteText: '删除'
-                }}
-                loadData={({ page, pageSize }: { page: number, pageSize: number, param?: any, sorter?: TableSorter }) => {
-                    return new Promise<{ dataSource: User[], total: number }>((re) => {
-                        let data: User[] = []
-                        for (let i = 0; i < pageSize!; i++) {
-                            data.push({
-                                'id': `${page} id ${i}`,
-                                'name': `${page} name`,
-                                'six': `${page} six`,
-                                'six1': `${page} six`,
-                                'six2': `${page} six`,
-                                'six3': `${page} six`,
-                                'six4': `${page} six`,
+class RowEditorTable extends React.Component {
+    private table = createRef<any>()
+    render(){
+       
+        let columns: ColumnProps<User>[] = [{
+            dataIndex: '$index',
+        }, {
+            dataIndex: '$state',
+            width: 100
+        }, {
+            dataIndex: 'name',
+            title: 'name',
+            align: 'center',
+            isEditing: true,
+            width: 300
+        }, {
+            dataIndex: 'six',
+            title: 'six',
+            isEditing: true,
+            width: 100,
+            inputType: (
+                <CheckboxExt />
+            )
+        }, {
+            dataIndex: 'six1',
+            title: 'six1',
+            isEditing: true,
+            width: 100
+        }, {
+            dataIndex: 'six2',
+            title: 'six2',
+            width: 100
+        }, {
+            dataIndex: 'six3',
+            title: 'six3',
+            width: 100
+        }, {
+            dataIndex: 'six4',
+            title: 'color',
+            isEditing: true,
+            inputType: <SketchPicker />,
+            width: 100
+        }/*, {
+            dataIndex: '$operating#del',
+            title: '操作-删除',
+        }*/, {
+            dataIndex: '$operating',
+            title: '操作',
+        }]
+    
+        return (
+            <>
+                <Button
+                    onClick={()=>{
+                        // table.reload()
+                        console.log(this.table.current!.setRowSelectedKeys(['','2']))
+                        console.log(this.table.current!.setRowSelectedKeys(['','2']))
+                    }}
+                >reload</Button>
+                <Button
+                    onClick={()=>{
+                        // table.reload()
+                        console.log(this.table.current!)
+                    }}
+                >reload</Button>
+                <Table
+                    columns={columns}
+                    editingType="row"
+                    rowSelection="multiple"
+                    refExt={this.table}
+                    event={{
+                        onSave:  ()=>{
+                            return new Promise((re)=>{
+                                setTimeout(()=>{
+                                    re(true)
+                                },3000)
                             })
-                        }
-                        re({ dataSource: data, total: 2000 })
-                    })
-                }}
-            />
-        </>
-    )
+                        },
+                    }}
+                    locale={{
+                        editText: '编辑',
+                        deleteText: '删除'
+                    }}
+                    loadData={({ page, pageSize }: { page: number, pageSize: number, param?: any, sorter?: TableSorter }) => {
+                        return new Promise<{ dataSource: User[], total: number }>((re) => {
+                            let data: User[] = []
+                            for (let i = 0; i < pageSize!; i++) {
+                                data.push({
+                                    'id': `${page} id ${i}`,
+                                    'name': `${page} name`,
+                                    'six': `${page} six`,
+                                    'six1': `${page} six`,
+                                    'six2': `${page} six`,
+                                    'six3': `${page} six`,
+                                    'six4': `${page} six`,
+                                })
+                            }
+                            re({ dataSource: data, total: 2000 })
+                        })
+                    }}
+                />
+            </>
+        )
+    }
 }
 
 
 
-
 let tableDom: any = createRef<any>()
+let i = 0
 export const cellCheckboxTable = () => {
 
     let columns: ColumnProps<User>[] = [{
@@ -344,6 +354,7 @@ export const cellCheckboxTable = () => {
             <Button
                 onClick={() => {
                     console.log(tableDom.current.getDataSourceState())
+                    console.log(tableDom.current.state)
                 }}
             > click get edit state</Button>
             <Button
@@ -353,7 +364,7 @@ export const cellCheckboxTable = () => {
             > click edit stash</Button>
             <Button
                 onClick={() => {
-                    tableDom.current.appendRow({id: '2'})
+                    tableDom.current.appendRow({id: i++})
                 }}
             > click appendRow</Button>
             <Table
@@ -510,6 +521,15 @@ export const zebraCrossingTable = () => {
                     })
                 }}
             />
+        </>
+    )
+}
+
+export const testSelectTable = () => {
+    return (
+        <>
+            <RowEditorTable />
+            <RowEditorTable />
         </>
     )
 }
