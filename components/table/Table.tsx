@@ -227,13 +227,7 @@ export type TableEvent<T> = {
      * @param  源数据
      * @param  目标数据
      */
-    onDragRow?: (source: {
-        record: T,
-        index: number,
-    } , targe: {
-        record: T,
-        index: number,
-    }) => Promise<boolean>
+    onDragRow?: (source: T, targe: T) => Promise<boolean>
 
     /**
      * 装载子节点数据
@@ -530,21 +524,23 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
         )
     }
 
-    /**
-     * 交换行
-     */
-    public exchangeRow(source: {
-        record: T,
-        index: number,
-    } , targe: {
-        record: T,
-        index: number,
-    }) {
-        const data: T[] = [...this.state.dataSource]
-        data[source.index] = targe.record
-        data[targe.index] = source.record
+    public exchangeRow(source: T , targe: T) {
+        const updateData = this.recursiveDataSource(this.state.dataSource, (element) => {
+            if (element[this.props.rowKey!] === source[this.props.rowKey!]) {
+                return {
+                    ...targe,
+                }
+            }
+
+            if (element[this.props.rowKey!] === targe[this.props.rowKey!]) {
+                return {
+                    ...source,
+                }
+            }
+            return element
+        })
         this.setState({
-            dataSource: data,
+            dataSource: updateData,
         })
     }
 
@@ -628,6 +624,22 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
         }, () => {
             this.toScrollBottom()
         })
+    }
+
+    protected recursiveDataSource(dataSource: any[], callbackfn: (data: any) => any) {
+        const respData: any[] = []
+        for (let i = 0; i < dataSource.length ; i++) {
+            // @ts-ignore
+            if (dataSource[i].$children && dataSource[i].$children.length > 0) {
+                respData.push(callbackfn({
+                    ...dataSource[i],
+                    '$children': this.recursiveDataSource(dataSource[i].$children, callbackfn),
+                }))
+            }else {
+                respData.push(callbackfn(dataSource[i]))
+            }
+        }
+        return respData
     }
 
     /**

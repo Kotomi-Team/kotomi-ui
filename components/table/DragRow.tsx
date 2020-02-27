@@ -48,14 +48,8 @@ export default DropTarget('kotomi-table-drag-row', {
     const event = props.table.props.event
 
     if (event && event.onDragRow) {
-      const source = {
-        record: dragingProps.record,
-        index: dragingProps.index,
-      }
-      const targe = {
-        record: props.record,
-        index: props.index,
-      }
+      const source = dragingProps.record
+      const targe = props.record
       event.onDragRow(source, targe).then((respState: boolean) => {
         if (respState === true) {
           props.table.exchangeRow(source, targe)

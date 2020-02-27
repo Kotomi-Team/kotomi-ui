@@ -245,13 +245,32 @@ class RowEditorTable extends React.Component {
                     editingType="row"
                     rowSelection="multiple"
                     refExt={this.table}
+                    expandIconColumnIndex={3}
                     event={{
                         onSave: async ()=>{
                             return true
                         },
                         onDragRow: async ()=>{
                             return true
+                        },
+                        /*
+                        onLoadChildren: async ()=>{
+                            let data: User[] = []
+                            for (let i = 0; i < 5; i++) {
+                                data.push({
+                                    'id': `id ${i}`,
+                                    'name': `name ${i}`,
+                                    'six': `six`,
+                                    'six1': `six`,
+                                    'sixbool': false,
+                                    'six2': `six`,
+                                    'six3': `six`,
+                                    'six4': `six`,
+                                })
+                            }
+                            return data
                         }
+                        */
                     }}
                     locale={{
                         editText: '编辑',
