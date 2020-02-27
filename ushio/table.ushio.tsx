@@ -249,6 +249,9 @@ class RowEditorTable extends React.Component {
                         onSave: async ()=>{
                             return true
                         },
+                        onDragRow: async ()=>{
+                            return true
+                        }
                     }}
                     locale={{
                         editText: '编辑',
@@ -260,7 +263,7 @@ class RowEditorTable extends React.Component {
                             for (let i = 0; i < pageSize!; i++) {
                                 data.push({
                                     'id': `${page} id ${i}`,
-                                    'name': `${page} name`,
+                                    'name': `${page} name ${i}`,
                                     'six': `${page} six`,
                                     'six1': `${page} six`,
                                     'sixbool': false,

@@ -130,8 +130,9 @@ return (
 |onBeforeRenderPromiseColumn     | `(record:T , column: ColumnProps<T> ,render: JSX.Element) => JSX.Element`| |渲染特殊单元格触发的事件
 |onRenderBodyRowCssStyle     | (rowIndex: number, record: T ) => React.CSSProperties| |控制body row的css样式
 |onRenderHeaderRowCssStyle     | () => React.CSSProperties| |控制header row的css样式
-|onLoadChildren               |`(record: T) => Promise<T[]>` | 装载子节点数据,如果有此方法则会在表格上显示对应的展开图标
-|onRenderCheckboxProps        | `(record: T) => Object`      | 选择框的属性信息。
+|onLoadChildren               |`(record: T) => Promise<T[]>`  || 装载子节点数据,如果有此方法则会在表格上显示对应的展开图标
+|onRenderCheckboxProps        | `(record: T) => Object`      | | 选择框的属性信息。
+|onDragRow                   | (source: {record: T,index: number} , targe: {record: T,index: number }) =>Promise<boolean> | | 表格Row的可拖拽
 
 > 保存数据，只针对row编辑模式，cell编辑模式下onSave会在点击下一个单元格的时候触发
 

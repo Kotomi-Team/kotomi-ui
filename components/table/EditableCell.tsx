@@ -1,10 +1,9 @@
 import React from 'react'
+import lodash from 'lodash'
 import ReactDom from 'react-dom'
 import { Form, Input, Tooltip } from 'antd'
-
-import { ColumnProps, TableContext, TableContextProps } from './Table'
 import { WrappedFormUtils } from 'antd/lib/form/Form';
-
+import { ColumnProps, TableContext, TableContextProps } from './Table'
 import './style/index'
 
 type Props<T> = {
@@ -91,7 +90,7 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
                         }
                     })
 
-                    if (JSON.stringify(record) !== JSON.stringify(newRecord)) {
+                    if (!lodash.isEqual(record, newRecord)) {
                         onSave({
                             ...newRecord,
                         }, 'UPDATE').then((_respState) => {
