@@ -1,10 +1,14 @@
 import React from 'react'
-import { HotKeys } from 'react-hotkeys';
+import ReactDOM from 'react-dom';
 import { Table as AntTable, Divider, Icon, Menu, Dropdown, Pagination, Form } from 'antd'
 import { TableSize, ColumnProps as AntColumnProps, TableRowSelection, TableEventListeners } from 'antd/lib/table/interface'
 import { WrappedFormUtils, ValidationRule, FormComponentProps } from 'antd/lib/form/Form';
 import XLSX from 'xlsx';
-import ReactDOM from 'react-dom';
+import lodash from 'lodash'
+import { DndProvider } from 'react-dnd'
+import Backend from 'react-dnd-html5-backend'
+
+import DragRow from './DragRow'
 import { EditableCell } from './EditableCell'
 
 import './style/index'
@@ -172,7 +176,7 @@ export type TableEvent<T> = {
      * @param changeRows      当前选中的行数据
      * @param selected        变化状态true表示选中，false表示取消
      */
-    onSelect?: (changeRowsKeys: string[] , changeRows: T[], selected: boolean) => boolean | undefined
+    onSelect?: (changeRowsKeys: string[], changeRows: T[], selected: boolean) => boolean | undefined
 
     /**
      * 当前行的事件
@@ -217,6 +221,13 @@ export type TableEvent<T> = {
      * @returns 返回一个css样式进行装饰
      */
     onRenderHeaderRowCssStyle?: () => React.CSSProperties
+
+    /**
+     * 拖动表格行触发的事件
+     * @param  源数据
+     * @param  目标数据
+     */
+    onDragRow?: (source: T, targe: T) => Promise<boolean>
 
     /**
      * 装载子节点数据
@@ -338,7 +349,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
 
     restore() {
         this.setState({
-            dataSource: JSON.parse(JSON.stringify(this.backupDataSource)),
+            dataSource: [...this.backupDataSource],
         })
         this.editStash()
     }
@@ -349,59 +360,55 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
         }
         if (this.props.expandIconColumnIndex) {
             extProps.expandIconColumnIndex = this.props.expandIconColumnIndex
-        }else {
+        } else {
             delete extProps.expandIconColumnIndex
+        }
+        const components: any = {
+            body: {
+                cell: EditableCell,
+            },
+        }
+
+        // 如果有onDragRow事件，则表示可拖拽
+        if (this.props.event && this.props.event.onDragRow) {
+            components.body.row = DragRow
         }
 
         return (
-            <div>
-                <div
-                    style={{
-                        position: 'fixed',
-                        top: '0px',
-                        right: '0px',
-                        bottom: '0px',
-                        left: '0px',
-                        visibility: 'hidden',
-                    }}
-                    ref={this.blankDivElement}
-                    onClick={() => {
-                        if (this.blankDivElement.current) {
-                            this.blankDivElement.current.style.visibility = 'hidden'
-                        }
-                        this.editHide()
-                    }}
-                />
-                <Dropdown overlay={this.getDropdownMenu()} trigger={['contextMenu']}>
-                    <HotKeys
-                        keyMap={{
-                            REVOKE: 'ctrl+z',
+            <TableContext.Provider value={{
+                form: this.props.form,
+                table: this,
+            }}>
+                <DndProvider backend={Backend}>
+                    <div
+                        style={{
+                            position: 'fixed',
+                            top: '0px',
+                            right: '0px',
+                            bottom: '0px',
+                            left: '0px',
+                            visibility: 'hidden',
                         }}
-                        handlers={{
-                            // 撤销
-                            REVOKE: () => {
-                                this.restore()
-                            },
+                        ref={this.blankDivElement}
+                        onClick={() => {
+                            if (this.blankDivElement.current) {
+                                this.blankDivElement.current.style.visibility = 'hidden'
+                            }
+                            this.editHide()
                         }}
-                    >
-                        <TableContext.Provider value={{
-                            form: this.props.form,
-                            table: this,
-                        }}>
+                    />
+                    <Dropdown overlay={this.getDropdownMenu()} trigger={['contextMenu']}>
+                        <>
                             <AntTable
                                 style={{
-                                    pointerEvents: 'auto',
+                                    // pointerEvents: 'auto',
                                     ...this.props.style,
                                 }}
                                 childrenColumnName="$children"
                                 rowKey={this.props.rowKey}
                                 columns={this.getColumns()}
                                 rowClassName={() => 'kotomi-components-table-row'}
-                                components={{
-                                    body: {
-                                        cell: EditableCell,
-                                    },
-                                }}
+                                components={components}
                                 onExpand={(expanded: boolean, record: T) => {
                                     if (expanded && this.props.event!.onLoadChildren) {
                                         this.props.event!.onLoadChildren(record).then((children: T[]) => {
@@ -476,11 +483,17 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                                         return {
                                             ...rowData,
                                             style: propsStyle,
+                                            record,
+                                            index,
+                                            table: this,
                                         }
                                     }
                                     // 否则不相应事件
                                     return {
                                         style: propsStyle,
+                                        record,
+                                        index,
+                                        table: this,
                                     }
                                 }}
                                 size='small'
@@ -490,25 +503,45 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                                 }}
                                 {...extProps}
                             />
-                        </TableContext.Provider>
-                        <Pagination
-                            className="kotomi-components-table-pagination"
-                            defaultCurrent={1}
-                            size='small'
-                            total={this.state.total}
-                            pageSize={this.props.defaultPageSize!}
-                            onChange={(page: number, pageSize?: number) => {
-                                this.requestLoadData({
-                                    page,
-                                    pageSize: pageSize!,
-                                    sorter: { } as TableSorter,
-                                })
-                            }}
-                        />
-                    </HotKeys>
-                </Dropdown>
-            </div>
+                            <Pagination
+                                className="kotomi-components-table-pagination"
+                                size='small'
+                                current={this.state.page}
+                                total={this.state.total}
+                                pageSize={this.props.defaultPageSize!}
+                                onChange={(page: number, pageSize?: number) => {
+                                    this.requestLoadData({
+                                        page,
+                                        pageSize: pageSize!,
+                                        sorter: {} as TableSorter,
+                                    })
+                                }}
+                            />
+                        </>
+                    </Dropdown>
+                </DndProvider>
+            </TableContext.Provider>
         )
+    }
+
+    public exchangeRow(source: T , targe: T) {
+        const updateData = this.recursiveDataSource(this.state.dataSource, (element) => {
+            if (element[this.props.rowKey!] === source[this.props.rowKey!]) {
+                return {
+                    ...targe,
+                }
+            }
+
+            if (element[this.props.rowKey!] === targe[this.props.rowKey!]) {
+                return {
+                    ...source,
+                }
+            }
+            return element
+        })
+        this.setState({
+            dataSource: updateData,
+        })
     }
 
     /**
@@ -523,7 +556,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
      * 设置选中的key
      * @param rowSelectedKeys 表格选中的key
      */
-    public setRowSelectedKeys(rowSelectedKeys: string []) {
+    public setRowSelectedKeys(rowSelectedKeys: string[]) {
         this.setState({
             rowSelectedKeys,
         })
@@ -556,12 +589,18 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
     }
 
     /**
+     * 获取当前选择的数据
+     */
+    public getSelectRowKeys() {
+        return this.state.rowSelectedKeys
+    }
+
+    /**
      * 新增一条数据
      * @param 添加的数据
      */
     public appendRow(data: T) {
         const { dataSource } = this.state
-        const proxyDataSource: T[] = JSON.parse(JSON.stringify(dataSource))
         // @ts-ignore
         data.$state = 'CREATE'
         if (
@@ -569,11 +608,12 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
             data[this.props.rowKey!] === undefined
             ||
             // 判断添加的数据id不能重复
-            proxyDataSource.filter(element => element[this.props.rowKey!] === data[this.props.rowKey!])
+            dataSource.filter(element => element[this.props.rowKey!] === data[this.props.rowKey!])
         ) {
             throw new Error(`KOTOMI-TABLE-5002: The added rowKey must be unique and cannot be duplicate. rowKey [${this.props.rowKey}] , data  [${JSON.stringify(data)}]`)
         }
 
+        const proxyDataSource: T[] = [...dataSource]
         proxyDataSource.push(data)
 
         // 添加到对应的数据
@@ -582,8 +622,24 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
             dataSource: proxyDataSource,
             pageSize: this.props.defaultPageSize! + this.dataSourceState.create.length,
         }, () => {
-           this.toScrollBottom()
+            this.toScrollBottom()
         })
+    }
+
+    protected recursiveDataSource(dataSource: any[], callbackfn: (data: any) => any) {
+        const respData: any[] = []
+        for (let i = 0; i < dataSource.length ; i++) {
+            // @ts-ignore
+            if (dataSource[i].$children && dataSource[i].$children.length > 0) {
+                respData.push(callbackfn({
+                    ...dataSource[i],
+                    '$children': this.recursiveDataSource(dataSource[i].$children, callbackfn),
+                }))
+            }else {
+                respData.push(callbackfn(dataSource[i]))
+            }
+        }
+        return respData
     }
 
     /**
@@ -667,21 +723,21 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                                     onSave({
                                         ...newRecord,
                                     },
-                                    state).then((respState) => {
-                                        if (respState === true) {
-                                            // 修改表格中的数据
-                                            const newData: T[] = [...dataSource];
-                                            newData.forEach((data, dataIndex) => {
-                                                if (data[rowKey!] === newRecord[rowKey!]) {
-                                                    newData[dataIndex] = { ...newRecord }
-                                                }
-                                            })
-                                            self.setState({
-                                                editingKey: undefined,
-                                                dataSource: newData,
-                                            })
-                                        }
-                                    })
+                                        state).then((respState) => {
+                                            if (respState === true) {
+                                                // 修改表格中的数据
+                                                const newData: T[] = [...dataSource];
+                                                newData.forEach((data, dataIndex) => {
+                                                    if (data[rowKey!] === newRecord[rowKey!]) {
+                                                        newData[dataIndex] = { ...newRecord }
+                                                    }
+                                                })
+                                                self.setState({
+                                                    editingKey: undefined,
+                                                    dataSource: newData,
+                                                })
+                                            }
+                                        })
                                 }
                             })
                         }
@@ -718,7 +774,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
     }
 
     protected getEditorRowIndex() {
-        for (let i = 0; i < this.state.dataSource.length ; i++) {
+        for (let i = 0; i < this.state.dataSource.length; i++) {
             if (this.state.dataSource[i][this.props.rowKey!] === this.state.editingKey) {
                 return i;
             }
@@ -859,7 +915,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
         column.render = (_text: any, record: T, index: number) => {
             // @ts-ignore
             if (record.$isChildren) {
-                return <a/>
+                return <a />
             }
             return <a>{index + 1}</a>
         }
@@ -951,7 +1007,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                             // @ts-ignore
                             const state = values.$state === 'CREATE' ? 'CREATE' : 'UPDATE'
                             if (state === 'UPDATE') {
-                               this.updateDataSource(values)
+                                this.updateDataSource(values)
                             }
 
                             if (state === 'CREATE') {
@@ -962,7 +1018,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                                         const element = create[i]
                                         if (element[rowKey!] === values[rowKey!]) {
                                             // 如果已经改变过状态，设置状态为可改变状态
-                                            if (JSON.stringify(element) !== JSON.stringify(values)) {
+                                            if (!lodash.isEqual(element, values)) {
                                                 dataSourceState.create.splice(i, 1, {
                                                     ...values,
                                                 })
@@ -1008,7 +1064,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                 const element = update[i]
                 if (element[rowKey!] === values[rowKey!]) {
                     // 如果已经改变过状态，设置状态为可改变状态
-                    if (JSON.stringify(element) !== JSON.stringify(values)) {
+                    if (!lodash.isEqual(element, values)) {
                         dataSourceState.update.splice(i, 1, {
                             ...values,
                         })
@@ -1078,11 +1134,10 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                 }
             })
 
-            const rowSelectedKeys = this.state.rowSelectedKeys
+            const rowSelectedKeys = new Array<string>()
             if (this.props.rowSelectedKeyName) {
                 dataSource.forEach((element) => {
-                    const isSelect = element[this.props.rowSelectedKeyName!] || true
-                    if (isSelect === true) {
+                    if (element[this.props.rowSelectedKeyName!] === true) {
                         rowSelectedKeys.push(element[this.props.rowKey!] as never)
                     }
                 })
@@ -1094,14 +1149,15 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                 total,
                 loading: false,
                 editingKey: undefined,
+                page,
                 pageSize: defaultPageSize!,
                 rowSelectedKeys,
             })
-            this.backupDataSource = JSON.parse(JSON.stringify(dataSource))
+            this.backupDataSource = [...dataSource]
             this.editStash()
         })
     }
-    protected onSelect(changeRowsKeys: string[] , changeRows: T[], selected: boolean) {
+    protected onSelect(changeRowsKeys: string[], changeRows: T[], selected: boolean) {
         const { dataSource } = this.state
         const id = this.props.rowKey!
         const self = this
@@ -1115,7 +1171,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
             })
         })
         if (this.props.event!.onSelect) {
-            return this.props.event!.onSelect(changeRowsKeys , changeRows, selected)
+            return this.props.event!.onSelect(changeRowsKeys, changeRows, selected)
         }
         return true
     }
@@ -1130,7 +1186,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                 let checked = false
                 if (self.state.rowSelectedKeys.indexOf(record[self.props.rowKey!] as never) !== -1) {
                     checked = true
-                }else {
+                } else {
                     checked = false
                 }
                 let checkBoxProps = {}
@@ -1148,12 +1204,12 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                 if (respState) {
                     const id = record[self.props.rowKey!] as string
                     if (selected) {
-                        const rowSelectedKeys: string[] = JSON.parse(JSON.stringify(self.state.rowSelectedKeys)) || []
+                        const rowSelectedKeys: string[] = [...self.state.rowSelectedKeys] || []
                         self.setState({
                             rowSelectedKeys: [...rowSelectedKeys, id],
                         })
-                    }else {
-                        const rowSelectedKeys: string[] = JSON.parse(JSON.stringify(self.state.rowSelectedKeys)) || []
+                    } else {
+                        const rowSelectedKeys: string[] = [...self.state.rowSelectedKeys] || []
                         rowSelectedKeys.splice(rowSelectedKeys.indexOf(id), 1)
 
                         self.setState({
