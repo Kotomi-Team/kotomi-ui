@@ -1,6 +1,6 @@
 {
   "name": "kotomi-ui",
-  "version": "0.0.90",
+  "version": "0.0.91",
   "description": "基于Ant Design做的组件扩展，开发的一套组件库",
   "scripts": {
     "start": "start-storybook -p 3000",
