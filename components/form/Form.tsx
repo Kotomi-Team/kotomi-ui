@@ -69,21 +69,18 @@ type Props = {
      */
     components?: EditorComponent[]
 
-    event?: FormEvent
-
     // 扩展的表格信息
     refExt?: Function | any,
-}
 
-type State = {
-}
-
-export type FormEvent= {
     /**
      * 表格数据改变后触发的事件。
      */
     onValuesChange?: (changedValues: any, allValues: any) => void,
 }
+
+type State = {
+}
+
 
 class FormItemProps {
     name: string
@@ -116,11 +113,9 @@ class Form extends React.Component<Props & FormComponentProps, State> {
     public static create() {
         return AntForm.create<Props & FormComponentProps>({
             onValuesChange: (props, changedValues: any, allValues: any) => {
-                if (props.event) {
-                    if (props.event.onValuesChange) {
-                        const { onValuesChange } = props.event
-                        onValuesChange(changedValues, allValues)
-                    }
+                if (props.onValuesChange) {
+                    const { onValuesChange } = props
+                    onValuesChange(changedValues, allValues)
                 }
             },
         })(Form);

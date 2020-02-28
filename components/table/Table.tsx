@@ -109,11 +109,6 @@ interface Props<T> extends FormComponentProps<T> {
      */
     rowSelectedKeyName?: string
 
-    /**
-     *  当前表格的事件
-     */
-    event?: TableEvent<T>
-
     // 当前单元格编辑类型，cell表示单元格编辑，row表示行编辑,none 表示无编辑模式
     // 如果为cell编辑模式，则表格不会触发onSave操作
     editingType?: 'cell' | 'row' | 'none'
@@ -140,37 +135,8 @@ interface Props<T> extends FormComponentProps<T> {
     loadData({ page, pageSize, param, sorter }:
         { page: number, pageSize: number, param?: any, sorter?: TableSorter }):
         Promise<{ dataSource: T[], total: number }>,
-}
 
-// 数据状态
-class DataSourceState<T>{
-    update: Array<T> = []
-    delete: Array<T> = []
-    create: Array<T> = []
-}
-
-type State<T> = {
-    dataSource: T[]
-    total: number
-    loading: boolean
-    page: number
-    pageSize: number
-    sorter?: TableSorter
-    editingKey?: string,
-    disabledCheck: boolean,
-    rowSelectedKeys: string[],
-}
-
-export type TableSorter = {
-    // 字段名称
-    name: string
-    // 排序方式
-    order: string,
-}
-
-export type TableEvent<T> = {
-
-    /**
+        /**
      * 当前表格的选择状态
      * @param changeRowsKeys  当前所有变化的Row的key
      * @param changeRows      当前选中的行数据
@@ -236,6 +202,33 @@ export type TableEvent<T> = {
     onLoadChildren?: (record: T) => Promise<T[]>,
 }
 
+// 数据状态
+class DataSourceState<T>{
+    update: Array<T> = []
+    delete: Array<T> = []
+    create: Array<T> = []
+}
+
+type State<T> = {
+    dataSource: T[]
+    total: number
+    loading: boolean
+    page: number
+    pageSize: number
+    sorter?: TableSorter
+    editingKey?: string,
+    disabledCheck: boolean,
+    rowSelectedKeys: string[],
+}
+
+export type TableSorter = {
+    // 字段名称
+    name: string
+    // 排序方式
+    order: string,
+}
+
+
 /**
  *  和后台交互的表格对象，并且可编辑
  */
@@ -252,22 +245,20 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
         defaultParam: {},
         defaultExportFileName: `${new Date().getTime()}`,
         rowSelectedKeys: [],
-        event: {
-            onSelect: () => true,
-            onRow: () => { },
-            onSave: () => { },
-            // 默认返回默认dom节点
-            onBeforeRenderPromiseColumn: (_record: any, _column: any, render: JSX.Element) => {
-                return render
-            },
-            // 默认不添加其他的css样式
-            onRenderBodyRowCssStyle: () => {
-                return {}
-            },
-            // 默认不添加其他的css样式
-            onRenderHeaderRowCssStyle: () => {
-                return {}
-            },
+        onSelect: () => true,
+        onRow: () => { },
+        onSave: () => { },
+        // 默认返回默认dom节点
+        onBeforeRenderPromiseColumn: (_record: any, _column: any, render: JSX.Element) => {
+            return render
+        },
+        // 默认不添加其他的css样式
+        onRenderBodyRowCssStyle: () => {
+            return {}
+        },
+        // 默认不添加其他的css样式
+        onRenderHeaderRowCssStyle: () => {
+            return {}
         },
     }
 
@@ -370,7 +361,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
         }
 
         // 如果有onDragRow事件，则表示可拖拽
-        if (this.props.event && this.props.event.onDragRow) {
+        if (this.props.onDragRow) {
             components.body.row = DragRow
         }
 
@@ -410,8 +401,8 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                                 rowClassName={() => 'kotomi-components-table-row'}
                                 components={components}
                                 onExpand={(expanded: boolean, record: T) => {
-                                    if (expanded && this.props.event!.onLoadChildren) {
-                                        this.props.event!.onLoadChildren(record).then((children: T[]) => {
+                                    if (expanded && this.props.onLoadChildren) {
+                                        this.props.onLoadChildren(record).then((children: T[]) => {
                                             const dataSource = this.state.dataSource
                                             for (let i = 0; i < dataSource.length; i++) {
                                                 if (dataSource[i][this.props.rowKey!] === record[this.props.rowKey!]) {
@@ -460,8 +451,8 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                                 rowSelection={this.getRowSelection()}
                                 onHeaderRow={(_columns: ColumnProps<T>[]) => {
                                     let propsStyle = {}
-                                    if (this.props.event!.onRenderHeaderRowCssStyle) {
-                                        propsStyle = this.props.event!.onRenderHeaderRowCssStyle!()
+                                    if (this.props.onRenderHeaderRowCssStyle) {
+                                        propsStyle = this.props.onRenderHeaderRowCssStyle!()
                                     }
                                     return {
                                         style: propsStyle,
@@ -470,15 +461,15 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                                 onRow={(record: T, index: number) => {
 
                                     let propsStyle = {}
-                                    if (this.props.event!.onRenderBodyRowCssStyle) {
-                                        propsStyle = this.props.event!.onRenderBodyRowCssStyle!(
+                                    if (this.props.onRenderBodyRowCssStyle) {
+                                        propsStyle = this.props.onRenderBodyRowCssStyle!(
                                             index as number,
                                             record as T)
                                     }
 
                                     // 如果当前行处于不可编辑状态，则不点击click事件
                                     if (this.state.editingKey === undefined) {
-                                        const onRow = this.props.event!.onRow
+                                        const onRow = this.props.onRow
                                         const rowData = onRow === undefined ? {} : onRow(record, index)
                                         return {
                                             ...rowData,
@@ -687,9 +678,9 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
     protected getColumnOperatingRender(editor: JSX.Element, record: any): JSX.Element {
         const self = this
         const {
-            event,
             form,
             rowKey,
+            onSave
         } = this.props
         const {
             dataSource,
@@ -700,7 +691,6 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                     type='check'
                     style={this.state.disabledCheck ? { opacity: 0.2 } : {}}
                     onClick={() => {
-                        const onSave = event!.onSave
                         if (onSave && form !== undefined) {
                             form.validateFields((err, values) => {
 
@@ -783,7 +773,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
     }
     protected getColumnOperatingEdit(column: ColumnProps<T>) {
         const {
-            event,
+            onBeforeRenderPromiseColumn,
         } = this.props
         column.render = (_text: string, record: T) => {
             const editor = (
@@ -794,8 +784,8 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
 
             const columnOperatingRender = this.getColumnOperatingRender(editor, record)
             if (!this.isEditing(record) && this.state.editingKey === undefined) {
-                if (event && event.onBeforeRenderPromiseColumn) {
-                    return event.onBeforeRenderPromiseColumn(record, column, columnOperatingRender)
+                if (onBeforeRenderPromiseColumn) {
+                    return onBeforeRenderPromiseColumn(record, column, columnOperatingRender)
                 }
             }
             return columnOperatingRender
@@ -808,7 +798,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
     protected getColumnOperatingDel(column: ColumnProps<T>) {
         const self = this
         const {
-            event,
+            onBeforeRenderPromiseColumn
         } = this.props
         column.render = (_text: string, record: T) => {
             const editor = (
@@ -818,8 +808,8 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
             )
 
             if (!this.isEditing(record) && this.state.editingKey === undefined) {
-                if (event && event.onBeforeRenderPromiseColumn) {
-                    return event.onBeforeRenderPromiseColumn(record, column, editor)
+                if (onBeforeRenderPromiseColumn) {
+                    return onBeforeRenderPromiseColumn(record, column, editor)
                 }
             }
             return editor
@@ -832,7 +822,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
     // 获取操作列的信息
     protected getColumnOperating(column: ColumnProps<T>) {
         const {
-            event,
+            onBeforeRenderPromiseColumn
         } = this.props
         column.render = (_text: string, record: T) => {
             const editor = (
@@ -845,8 +835,8 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
 
             const operatingRender = this.getColumnOperatingRender(editor, record)
             if (!this.isEditing(record) && this.state.editingKey === undefined) {
-                if (event && event.onBeforeRenderPromiseColumn) {
-                    return event.onBeforeRenderPromiseColumn(record, column, operatingRender)
+                if (onBeforeRenderPromiseColumn) {
+                    return onBeforeRenderPromiseColumn(record, column, operatingRender)
                 }
             }
             return operatingRender
@@ -858,9 +848,8 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
 
     protected getColumnDelElement(record: T) {
         const self = this
-        const { event } = this.props
+        const { onSave } = this.props
         const onClick = () => {
-            const onSave = event!.onSave
             if (onSave) {
                 onSave(record, 'DELETE').then((respState) => {
                     if (respState !== false) {
@@ -939,7 +928,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
             columns,
             editingType,
             rowKey,
-            event,
+            onSave
         } = this.props
         const {
             dataSource,
@@ -1030,7 +1019,6 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                             }
 
                             self.setState({ dataSource: newData });
-                            const onSave = event!.onSave
                             if (onSave) {
                                 const respState = await onSave(values, state)
                                 if (respState === undefined) {
@@ -1121,7 +1109,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
             dataSource.forEach((data) => {
                 const keys = Object.keys(data)
 
-                if (this.props.event!.onLoadChildren) {
+                if (this.props.onLoadChildren) {
 
                     // @ts-ignore
                     data.$children = []
@@ -1170,8 +1158,8 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                 self.updateDataSource(record as T)
             })
         })
-        if (this.props.event!.onSelect) {
-            return this.props.event!.onSelect(changeRowsKeys, changeRows, selected)
+        if (this.props.onSelect) {
+            return this.props.onSelect(changeRowsKeys, changeRows, selected)
         }
         return true
     }
@@ -1190,8 +1178,8 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                     checked = false
                 }
                 let checkBoxProps = {}
-                if (self.props.event && self.props.event.onRenderCheckboxProps) {
-                    checkBoxProps = self.props.event.onRenderCheckboxProps(record)
+                if (self.props.onRenderCheckboxProps) {
+                    checkBoxProps = self.props.onRenderCheckboxProps(record)
                 }
                 return {
                     ...checkBoxProps,
