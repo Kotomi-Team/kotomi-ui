@@ -125,17 +125,6 @@ interface Props<T> extends FormComponentProps<T> {
     // 扩展的表格信息
     refExt?: Function | any
 
-    /**
-     * 装载数据的方法
-     * @param page 当前第几页信息
-     * @param pageSize 当前页面的大小
-     * @param param 当前请求数据的参数
-     * @param sorter 当前数据查询的参数
-     */
-    loadData({ page, pageSize, param, sorter }:
-        { page: number, pageSize: number, param?: any, sorter?: TableSorter }):
-        Promise<{ dataSource: T[], total: number }>,
-
         /**
      * 当前表格的选择状态
      * @param changeRowsKeys  当前所有变化的Row的key
@@ -200,6 +189,17 @@ interface Props<T> extends FormComponentProps<T> {
      * @param record 当前展开的节点数据
      */
     onLoadChildren?: (record: T) => Promise<T[]>,
+
+    /**
+     * 装载数据的方法
+     * @param page 当前第几页信息
+     * @param pageSize 当前页面的大小
+     * @param param 当前请求数据的参数
+     * @param sorter 当前数据查询的参数
+     */
+    loadData({ page, pageSize, param, sorter }:
+        { page: number, pageSize: number, param?: any, sorter?: TableSorter }):
+        Promise<{ dataSource: T[], total: number }>,
 }
 
 // 数据状态
@@ -227,7 +227,6 @@ export type TableSorter = {
     // 排序方式
     order: string,
 }
-
 
 /**
  *  和后台交互的表格对象，并且可编辑
@@ -680,7 +679,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
         const {
             form,
             rowKey,
-            onSave
+            onSave,
         } = this.props
         const {
             dataSource,
@@ -798,7 +797,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
     protected getColumnOperatingDel(column: ColumnProps<T>) {
         const self = this
         const {
-            onBeforeRenderPromiseColumn
+            onBeforeRenderPromiseColumn,
         } = this.props
         column.render = (_text: string, record: T) => {
             const editor = (
@@ -822,7 +821,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
     // 获取操作列的信息
     protected getColumnOperating(column: ColumnProps<T>) {
         const {
-            onBeforeRenderPromiseColumn
+            onBeforeRenderPromiseColumn,
         } = this.props
         column.render = (_text: string, record: T) => {
             const editor = (
@@ -928,7 +927,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
             columns,
             editingType,
             rowKey,
-            onSave
+            onSave,
         } = this.props
         const {
             dataSource,
