@@ -2,7 +2,7 @@
 <div align="center">基于Ant Design做的组件扩展，开发的一套组件库</div>
 
 
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/e250572478fe40f18b4164d325c78176)](https://www.codacy.com/gh/Kotomi-Team/kotomi-ui?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Kotomi-Team/kotomi-ui&amp;utm_campaign=Badge_Grade) ![![npm](https://www.npmjs.com/package/kotomi-ui)](https://img.shields.io/npm/dw/kotomi-ui?label=npm)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/e250572478fe40f18b4164d325c78176)](https://www.codacy.com/gh/Kotomi-Team/kotomi-ui?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Kotomi-Team/kotomi-ui&amp;utm_campaign=Badge_Grade) ![![npm](https://www.npmjs.com/package/kotomi-ui)](https://img.shields.io/npm/dw/kotomi-ui?label=npm) [![Netlify Status](https://api.netlify.com/api/v1/badges/a4a0f979-f445-4f4e-b259-537f1958afc0/deploy-status)](https://app.netlify.com/sites/unruffled-booth-152cbf/deploys)
 
 ## ✨ 特性
 
@@ -40,6 +40,5 @@ yarn add kotomi-ui
 <script src="//unpkg.com/kotomi-ui@latest/dist/kotomi.bundle.js"></script>
 ```
 
+
 > 强烈不推荐使用已构建文件，这样无法按需加载，而且难以获得底层依赖模块的 bug 快速修复支持。注意：你需要自行引入 moment。
-
-
