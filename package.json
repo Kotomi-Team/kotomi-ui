@@ -74,8 +74,7 @@
     "ts-loader": "~6.2.1",
     "typedoc": "~0.15.3",
     "typescript": "~3.7.2",
-    "webpack": "^4.41.6",
-    "dumi": "^1.0.0-beta.15"
+    "webpack": "^4.41.6"
   },
   "dependencies": {
     "antd": "~3.26.8",

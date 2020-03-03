@@ -1,6 +1,6 @@
 [build]
   publish = "dist"
-  command = "npm run build:dumi"
+  command = "npm i dumi -g && npm i && npm run build:dumi"
 
 [[redirects]]
   from = "/*"
