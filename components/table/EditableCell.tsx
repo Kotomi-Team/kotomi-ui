@@ -4,7 +4,7 @@ import ReactDom from 'react-dom'
 import { Form, Input, Tooltip } from 'antd'
 import { WrappedFormUtils } from 'antd/lib/form/Form';
 import { ColumnProps, TableContext, TableContextProps } from './Table'
-import './style/index'
+import './style/index.less'
 
 type Props<T> = {
     // 列的信息

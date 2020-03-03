@@ -1,6 +1,6 @@
 import React from 'react'
 import ReactDom from 'react-dom'
-import "./style/index"
+import './style/index.less'
 
 /**
  * 位置信息
