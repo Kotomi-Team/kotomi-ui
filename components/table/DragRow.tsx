@@ -45,12 +45,12 @@ export default DropTarget('kotomi-table-drag-row', {
       return
     }
 
-    const event = props.table.props.event
+    const { onDragRow } = props.table.props
 
-    if (event && event.onDragRow) {
+    if (onDragRow) {
       const source = dragingProps.record
       const targe = props.record
-      event.onDragRow(source, targe).then((respState: boolean) => {
+      onDragRow(source, targe).then((respState: boolean) => {
         if (respState === true) {
           props.table.exchangeRow(source, targe)
         }
@@ -71,30 +71,6 @@ export default DropTarget('kotomi-table-drag-row', {
         record: props.record,
       }
     },
-    /*
-    endDrag: (props: any, monitor: DragSourceMonitor)=>{
-      if(!monitor.didDrop()){
-        return
-      }
-      const event = props.table.props.event
-
-      if(event && event.onDragRow){
-        const source = {
-          record: dragingProps.record,
-          index: dragingProps.index
-        }
-        const targe = {
-          record: props.record,
-          index: props.index
-        }
-        event.onDragRow(source,targe).then((respState: boolean)=>{
-          if(respState === true){
-            props.table.exchangeRow(source,targe)
-          }
-        })
-      }
-    }
-    */
   }, (connect: DragSourceConnector) => {
     return {
       connectDragSource: connect.dragSource(),

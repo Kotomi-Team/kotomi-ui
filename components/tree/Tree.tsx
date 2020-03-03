@@ -16,23 +16,6 @@ export type TreeNodeData = {
     children: TreeNodeData[],
 }
 
-export type TreeEvent = {
-
-    /**
-     * 渲染节点title的时候触发的事件，返回一个新的title对象
-     * @param data 当前树状节点的数据
-     * @param render 当前渲染的节点数据
-     */
-    onRenderTreeNodeTitle?: (data: TreeNodeData) => string | React.ReactNode,
-
-    /**
-     * 点击树节点触发的事件
-     * @param data 当前节点的数据信息
-     * @param selected 当前节点是否选中，true表示选中，false表示不选中
-     */
-    onTreeNodeClick?: (data: TreeNodeData, selected: boolean) => void,
-}
-
 type Props = {
     /**
      * 装载子节点数据
@@ -52,9 +35,18 @@ type Props = {
     checkedKeys?: string[]
 
     /**
-     * 当前Tree的事件
+        * 渲染节点title的时候触发的事件，返回一个新的title对象
+        * @param data 当前树状节点的数据
+        * @param render 当前渲染的节点数据
+        */
+    onRenderTreeNodeTitle?: (data: TreeNodeData) => string | React.ReactNode,
+
+    /**
+     * 点击树节点触发的事件
+     * @param data 当前节点的数据信息
+     * @param selected 当前节点是否选中，true表示选中，false表示不选中
      */
-    event?: TreeEvent,
+    onTreeNodeClick?: (data: TreeNodeData, selected: boolean) => void,
 }
 
 type State = {
@@ -94,12 +86,10 @@ export class Tree extends React.Component<Props, State>{
             <AntTree
                 loadData={this.onLoadData}
                 checkedKeys={this.props.checkedKeys}
-                checkable = {this.props.checkable}
+                checkable={this.props.checkable}
                 onSelect={(_selectedKeys: string[], e: AntTreeNodeSelectedEvent) => {
-                    if (this.props.event) {
-                        if (this.props.event.onTreeNodeClick) {
-                            this.props.event.onTreeNodeClick(e.node.props.dataRef, e.selected!)
-                        }
+                    if (this.props.onTreeNodeClick) {
+                        this.props.onTreeNodeClick(e.node.props.dataRef, e.selected!)
                     }
                 }}
             >
@@ -124,10 +114,8 @@ export class Tree extends React.Component<Props, State>{
         return treeData.map(item => {
             let title: string | React.ReactNode = item.title
 
-            if (this.props.event) {
-                if (this.props.event.onRenderTreeNodeTitle) {
-                    title = this.props.event.onRenderTreeNodeTitle(item)
-                }
+            if (this.props.onRenderTreeNodeTitle) {
+                title = this.props.onRenderTreeNodeTitle(item)
             }
             if (item.children) {
                 return (

@@ -1,0 +1,8 @@
+[build]
+  publish = "dist"
+  command = "npm install && npm run build:dumi"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
