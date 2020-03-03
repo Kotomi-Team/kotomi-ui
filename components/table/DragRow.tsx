@@ -1,7 +1,7 @@
 import React from 'react'
 import { DragSource, DropTarget , DragSourceConnector, DropTargetConnector, DropTargetMonitor } from 'react-dnd'
 import { TableContext } from './Table'
-import './style/index'
+import './style/index.less'
 
 let dragingProps: any = {}
 

@@ -11,7 +11,7 @@ import Backend from 'react-dnd-html5-backend'
 import DragRow from './DragRow'
 import { EditableCell } from './EditableCell'
 
-import './style/index'
+import './style/index.less'
 
 export type TableContextProps<T> = {
     form?: WrappedFormUtils
