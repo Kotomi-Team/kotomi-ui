@@ -58,10 +58,12 @@
     "@types/lodash": "~4.14.149",
     "@types/react-color": "~3.0.1",
     "@types/react-dom": "~16.9.5",
+    "@types/vfile-message": "~2.0.0",
     "@typescript-eslint/eslint-plugin": "~2.14.0",
     "@typescript-eslint/parser": "~2.14.0",
     "babel-loader": "~8.0.6",
     "css-loader": "^3.4.2",
+    "dumi": "^1.0.0",
     "eslint": "~6.8.0",
     "eslint-plugin-react": "~7.17.0",
     "husky": "~4.0.0",
@@ -74,8 +76,7 @@
     "ts-loader": "~6.2.1",
     "typedoc": "~0.15.3",
     "typescript": "~3.7.2",
-    "webpack": "^4.41.6",
-    "dumi": "^1.0.0"
+    "webpack": "^4.41.6"
   },
   "dependencies": {
     "antd": "~3.26.8",

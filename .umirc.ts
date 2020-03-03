@@ -32,8 +32,10 @@ export default {
     {
       title: 'GitHub',
       path: 'https://github.com/Kotomi-Team/kotomi-ui',
-    },
-  ],
+    },{ 
+      title: 'Releases', 
+      path: 'https://github.com/Kotomi-Team/kotomi-ui/releases' 
+  }],
   exportStatic: {},
   extraBabelPlugins: [
     [
