@@ -40,4 +40,5 @@ yarn add kotomi-ui
 <script src="//unpkg.com/kotomi-ui@latest/dist/kotomi.bundle.js"></script>
 ```
 
+
 > 强烈不推荐使用已构建文件，这样无法按需加载，而且难以获得底层依赖模块的 bug 快速修复支持。注意：你需要自行引入 moment。
