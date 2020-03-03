@@ -31,7 +31,7 @@ export default {
     null,
     {
       title: 'GitHub',
-      path: 'https://github.com/umijs/umi',
+      path: 'https://github.com/Kotomi-Team/kotomi-ui',
     },
   ],
   exportStatic: {},
