@@ -1,6 +1,8 @@
 [build]
-  functions = "./functions"
-  
+  base    = ""
+  publish = "./dist"
+  command = "yarn && yarn build:dumi"
+
 [[redirects]]
   from = "/*"
   to = "/index.html"
