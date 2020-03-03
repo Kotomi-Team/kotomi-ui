@@ -431,22 +431,6 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                                     spinning: this.state.loading,
                                 }}
                                 pagination={false}
-                                /*
-                                pagination={{
-                                    size: 'small',
-                                    pageSize: this.state.pageSize,
-                                    total: this.state.total,
-                                }}
-                                onChange={(pagination, _filters, sorter) => {
-                                    this.requestLoadData({
-                                        page: pagination.current!,
-                                        pageSize: this.props.defaultPageSize!,
-                                        sorter: {
-                                            name: sorter.field,
-                                            order: sorter.order,
-                                        } as TableSorter,
-                                    })
-                                }}*/
                                 rowSelection={this.getRowSelection()}
                                 onHeaderRow={(_columns: ColumnProps<T>[]) => {
                                     let propsStyle = {}
@@ -458,14 +442,12 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                                     }
                                 }}
                                 onRow={(record: T, index: number) => {
-
                                     let propsStyle = {}
                                     if (this.props.onRenderBodyRowCssStyle) {
                                         propsStyle = this.props.onRenderBodyRowCssStyle!(
                                             index as number,
                                             record as T)
                                     }
-
                                     // 如果当前行处于不可编辑状态，则不点击click事件
                                     if (this.state.editingKey === undefined) {
                                         const onRow = this.props.onRow
@@ -1089,6 +1071,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
      */
     protected requestLoadData({ page, pageSize, param, sorter }: { page: number, pageSize: number, param?: any, sorter?: TableSorter }) {
         const { defaultParam, rowKey, defaultPageSize } = this.props
+
         this.setState({
             loading: true,
         })
@@ -1131,6 +1114,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
 
             }
             this.dataSourceState.create.splice(0)
+
             this.setState({
                 dataSource,
                 total,
@@ -1198,7 +1182,6 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                     } else {
                         const rowSelectedKeys: string[] = [...self.state.rowSelectedKeys] || []
                         rowSelectedKeys.splice(rowSelectedKeys.indexOf(id), 1)
-
                         self.setState({
                             rowSelectedKeys,
                         })
@@ -1209,7 +1192,6 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
             onSelectAll: (selected: boolean, selectedRows: T[], changeRows: T[]) => {
                 let respState: boolean | undefined = true
                 respState = self.onSelect(changeRows.map(record => record[self.props.rowKey!] as string), changeRows, selected)
-
                 if (respState) {
                     const selectKeys = selectedRows.map<string>((record) => record[self.props.rowKey!] as string)
                     self.setState({
@@ -1266,4 +1248,4 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
     }
 }
 
-export default Form.create<Props<any>>({})(Table as React.ComponentType<any>);
+export default Form.create<Props<any>>()(Table as React.ComponentType<any>);

@@ -204,6 +204,10 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
         tableContextProps.table!.blankDivElement.current!.style.visibility = 'visible'
     }
 
+    renderDivCell(children: React.ReactNode) {
+        return children
+    }
+
     renderCell = (tableContextProps: TableContextProps<T>) => {
         const { children, inputModal, column, editingType } = this.props
         this.form = tableContextProps.form!
@@ -216,7 +220,7 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
                 if (inputModal === 'click') {
                     // 如果为只读则不能进行编辑 或者没有dataIndex的列
                     if (!this.isEditing()) {
-                        return children
+                        return this.renderDivCell(children)
                     } else {
                         this.addBlank(tableContextProps)
                         return (
@@ -242,7 +246,7 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
 
             // 如果是行编辑模式
             if (editingType === 'row') {
-                if (this.isEditing() || inputModal === 'display') {
+                if (inputModal === 'display') {
                     return (
                         <>
                             <Form.Item
@@ -253,10 +257,19 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
                         </>
                     )
                 }
+                if (this.isEditing()) {
+                    return (
+                        <>
+                            <Form.Item>
+                                {this.renderFormItem(tableContextProps.form!)}
+                            </Form.Item>
+                        </>
+                    )
+                }
             }
 
         }
-        return children
+        return this.renderDivCell(children)
     }
 
     render() {
@@ -264,14 +277,14 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
         const textAlign = column === undefined ? undefined : column.align
         const td = (
             <td
-                className={ this.props.className + " " + this.getClassName() }
+                className={this.props.className + " " + this.getClassName()}
                 style={{
                     textAlign,
                 }}
                 onClick={() => {
-                      if (column !== undefined && column.isEditing && inputModal === 'click') {
+                    if (column !== undefined && column.isEditing && inputModal === 'click') {
                         this.clickEditCell()
-                      }
+                    }
                 }}
             >
                 <TableContext.Consumer>

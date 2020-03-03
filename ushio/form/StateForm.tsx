@@ -1,17 +1,23 @@
+/**
+ * title: 禁用Form表单
+ * desc: 可通过state来禁用部分的表单信息
+ */
+
 import React, { useState } from 'react'
-import { Form } from '../../components/index'
 import { Input, Button } from 'antd'
+import { Form } from '../../components/index'
 
 
 const form = React.createRef<any>()
 const StateForm = () => {
     const [prohibit, setProhibit] = useState(true)
-    const [clickNumber, setClickNumber] = useState(0)
     return (
         <>
             <Button
+                style={{
+                    marginBottom: 20
+                }}
                 onClick={()=>{
-                    setClickNumber(clickNumber+1)
                     setProhibit(!prohibit)
                     form.current!.validateFieldsPromise().then(({errors,values}:{errors: any,values: any})=>{
                         if(!errors){
@@ -20,7 +26,7 @@ const StateForm = () => {
                     })
                 }}
             >
-                click number {clickNumber}
+                {!prohibit ? '禁用': '激活'}
             </Button>
             <Form
                 script={`

@@ -1,3 +1,8 @@
+/**
+ * title: 基础的树组件
+ * desc: 一个简单的树组件
+ */
+
 import React from 'react'
 
 import { Tree, TreeNodeData } from '../../components/tree/Tree';
