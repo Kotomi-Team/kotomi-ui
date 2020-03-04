@@ -1,4 +1,4 @@
-name: Node.js CI
+name: TSLint CI
 
 on: [push]
 
@@ -17,8 +17,8 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
-    - run: bash <(curl -s https://codecov.io/bash)
     - run: npm install
     - run: npm run lint
       env:
         CI: true
+        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
