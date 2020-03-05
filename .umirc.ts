@@ -23,6 +23,7 @@ export default {
           '/components/tree/README',
           '/components/upload/README',
           '/components/picker/README',
+          '/components/modal/README',
         ]
       },
     ],
