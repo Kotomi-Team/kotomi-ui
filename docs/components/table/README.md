@@ -8,26 +8,28 @@
 
 <code src="../../../ushio/table/RowEditorTable.tsx" />
 
+<code src="../../../ushio/table/EventTable.tsx" />
+
 ## Table 属性
 
-|名称                    | 描述
-|----                    |------
-|columns                 | 数据的列的信息
-|loadData                | 请求后台返回的分页数据
-|theme                   | 表格的显示样式，有以下取值 'default' | 'middle' | 'small'
-|defaultPageSize         | 默认当前表格显示的数据大小，默认为显示300条数据
-|defaultParam            | 请求数据的默认带参数，设置此参数，会在每次请求的时候都会带上此参数信息
-|height                  | 表格的高度，默认为400px
-|width                   | 表格的宽度，默认为百分之百
-|rowKey                  | 当前表格默认的rowKey，默认为id字段，可手动设置为其他字段
-|rowSelection            | 表格的选择模式，默认为undefined不显示选择框
-|editingType             | 当前单元格编辑类型，cell表示单元格编辑，row表示行编辑,none 表示无编辑模式
-|style                   | 表格的css样式
-|refExt                  | 初始化表格数据的时候，可通过self获取当前表格对象
-|isAutoLoadData          | 是否第一次自动装载表格数据，默认为true，第一次初始化就装载数据
-|defaultExportFileName   | 当前默认导出的文件名，默认为当前时间戳
-|locale                  | 默认文案信息，用来以文字方式显示编辑和删除
-|rowSelectedKeys         | 当前选中的数据，默认选中未空
+|名称                 |类型   | 描述
+|----                 |----   |------
+|columns              |`ColumnProps<T>[]`   | 数据的列的信息
+|loadData             |`({ page, pageSize, param, sorter }) => Promise<{ dataSource: T[], total: number }>`   | 请求后台返回的分页数据
+|theme                |`'default' `&#124;  `'middle'` &#124; `'small'`  | 表格的显示样式
+|defaultPageSize      |`number`   | 默认当前表格显示的数据大小，默认为显示300条数据
+|defaultParam         |`any`   | 请求数据的默认带参数，设置此参数，会在每次请求的时候都会带上此参数信息
+|height               |`boolean` &#124;  `number` &#124;  `string`   | 表格的高度，默认为400px
+|width                |`boolean` &#124;  `number` &#124;  `string`   | 表格的宽度，默认为百分之百
+|rowKey               |`string`   | 当前表格默认的rowKey，默认为id字段，可手动设置为其他字段
+|rowSelection         |`'single'` &#124;  `'multiple'` &#124;  `undefined`   | 表格的选择模式，默认为undefined不显示选择框
+|editingType          |`'cell'` &#124;  `'row'` &#124;  `'none'`   | 当前单元格编辑类型，cell表示单元格编辑，row表示行编辑,none 表示无编辑模式
+|style                |`React.CSSProperties`   | 表格的css样式
+|refExt               |`Function` &#124;  `any`   | 初始化表格数据的时候，可通过self获取当前表格对象
+|isAutoLoadData       |`boolean`   | 是否第一次自动装载表格数据，默认为true，第一次初始化就装载数据
+|defaultExportFileName |`string`   | 当前默认导出的文件名，默认为当前时间戳
+|locale                |`TableLocale`  | 默认文案信息，用来以文字方式显示编辑和删除
+|rowSelectedKeys      |`string[]`   | 当前选中的数据，默认选中未空
 
 ## TableLocale
 |名称          | 描述
@@ -68,11 +70,11 @@
  
 |名称        | 类型                | 默认值  | 描述
 |----       |----                |-----   |------
-|isEditing  |boolean             | false  | 是否可编辑，默认为false，不可编辑状态，true为可编辑
-|inputType  |JSX.Element         | Input  | 当前Form的Item元素，默认为antd 的[Input](https://ant.design/components/input-cn/)组件
-|rules      |ValidationRule      | []     | 当前表格列的校验规则，可参照antd的[校验规则](https://ant.design/components/form-cn/#%E6%A0%A1%E9%AA%8C%E8%A7%84%E5%88%99)
-|inputModal |'click' &#124; 'display' | 'click' | 当前表格的编辑模式，display表示一直显示在表格上，click表示点击后才能进行编辑
-|aliasDataIndex |string            | `undefined` |当前表格的显示字段， dataIndex表示实际的值，aliasDataIndex表示这列的显示值，实际调用onSave保存还是操作的dataIndex字段的数据
+|isEditing  |`boolean`             | `false`  | 是否可编辑，默认为false，不可编辑状态，true为可编辑
+|inputType  |`JSX.Element`         | `Input` | 当前Form的Item元素，默认为antd 的[Input](https://ant.design/components/input-cn/)组件
+|rules      |`ValidationRule`      | []     | 当前表格列的校验规则，可参照antd的[校验规则](https://ant.design/components/form-cn/#%E6%A0%A1%E9%AA%8C%E8%A7%84%E5%88%99)
+|inputModal |`'click'` &#124; `'display'` | 'click' | 当前表格的编辑模式，display表示一直显示在表格上，click表示点击后才能进行编辑
+|aliasDataIndex |`string`            | `undefined` |当前表格的显示字段， dataIndex表示实际的值，aliasDataIndex表示这列的显示值，实际调用onSave保存还是操作的dataIndex字段的数据
 
 > 以上是对于Ant Design表格的扩展属性，其他常规属性参照 [https://ant.design/components/table-cn/#Column](https://ant.design/components/table-cn/#Column) 的表格的参数。
 

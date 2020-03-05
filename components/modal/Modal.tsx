@@ -6,8 +6,11 @@ type Props = {
   // 按钮的标题
   title: string
 
+  // 底部按钮是否不可见，默认为false可见
+  footerButtonVisible: boolean
+
   // 按钮的确认事件
-  onConfirm: (self: Modal) => Promise<boolean>
+  onConfirm?: (self: Modal) => Promise<boolean>
 
   // 按钮取消事件，非必须
   onCancel?: (self: Modal) => Promise<boolean>
@@ -28,6 +31,7 @@ export class Modal extends React.Component<Props, State> {
   static defaultProps = {
     title: '',
     width: 416,
+    footerButtonVisible: false,
   }
 
   state = {
@@ -52,25 +56,16 @@ export class Modal extends React.Component<Props, State> {
 
   render() {
     const { loading, visible } = this.state
-    const { title, children , onConfirm, onCancel, width } = this.props
+    const { title, children , onConfirm, onCancel, width, footerButtonVisible } = this.props
+    const defaultModalProps: any = {}
+    if (footerButtonVisible) {
+      defaultModalProps.footer = null
+    }
     return (
       <AntModal
         title={title}
         confirmLoading={loading}
         visible={visible}
-        onCancel={() => {
-          const self = this
-          if (onCancel) {
-            onCancel(self).then((respState) => {
-              if (respState === true) {
-                self.hide()
-              }
-            })
-          }else {
-            // 默认逻辑点击取消隐藏
-            self.hide()
-          }
-        }}
         width={width}
         maskClosable={false}
         onOk={() => {
@@ -90,6 +85,20 @@ export class Modal extends React.Component<Props, State> {
             })
           }
         }}
+        onCancel={() => {
+          const self = this
+          if (onCancel) {
+            onCancel(self).then((respState) => {
+              if (respState === true) {
+                self.hide()
+              }
+            })
+          }else {
+            // 默认逻辑点击取消隐藏
+            self.hide()
+          }
+        }}
+        {...defaultModalProps}
       >
         {children}
       </AntModal>
