@@ -38,6 +38,9 @@ export class SketchPicker extends React.Component<Props, State>{
         visible: false,
     }
 
+    componentDidMount() {
+    }
+
     render() {
         const { color } = this.props
         const { color: stateColor, visible } = this.state
@@ -87,7 +90,8 @@ export class SketchPicker extends React.Component<Props, State>{
                         <div
                             style={{
                                 zIndex: 1000,
-                                position: 'fixed',
+                                position: 'absolute',
+                                width: 200,
                             }}
                         >
                             <ReactSketchPicker
