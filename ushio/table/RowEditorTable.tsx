@@ -6,7 +6,7 @@
 
 import React from 'react'
 import { message } from 'antd'
-import { Table } from '../../components/index'
+import { Table, SketchPicker } from '../../components/index'
 
 const RowEditorTable = () =>{
   return (
@@ -23,6 +23,11 @@ const RowEditorTable = () =>{
         dataIndex: 'age',
         isEditing: true,
         inputModal: 'display',
+        title: '年龄'
+      },{
+        dataIndex: 'color',
+        isEditing: true,
+        inputType: <SketchPicker />,
         title: '年龄'
       },{
         dataIndex: '$operating',

@@ -1,6 +1,6 @@
 {
   "name": "kotomi-ui",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "基于Ant Design做的组件扩展，开发的一套组件库",
   "scripts": {
     "start": "dumi dev",
@@ -28,7 +28,7 @@
   "module": "es/index.js",
   "typings": "lib/index.d.ts",
   "repository": "https://github.com/Kotomi-Team/kotomi-ui",
-  "homepage": "https://kotomi.site/",
+  "homepage": "https://kotomi.site",
   "bugs": {
     "url": "https://github.com/Kotomi-Team/kotomi-ui/issues"
   },
@@ -63,7 +63,7 @@
     "@typescript-eslint/parser": "~2.14.0",
     "babel-loader": "~8.0.6",
     "css-loader": "^3.4.2",
-    "dumi": "^1.0.0",
+    "dumi": "^1.0.3",
     "eslint": "~6.8.0",
     "eslint-plugin-react": "~7.17.0",
     "husky": "~4.0.0",
