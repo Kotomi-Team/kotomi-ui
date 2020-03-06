@@ -28,7 +28,7 @@
   "module": "es/index.js",
   "typings": "lib/index.d.ts",
   "repository": "https://github.com/Kotomi-Team/kotomi-ui",
-  "homepage": "http://kotomi-team.github.io/kotomi-ui",
+  "homepage": "https://kotomi.site/",
   "bugs": {
     "url": "https://github.com/Kotomi-Team/kotomi-ui/issues"
   },
