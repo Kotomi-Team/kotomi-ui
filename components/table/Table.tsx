@@ -125,12 +125,12 @@ interface Props<T> extends FormComponentProps<T> {
     // 扩展的表格信息
     refExt?: Function | any
 
-        /**
-     * 当前表格的选择状态
-     * @param changeRowsKeys  当前所有变化的Row的key
-     * @param changeRows      当前选中的行数据
-     * @param selected        变化状态true表示选中，false表示取消
-     */
+    /**
+ * 当前表格的选择状态
+ * @param changeRowsKeys  当前所有变化的Row的key
+ * @param changeRows      当前选中的行数据
+ * @param selected        变化状态true表示选中，false表示取消
+ */
     onSelect?: (changeRowsKeys: string[], changeRows: T[], selected: boolean) => boolean | undefined
 
     /**
@@ -183,6 +183,11 @@ interface Props<T> extends FormComponentProps<T> {
      * @param  目标数据
      */
     onDragRow?: (source: T, targe: T) => Promise<boolean>
+
+    /**
+     * 渲染下拉框的时候触发的事件
+     */
+    onRenderDropdownMenu?: (render: JSX.Element) => JSX.Element
 
     /**
      * 装载子节点数据
@@ -259,6 +264,13 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
         onRenderHeaderRowCssStyle: () => {
             return {}
         },
+        onRenderDropdownMenu: (render: JSX.Element) => {
+            return (
+                <Menu>
+                    {render}
+                </Menu>
+            )
+        }
     }
 
     public blankDivElement: React.RefObject<HTMLDivElement> = React.createRef<HTMLDivElement>()
@@ -388,10 +400,9 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                         }}
                     />
                     <Dropdown overlay={this.getDropdownMenu()} trigger={['contextMenu']}>
-                        <>
+                        <div>
                             <AntTable
                                 style={{
-                                    // pointerEvents: 'auto',
                                     ...this.props.style,
                                 }}
                                 childrenColumnName="$children"
@@ -475,28 +486,28 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                                 }}
                                 {...extProps}
                             />
-                            <Pagination
-                                className="kotomi-components-table-pagination"
-                                size='small'
-                                current={this.state.page}
-                                total={this.state.total}
-                                pageSize={this.props.defaultPageSize!}
-                                onChange={(page: number, pageSize?: number) => {
-                                    this.requestLoadData({
-                                        page,
-                                        pageSize: pageSize!,
-                                        sorter: {} as TableSorter,
-                                    })
-                                }}
-                            />
-                        </>
+                        </div>
                     </Dropdown>
+                    <Pagination
+                        className="kotomi-components-table-pagination"
+                        size='small'
+                        current={this.state.page}
+                        total={this.state.total}
+                        pageSize={this.props.defaultPageSize!}
+                        onChange={(page: number, pageSize?: number) => {
+                            this.requestLoadData({
+                                page,
+                                pageSize: pageSize!,
+                                sorter: {} as TableSorter,
+                            })
+                        }}
+                    />
                 </DndProvider>
             </TableContext.Provider>
         )
     }
 
-    public exchangeRow(source: T , targe: T) {
+    public exchangeRow(source: T, targe: T) {
         const updateData = this.recursiveDataSource(this.state.dataSource, (element) => {
             if (element[this.props.rowKey!] === source[this.props.rowKey!]) {
                 return {
@@ -600,14 +611,14 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
 
     protected recursiveDataSource(dataSource: any[], callbackfn: (data: any) => any) {
         const respData: any[] = []
-        for (let i = 0; i < dataSource.length ; i++) {
+        for (let i = 0; i < dataSource.length; i++) {
             // @ts-ignore
             if (dataSource[i].$children && dataSource[i].$children.length > 0) {
                 respData.push(callbackfn({
                     ...dataSource[i],
                     '$children': this.recursiveDataSource(dataSource[i].$children, callbackfn),
                 }))
-            }else {
+            } else {
                 respData.push(callbackfn(dataSource[i]))
             }
         }
@@ -1234,17 +1245,16 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
 
     // 获取右键点击
     protected getDropdownMenu() {
-        return (
-            <Menu>
-                <Menu.Item
-                    key="xls"
-                    onClick={() => { this.exportData('xls') }}
-                >
-                    <Icon type="file-excel" />
-                    Export xls
-                </Menu.Item>
-            </Menu>
+        const dropdownMenu = (
+            <Menu.Item
+                key="xls"
+                onClick={() => { this.exportData('xls') }}
+            >
+                <Icon type="file-excel" />
+                Export xls
+            </Menu.Item>
         )
+        return this.props.onRenderDropdownMenu!(dropdownMenu)
     }
 }
 

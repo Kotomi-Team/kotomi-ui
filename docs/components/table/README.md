@@ -10,6 +10,8 @@
 
 <code src="../../../ushio/table/EventTable.tsx" />
 
+<code src="../../../ushio/table/DropdownMenuTable.tsx" />
+
 ## Table 属性
 
 |名称                 |类型   | 描述
