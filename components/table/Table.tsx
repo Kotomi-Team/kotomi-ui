@@ -126,11 +126,11 @@ interface Props<T> extends FormComponentProps<T> {
     refExt?: Function | any
 
     /**
- * 当前表格的选择状态
- * @param changeRowsKeys  当前所有变化的Row的key
- * @param changeRows      当前选中的行数据
- * @param selected        变化状态true表示选中，false表示取消
- */
+     * 当前表格的选择状态
+     * @param changeRowsKeys  当前所有变化的Row的key
+     * @param changeRows      当前选中的行数据
+     * @param selected        变化状态true表示选中，false表示取消
+     */
     onSelect?: (changeRowsKeys: string[], changeRows: T[], selected: boolean) => boolean | undefined
 
     /**
