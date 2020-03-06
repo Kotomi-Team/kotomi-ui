@@ -270,7 +270,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                     {render}
                 </Menu>
             )
-        }
+        },
     }
 
     public blankDivElement: React.RefObject<HTMLDivElement> = React.createRef<HTMLDivElement>()
