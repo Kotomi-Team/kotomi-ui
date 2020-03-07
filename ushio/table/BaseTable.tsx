@@ -20,6 +20,7 @@ const BaseTable = () =>{
         title: '年龄'
       }]}
       editingType="row"
+      rowSelection="multiple"
       loadData={async ({ page, pageSize })=>{
         const datas: any = []
         for(let i =0 ;i< pageSize ; i++){
