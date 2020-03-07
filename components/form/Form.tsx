@@ -214,12 +214,16 @@ class Form extends React.Component<Props & FormComponentProps, State> {
                                     if (element) {
                                         if (colLabelCol) {
                                              const labelElement: Element = element.getElementsByClassName('ant-col-md-' + Math.floor(colLabelCol.md as number))[0]
-                                             labelElement.setAttribute('style', `width:${(colLabelCol.md as number / 24) * 100}%`)
+                                             if (labelElement) {
+                                                 labelElement.setAttribute('style', `width:${(colLabelCol.md as number / 24) * 100}%`)
+                                             }
                                         }
 
                                         if (colWrapperCol) {
                                              const wrapperElement: Element = element.getElementsByClassName('ant-col-md-' + Math.ceil(colWrapperCol!.md as number))[0]
-                                             wrapperElement.setAttribute('style', `width:${(colWrapperCol.md as number / 24) * 100}%`)
+                                             if (wrapperElement) {
+                                                 wrapperElement.setAttribute('style', `width:${(colWrapperCol.md as number / 24) * 100}%`)
+                                             }
                                         }
                                     }
                                  }}
@@ -281,7 +285,6 @@ class Form extends React.Component<Props & FormComponentProps, State> {
                     matchs.forEach((config) => {
                         if (config) {
                             const realConfig = config
-                            .replace(/\s*\|\s*/g, '|')
                             .replace(/\[/g, '')
                             .replace(/\]/g, '')
                             .split(/\s/g)
@@ -289,9 +292,7 @@ class Form extends React.Component<Props & FormComponentProps, State> {
                                 // 如果参数小于二个则直接跳过
                                 return ;
                             }
-
                             const fromItemProps = new FormItemProps()
-
                             if (realConfig[0].split('|').length >= 1) {
                                 fromItemProps.name = realConfig[0].split('|')[0].trim()
                             }
