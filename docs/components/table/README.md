@@ -12,6 +12,8 @@
 
 <code src="../../../ushio/table/DropdownMenuTable.tsx" />
 
+<code src="../../../ushio/table/CellTable.tsx" />
+
 ## Table 属性
 
 |名称                 |类型   | 描述

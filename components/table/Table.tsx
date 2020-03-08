@@ -973,7 +973,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                         editingType: editingType,
                         inputModal: column.inputModal,
                         currentEditorCell: this.currentEditorCell,
-                        onSave: async (values: T) => {
+                        onSave: lodash.debounce(async (values: T) => {
 
                             // 修改表格中的数据
                             const newData: T[] = [...dataSource];
@@ -1019,7 +1019,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                                 return respState
                             }
                             return true
-                        },
+                        }, 60),
                     }
                 }
                 // 给一个宽度的默认值
