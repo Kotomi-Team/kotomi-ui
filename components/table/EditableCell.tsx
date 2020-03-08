@@ -143,10 +143,13 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
     }
 
     getClassName(): string {
-        const { editingType, column, inputModal, isEditing } = this.props
-        const className = 'kotomi-components-table-cell-value-wrap'
-        if (editingType === 'cell' && column !== undefined && inputModal === 'click' && isEditing === true) {
-            return className
+        const { editingType, column, inputModal } = this.props
+        const tdEditorClass = ' kotomi-components-table-editor-td'
+        if (this.isEditing() && column !== undefined) {
+            if (editingType === 'cell' && inputModal === 'click') {
+                return 'kotomi-components-table-cell-value-wrap' + tdEditorClass
+            }
+            return tdEditorClass
         }
         return ''
     }

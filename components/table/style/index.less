@@ -35,15 +35,17 @@
 
 // 编辑单元格的移动边框
 .kotomi-components-table-row {
-    >td{
-        overflow: visible;
-    }
     .kotomi-components-table-cell-value-wrap {
         &:hover {
             border: 1px solid #1890ff;
             border-radius: 4px;
         }
     }
+}
+
+// 可编辑的td样式
+.kotomi-components-table-editor-td{
+    overflow: visible;
 }
 
 // 设置单元格显示过多数据的表格样式

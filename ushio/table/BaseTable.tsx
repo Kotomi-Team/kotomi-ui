@@ -11,13 +11,16 @@ const BaseTable = () =>{
     <Table
       columns={[{
         dataIndex: 'name',
-        title: '人员名称'
+        title: '人员名称',
+        width: 100
       },{
         dataIndex: 'six',
-        title: '性别'
+        title: '性别',
+        width: 200
       },{
         dataIndex: 'age',
-        title: '年龄'
+        title: '年龄',
+        width: 200
       }]}
       editingType="row"
       rowSelection="multiple"
@@ -26,7 +29,7 @@ const BaseTable = () =>{
         for(let i =0 ;i< pageSize ; i++){
           datas.push({
             id: i,
-            name: `${page} - name - ${i}`,
+            name: `${page} - name - ${i} - 这是一个超出的文字内容`,
             six: `${page} - six - ${i}`,
             age: `${page} - age - ${i}`,
           })
