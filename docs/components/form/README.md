@@ -19,11 +19,12 @@
 |----         |----                |-----               |------
 |script       |`string`              |无                  | 语义话脚本来进行布局
 |onSubmit     | `React.FormEventHandler`| 无               | 用户提交后触发的事件
+|rowSpace     | `number`| 无               | Form表单Row行的间距
 |labelCol     |[ColProps](https://ant.design/components/grid-cn/#Col) | | label默认占用的位置
 |wrapperCol   |[ColProps](https://ant.design/components/grid-cn/#Col)| | 组件默认占用的位置
 |initialValues|`any`                | 无                 | 初始化的默认值，仅仅只是在第一次设置有效
 |components   |`EditorComponent[]` | 无                 | 注册的组件信息,所有注册的组件都可以在语义化脚本中进行布局操作       
-|event        |`FormEvent`         | 无                 | 表格事件
+
 
 
 ### FormUtils
