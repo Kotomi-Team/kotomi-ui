@@ -61,6 +61,9 @@ type Props = {
     // 当前表单的校验规则
     rules?: Rule[]
 
+    // 表单的Row的间距，默认为24
+    rowSpace: number
+
     // 当前表单的默认值
     initialValues?: any
 
@@ -104,6 +107,7 @@ class Form extends React.Component<Props & FormComponentProps, State> {
         wrapperCol: {
             md: { span: 20 },
         },
+        rowSpace: 24,
     }
 
     /**
@@ -202,6 +206,9 @@ class Form extends React.Component<Props & FormComponentProps, State> {
                              <AntForm.Item
                                 key={ 'form-item' + itemCol.name + index}
                                 label={itemCol.label}
+                                style={{
+                                    marginBottom: this.props.rowSpace,
+                                }}
                                 labelCol = {{
                                     md: Math.floor(colLabelCol!.md as number),
                                 }}

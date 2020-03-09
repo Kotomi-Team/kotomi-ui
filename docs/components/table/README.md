@@ -77,7 +77,7 @@
 |isEditing  |`boolean`             | `false`  | 是否可编辑，默认为false，不可编辑状态，true为可编辑
 |inputType  |`JSX.Element`         | `Input` | 当前Form的Item元素，默认为antd 的[Input](https://ant.design/components/input-cn/)组件
 |rules      |`ValidationRule`      | []     | 当前表格列的校验规则，可参照antd的[校验规则](https://ant.design/components/form-cn/#%E6%A0%A1%E9%AA%8C%E8%A7%84%E5%88%99)
-|inputModal |`'click'` &#124; `'display'` | 'click' | 当前表格的编辑模式，display表示一直显示在表格上，click表示点击后才能进行编辑
+|inputModal |`'click'` &#124; `'display'` | `'click'` | 当前表格的编辑模式，display表示一直显示在表格上，click表示点击后才能进行编辑
 |aliasDataIndex |`string`            | `undefined` |当前表格的显示字段， dataIndex表示实际的值，aliasDataIndex表示这列的显示值，实际调用onSave保存还是操作的dataIndex字段的数据
 
 > 以上是对于Ant Design表格的扩展属性，其他常规属性参照 [https://ant.design/components/table-cn/#Column](https://ant.design/components/table-cn/#Column) 的表格的参数。
