@@ -126,6 +126,7 @@ export class Tree extends React.Component<Props, State>{
                style={{
                 left: pageX,
                 top: pageY,
+                position: 'fixed'
                }}
 
                onBlur={() => {
