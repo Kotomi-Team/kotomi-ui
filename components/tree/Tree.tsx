@@ -180,8 +180,8 @@ export class Tree extends React.Component<Props, State>{
                     checkable={this.props.checkable}
                     onRightClick={(e) => {
                         this.setState({
-                            pageX: e.event.pageX,
-                            pageY: e.event.pageY,
+                            pageX: e.event.clientX,
+                            pageY: e.event.clientY,
                             isShowMenu: true,
                             node: e.node,
                         }, () => {
