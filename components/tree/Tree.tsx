@@ -35,6 +35,9 @@ type Props = {
      */
     checkedKeys?: string[]
 
+    /**
+     * 右键菜单的信息列表
+     */
     contextMenu?: JSX.Element[]
 
     /**
