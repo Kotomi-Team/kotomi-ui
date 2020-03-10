@@ -14,9 +14,11 @@
 |----         |------
 |loadData    | 装载子节点数据
 |checkable   | 是否在节点前添加 Checkbox 复选框
-|checkedKeys  | 选中的key,表示当前Tree中设置选中状态
+|checkedKeys       | 选中的key,表示当前Tree中设置选中状态
 |onRenderTreeNodeTitle  | 渲染节点title的时候触发的事件，返回一个新的title对象
+|contextMenu           | 右键的菜单信息列表
 |onTreeNodeClick       | 点击树节点触发的事件
+|onClickContextMenu    | 点击右键菜单的时候触发的事件
 
 ## TreeNodeData 
 

@@ -6,6 +6,7 @@
 import React from 'react'
 
 import { Tree, TreeNodeData } from '../../components/tree/Tree';
+import { message } from 'antd';
 
 
 const BaseTree = () => {
@@ -35,12 +36,8 @@ const BaseTree = () => {
                     }
                     return [newData]
                 }}
-                onTreeNodeClick={(data: TreeNodeData, select: boolean) => {
-                    console.log(data)
-                    console.log(select)
-                }}
-                onClickContextMenu={(node)=>{
-                  console.log(node)
+                onClickContextMenu={(key,node)=>{
+                  message.info(`key: ${key}, dataRef: ${JSON.stringify(node!.props.dataRef)}`)
                 }}
             />
         </>
