@@ -23,7 +23,7 @@ const RowSpaceForm = () => {
         <InputNumber
           value = {value}
           onChange={(val)=>{
-            setValue(val)
+            setValue(val!)
           }}
         />
       </div>
