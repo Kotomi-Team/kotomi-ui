@@ -1,4 +1,5 @@
 import React from 'react'
+import classNames from 'classnames';
 import { Tree as AntTree } from 'antd'
 import { AntTreeNode, AntTreeNodeSelectedEvent } from 'antd/lib/tree/Tree'
 
@@ -34,6 +35,8 @@ type Props = {
      */
     checkedKeys?: string[]
 
+    contextMenu?: JSX.Element[]
+
     /**
         * 渲染节点title的时候触发的事件，返回一个新的title对象
         * @param data 当前树状节点的数据
@@ -46,11 +49,21 @@ type Props = {
      * @param data 当前节点的数据信息
      * @param selected 当前节点是否选中，true表示选中，false表示不选中
      */
-    onTreeNodeClick?: (data: TreeNodeData, selected: boolean) => void,
+    onTreeNodeClick?: (data: TreeNodeData, selected: boolean) => void
+
+    /**
+     * 点击右键菜单
+     * - node.props.dataRef 可获取绑定的数据
+     */
+    onClickContextMenu?: (key: string | number, node?: AntTreeNode) => void,
 }
 
 type State = {
-    treeData: TreeNodeData[],
+    treeData: TreeNodeData[]
+    pageX?: number
+    pageY?: number
+    isShowMenu: boolean,
+    node?: AntTreeNode,
 }
 
 /**
@@ -65,7 +78,13 @@ export class Tree extends React.Component<Props, State>{
 
     state = {
         treeData: [],
+        pageX: undefined,
+        pageY: undefined,
+        isShowMenu: false,
+        node: undefined,
     }
+
+    private dropdownElement: React.RefObject<HTMLDivElement> = React.createRef()
 
     constructor(props: Props) {
         super(props)
@@ -79,22 +98,102 @@ export class Tree extends React.Component<Props, State>{
                 treeData,
             })
         })
+
+    }
+
+    focusDropdown() {
+        if (this.dropdownElement.current) {
+            this.dropdownElement.current.focus()
+        }
+    }
+
+    renderRightClickMenu() {
+        const { pageX, pageY } = this.state
+        const { contextMenu } = this.props
+        if (pageX && pageY && contextMenu && contextMenu.length > 0) {
+            return (
+              <div
+               ref={this.dropdownElement}
+               className={classNames(
+                   'ant-dropdown',
+                   'ant-dropdown-placement-bottomLeft',
+                    this.state.isShowMenu ? '' : 'ant-dropdown-hidden',
+                )}
+               tabIndex={-1}
+               style={{
+                left: pageX,
+                top: pageY,
+               }}
+
+               onBlur={() => {
+                    this.setState({
+                        isShowMenu: false,
+                    })
+               }}
+              >
+                <ul className={classNames(
+                    'ant-dropdown-menu',
+                    'ant-dropdown-menu-light',
+                    'ant-dropdown-menu-root',
+                    'ant-dropdown-menu-vertical',
+                )}>
+                    {(contextMenu as any[]).map((element: JSX.Element, index: number) => {
+                        return (
+                            <li
+                                key={index}
+                                className="ant-dropdown-menu-item"
+                                onClick={() => {
+                                    if (this.props.onClickContextMenu) {
+                                        if (element.key) {
+                                            this.props.onClickContextMenu(element.key, this.state.node)
+                                        }else {
+                                            throw new Error(`KOTOMI-TABLE-5003: The key attribute of ContextMenu element cannot be empty. key [${element.key}] `)
+                                        }
+                                    }
+                                    this.setState({
+                                        isShowMenu: false,
+                                    })
+                                }}
+                                role="menuitem"
+                            >
+                                {element}
+                            </li>
+                        )
+                    })}
+                </ul>
+               </div>
+            )
+        }
+        return undefined
     }
 
     render() {
         return (
-            <AntTree
-                loadData={this.onLoadData}
-                checkedKeys={this.props.checkedKeys}
-                checkable={this.props.checkable}
-                onSelect={(_selectedKeys: string[], e: AntTreeNodeSelectedEvent) => {
-                    if (this.props.onTreeNodeClick) {
-                        this.props.onTreeNodeClick(e.node.props.dataRef, e.selected!)
-                    }
-                }}
-            >
-                {this.renderTreeNodes(this.state.treeData)}
-            </AntTree>
+            <>
+                <AntTree
+                    loadData={this.onLoadData}
+                    checkedKeys={this.props.checkedKeys}
+                    checkable={this.props.checkable}
+                    onRightClick={(e) => {
+                        this.setState({
+                            pageX: e.event.pageX,
+                            pageY: e.event.pageY,
+                            isShowMenu: true,
+                            node: e.node,
+                        }, () => {
+                            this.focusDropdown()
+                        })
+                    }}
+                    onSelect={(_selectedKeys: string[], e: AntTreeNodeSelectedEvent) => {
+                        if (this.props.onTreeNodeClick) {
+                            this.props.onTreeNodeClick(e.node.props.dataRef, e.selected!)
+                        }
+                    }}
+                >
+                    {this.renderTreeNodes(this.state.treeData)}
+                </AntTree>
+                {this.renderRightClickMenu()}
+            </>
         )
     }
 
