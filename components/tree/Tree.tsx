@@ -161,7 +161,9 @@ export class Tree extends React.Component<Props, State>{
                                     }
 
                                     const filteTreeData = loop(this.state.treeData, (element: TreeNodeData) => {
-
+                                        if (element.key === dropEven.dragNode.props.dataRef.key) {
+                                            return []
+                                        }
                                         return [{
                                             ...element,
                                         }]
