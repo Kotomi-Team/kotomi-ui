@@ -589,18 +589,21 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
         if (
             // 判断添加的id不能为空
             data[this.props.rowKey!] === undefined
-            ||
-            // 判断添加的数据id不能重复
-            dataSource.filter(element => element[this.props.rowKey!] === data[this.props.rowKey!])
         ) {
-            throw new Error(`KOTOMI-TABLE-5002: The added rowKey must be unique and cannot be duplicate. rowKey [${this.props.rowKey}] , data  [${JSON.stringify(data)}]`)
+            throw new Error(`KOTOMI-TABLE-5002: The added rowKey must cannot be unique. rowKey [${this.props.rowKey}] , data  [${JSON.stringify(data)}]`)
         }
-
+        if (
+            // 判断添加的数据id不能重复
+            dataSource.filter(element => element[this.props.rowKey!] === data[this.props.rowKey!]).length > 0
+        ) {
+            throw new Error(`KOTOMI-TABLE-5002: The added rowKey must cannot be duplicate. rowKey [${this.props.rowKey}] , data  [${JSON.stringify(data)}]`)
+        }
         const proxyDataSource: T[] = [...dataSource]
         proxyDataSource.push(data)
 
         // 添加到对应的数据
         this.dataSourceState.create.push(data)
+
         this.setState({
             dataSource: proxyDataSource,
             pageSize: this.props.defaultPageSize! + this.dataSourceState.create.length,
@@ -1072,7 +1075,9 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
         // eslint-disable-next-line react/no-find-dom-node
         const element = ReactDOM.findDOMNode(this) as Element
         const bodyElement = element.getElementsByClassName('ant-table-body')[0]!
-        bodyElement.scrollTop = bodyElement.scrollHeight;
+        if (bodyElement) {
+            bodyElement.scrollTop = bodyElement.scrollHeight;
+        }
     }
 
     /**

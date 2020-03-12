@@ -8,6 +8,8 @@
 
 <code src="../../../ushio/tree/ContextMenuTree.tsx" />
 
+<code src="../../../ushio/tree/DraggableTree.tsx" />
+
 ## Tree 属性
 
 |名称         | 描述
@@ -19,6 +21,7 @@
 |contextMenu           | 右键的菜单信息列表
 |onTreeNodeClick       | 点击树节点触发的事件
 |onClickContextMenu    | 点击右键菜单的时候触发的事件
+|onDrag                | 拖拽节点触发的事件
 
 ## TreeNodeData 
 

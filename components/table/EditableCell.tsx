@@ -217,7 +217,6 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
 
         // 如果列允许编辑
         if (column !== undefined && column.isEditing) {
-
             // 如果是单元格编辑模式
             if (editingType === 'cell') {
                 if (inputModal === 'click') {
@@ -246,7 +245,6 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
                     )
                 }
             }
-
             // 如果是行编辑模式
             if (editingType === 'row') {
                 if (inputModal === 'display') {

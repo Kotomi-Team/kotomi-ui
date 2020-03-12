@@ -1,7 +1,7 @@
 import React from 'react'
 import classNames from 'classnames';
-import { Tree as AntTree } from 'antd'
-import { AntTreeNode, AntTreeNodeSelectedEvent } from 'antd/lib/tree/Tree'
+import { Tree as AntTree } from 'antd';
+import { AntTreeNode, AntTreeNodeSelectedEvent, AntTreeNodeDropEvent } from 'antd/lib/tree/Tree'
 
 /**
  * 节点数据信息
@@ -41,10 +41,10 @@ type Props = {
     contextMenu?: JSX.Element[]
 
     /**
-        * 渲染节点title的时候触发的事件，返回一个新的title对象
-        * @param data 当前树状节点的数据
-        * @param render 当前渲染的节点数据
-        */
+     * 渲染节点title的时候触发的事件，返回一个新的title对象
+     * @param data 当前树状节点的数据
+     * @param render 当前渲染的节点数据
+     */
     onRenderTreeNodeTitle?: (data: TreeNodeData) => string | React.ReactNode,
 
     /**
@@ -58,7 +58,14 @@ type Props = {
      * 点击右键菜单
      * - node.props.dataRef 可获取绑定的数据
      */
-    onClickContextMenu?: (key: string | number, node?: AntTreeNode) => void,
+    onClickContextMenu?: (key: string | number, node?: AntTreeNode) => void
+
+    /**
+     * 拖动Tree的节点触发的事件
+     * @param  源数据
+     * @param  目标数据
+     */
+    onDrag?: (dropEven: AntTreeNodeDropEvent) => Promise<boolean>,
 }
 
 type State = {
@@ -91,7 +98,6 @@ export class Tree extends React.Component<Props, State>{
 
     constructor(props: Props) {
         super(props)
-
         this.onLoadData = this.onLoadData.bind(this)
     }
 
@@ -101,74 +107,6 @@ export class Tree extends React.Component<Props, State>{
                 treeData,
             })
         })
-
-    }
-
-    focusDropdown() {
-        if (this.dropdownElement.current) {
-            this.dropdownElement.current.focus()
-        }
-    }
-
-    renderRightClickMenu() {
-        const { pageX, pageY } = this.state
-        const { contextMenu } = this.props
-        if (pageX && pageY && contextMenu && contextMenu.length > 0) {
-            return (
-              <div
-               ref={this.dropdownElement}
-               className={classNames(
-                   'ant-dropdown',
-                   'ant-dropdown-placement-bottomLeft',
-                    this.state.isShowMenu ? '' : 'ant-dropdown-hidden',
-                )}
-               tabIndex={-1}
-               style={{
-                left: pageX,
-                top: pageY,
-                position: 'fixed',
-               }}
-
-               onBlur={() => {
-                    this.setState({
-                        isShowMenu: false,
-                    })
-               }}
-              >
-                <ul className={classNames(
-                    'ant-dropdown-menu',
-                    'ant-dropdown-menu-light',
-                    'ant-dropdown-menu-root',
-                    'ant-dropdown-menu-vertical',
-                )}>
-                    {(contextMenu as any[]).map((element: JSX.Element, index: number) => {
-                        return (
-                            <li
-                                key={index}
-                                className="ant-dropdown-menu-item"
-                                onClick={() => {
-                                    if (this.props.onClickContextMenu) {
-                                        if (element.key) {
-                                            this.props.onClickContextMenu(element.key, this.state.node)
-                                        }else {
-                                            throw new Error(`KOTOMI-TABLE-5003: The key attribute of ContextMenu element cannot be empty. key [${element.key}] `)
-                                        }
-                                    }
-                                    this.setState({
-                                        isShowMenu: false,
-                                    })
-                                }}
-                                role="menuitem"
-                            >
-                                {element}
-                            </li>
-                        )
-                    })}
-                </ul>
-               </div>
-            )
-        }
-        return undefined
     }
 
     render() {
@@ -192,6 +130,70 @@ export class Tree extends React.Component<Props, State>{
                         if (this.props.onTreeNodeClick) {
                             this.props.onTreeNodeClick(e.node.props.dataRef, e.selected!)
                         }
+                    }}
+                    draggable={this.props.onDrag ? true : false}
+                    onDrop={(dropEven: AntTreeNodeDropEvent) => {
+                        if (this.props.onDrag) {
+                            this.props.onDrag(dropEven).then((respState) => {
+                                if (respState) {
+                                    const loop = (datas: TreeNodeData[], callback: (data: TreeNodeData) => TreeNodeData[]) => {
+                                        const newDatas: TreeNodeData[] = []
+                                        datas.forEach((element) => {
+                                            const callbackData = callback(element)
+                                            if (element.children && element.children.length > 0) {
+                                                if (callbackData) {
+                                                    callbackData.forEach((callbackElement) => {
+                                                        newDatas.push({
+                                                            ...callbackElement,
+                                                            children: loop(callbackElement.children, callback),
+                                                        })
+                                                    })
+                                                }
+                                            } else {
+                                                if (callbackData) {
+                                                    callbackData.forEach((callbackElement) => {
+                                                        newDatas.push(callbackElement)
+                                                    })
+                                                }
+                                            }
+                                        })
+                                        return newDatas
+                                    }
+
+                                    const filteTreeData = loop(this.state.treeData, (element: TreeNodeData) => {
+
+                                        return [{
+                                            ...element,
+                                        }]
+                                    })
+
+                                    const newTreeData = loop(filteTreeData, (element: TreeNodeData) => {
+                                        if (element.key === dropEven.node.props.dataRef.key) {
+                                            const dragNode = dropEven.dragNode.props.dataRef
+                                            if (dropEven.dropPosition === -1) {
+                                                return [dragNode, element]
+                                            }
+                                            if (dropEven.dropToGap) {
+                                                return [element, dragNode]
+                                            }
+                                            return [{
+                                                ...element,
+                                                children: [
+                                                    ...element.children,
+                                                    dragNode,
+                                                ],
+                                            }]
+                                        }
+                                        return [element]
+                                    })
+
+                                    this.setState({
+                                        treeData: newTreeData,
+                                    })
+                                }
+                            })
+                        }
+
                     }}
                 >
                     {this.renderTreeNodes(this.state.treeData)}
@@ -229,5 +231,72 @@ export class Tree extends React.Component<Props, State>{
             }
             return <AntTree.TreeNode title={title} key={item.key} dataRef={item} />;
         })
+    }
+
+    protected focusDropdown() {
+        if (this.dropdownElement.current) {
+            this.dropdownElement.current.focus()
+        }
+    }
+
+    protected renderRightClickMenu() {
+        const { pageX, pageY } = this.state
+        const { contextMenu } = this.props
+        if (pageX && pageY && contextMenu && contextMenu.length > 0) {
+            return (
+                <div
+                    ref={this.dropdownElement}
+                    className={classNames(
+                        'ant-dropdown',
+                        'ant-dropdown-placement-bottomLeft',
+                        this.state.isShowMenu ? '' : 'ant-dropdown-hidden',
+                    )}
+                    tabIndex={-1}
+                    style={{
+                        left: pageX,
+                        top: pageY,
+                        position: 'fixed',
+                    }}
+
+                    onBlur={() => {
+                        this.setState({
+                            isShowMenu: false,
+                        })
+                    }}
+                >
+                    <ul className={classNames(
+                        'ant-dropdown-menu',
+                        'ant-dropdown-menu-light',
+                        'ant-dropdown-menu-root',
+                        'ant-dropdown-menu-vertical',
+                    )}>
+                        {(contextMenu as any[]).map((element: JSX.Element, index: number) => {
+                            return (
+                                <li
+                                    key={index}
+                                    className="ant-dropdown-menu-item"
+                                    onClick={() => {
+                                        if (this.props.onClickContextMenu) {
+                                            if (element.key) {
+                                                this.props.onClickContextMenu(element.key, this.state.node)
+                                            } else {
+                                                throw new Error(`KOTOMI-TABLE-5003: The key attribute of ContextMenu element cannot be empty. key [${element.key}] `)
+                                            }
+                                        }
+                                        this.setState({
+                                            isShowMenu: false,
+                                        })
+                                    }}
+                                    role="menuitem"
+                                >
+                                    {element}
+                                </li>
+                            )
+                        })}
+                    </ul>
+                </div>
+            )
+        }
+        return undefined
     }
 }
