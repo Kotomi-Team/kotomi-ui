@@ -19,9 +19,24 @@ const RowEditorTable = () =>{
           })
         }}
       >
-        添加一行数据
+        添加一行数据 - 直接显示可编辑
+      </Button>
+      <Button
+        style={{
+          marginLeft: 20
+        }}
+        onClick={()=>{
+          table.current.appendRow({
+            id: new Date().getTime()
+          }, false)
+        }}
+      >
+        添加一行数据 - 不显示可编辑
       </Button>
       <Table
+        style={{
+          marginTop: 10
+        }}
         refExt={table}
         columns={[{
           dataIndex: 'name',
