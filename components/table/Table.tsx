@@ -287,6 +287,8 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
         rowSelectedKeys: [],
     }
 
+    private table: React.RefObject<AntTable<T>> = React.createRef<AntTable<T>>()
+
     // 用户查询参数
     private REQUEST_PARAM = {}
 
@@ -405,6 +407,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                                 style={{
                                     ...this.props.style,
                                 }}
+                                ref={this.table}
                                 childrenColumnName="$children"
                                 rowKey={this.props.rowKey}
                                 columns={this.getColumns()}
@@ -582,7 +585,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
      * 新增一条数据
      * @param 添加的数据
      */
-    public appendRow(data: T) {
+    public appendRow(data: T, displayEditor = true) {
         const { dataSource } = this.state
         // @ts-ignore
         data.$state = 'CREATE'
@@ -609,6 +612,11 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
             pageSize: this.props.defaultPageSize! + this.dataSourceState.create.length,
         }, () => {
             this.toScrollBottom()
+            if (displayEditor) {
+                this.setState({
+                    editingKey: data[this.props.rowKey!],
+                })
+            }
         })
     }
 
@@ -1073,7 +1081,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
      */
     protected toScrollBottom() {
         // eslint-disable-next-line react/no-find-dom-node
-        const element = ReactDOM.findDOMNode(this) as Element
+        const element = ReactDOM.findDOMNode(this.table.current!) as Element
         const bodyElement = element.getElementsByClassName('ant-table-body')[0]!
         if (bodyElement) {
             bodyElement.scrollTop = bodyElement.scrollHeight;
