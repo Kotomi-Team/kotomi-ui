@@ -14,6 +14,8 @@
 
 <code src="../../../ushio/table/CellTable.tsx" />
 
+<code src="../../../ushio/table/TreeTable.tsx" />
+
 ## Table 属性
 
 |名称                 |类型   | 描述

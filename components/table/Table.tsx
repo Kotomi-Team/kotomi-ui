@@ -414,23 +414,30 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                                 rowClassName={() => 'kotomi-components-table-row'}
                                 components={components}
                                 onExpand={(expanded: boolean, record: T) => {
+                                    const { rowKey } = this.props
                                     if (expanded && this.props.onLoadChildren) {
                                         this.props.onLoadChildren(record).then((children: T[]) => {
                                             const dataSource = this.state.dataSource
-                                            for (let i = 0; i < dataSource.length; i++) {
-                                                if (dataSource[i][this.props.rowKey!] === record[this.props.rowKey!]) {
-                                                    // @ts-ignore
-                                                    const dsChildren: T[] = dataSource[i].$children
-                                                    dsChildren.splice(0)
-                                                    children.forEach((childrenElement) => {
-                                                        // @ts-ignore
-                                                        childrenElement.$isChildren = true
-                                                        dsChildren.push(childrenElement)
-                                                    })
+                                            const loops = (loopsDataSource: any[]): any[] => loopsDataSource.map((element: any) => {
+                                                 // @ts-ignore
+                                                const chil = element.$children
+                                                if (element[rowKey!] === record[rowKey!]) {
+                                                    return {
+                                                        ...element,
+                                                        '$children': children,
+                                                    };
                                                 }
-                                            }
+                                                if (chil === undefined) {
+                                                    return element
+                                                }
+                                                // @ts-ignore
+                                                return {
+                                                    ...element,
+                                                    '$children': loops(chil),
+                                                };
+                                            })
                                             this.setState({
-                                                dataSource,
+                                                dataSource: loops(dataSource),
                                             })
                                         })
                                     }
@@ -906,10 +913,10 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
     protected getColumnIndex(column: ColumnProps<T>) {
         column.render = (_text: any, record: T, index: number) => {
             // @ts-ignore
-            if (record.$isChildren) {
-                return <a />
+            if (record.$Children) {
+                return <a>{index + 1}</a>
             }
-            return <a>{index + 1}</a>
+            return <a />
         }
         if (column.width === undefined) {
             column.width = 25
