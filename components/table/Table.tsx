@@ -585,7 +585,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
      * 新增一条数据
      * @param 添加的数据
      */
-    public appendRow(data: T) {
+    public appendRow(data: T, displayEditor = true) {
         const { dataSource } = this.state
         // @ts-ignore
         data.$state = 'CREATE'
@@ -612,6 +612,11 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
             pageSize: this.props.defaultPageSize! + this.dataSourceState.create.length,
         }, () => {
             this.toScrollBottom()
+            if (displayEditor) {
+                this.setState({
+                    editingKey: data[this.props.rowKey!],
+                })
+            }
         })
     }
 
