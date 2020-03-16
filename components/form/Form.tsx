@@ -73,7 +73,9 @@ type Props = {
     components?: EditorComponent[]
 
     // 扩展的表格信息
-    refExt?: Function | any,
+    refExt?: Function | any
+
+    style?: React.CSSProperties;
 
     /**
      * 表格数据改变后触发的事件。
@@ -139,6 +141,7 @@ class Form extends React.Component<Props & FormComponentProps, State> {
         const { labelCol , wrapperCol, onSubmit } = this.props
         return (
             <AntForm
+                style={this.props.style}
                 labelCol = {labelCol}
                 wrapperCol= {wrapperCol}
                 onSubmit= {onSubmit}
