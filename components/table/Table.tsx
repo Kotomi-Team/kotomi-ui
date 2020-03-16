@@ -158,6 +158,14 @@ interface Props<T> extends FormComponentProps<T> {
     onBeforeRenderPromiseColumn?: (record: T, column: ColumnProps<T>, render: JSX.Element) => JSX.Element
 
     /**
+     * 在调用特殊约定的列的时候触发的click事件
+     * @param record 当前列的数据信息
+     * @param column 当前的列的信息
+     * @returns 返回一个true/false对象，true表示执行默认逻辑，false表示不执行默认逻辑
+     */
+    onBeforeClickPromiseColumn?: (type: 'EDIT' | 'DELETE' | 'SAVE' | 'CANCEL' , record: T) => Promise<boolean>
+
+    /**
      * 表格渲染的行事件
      * @param rowIndex 当前渲染的行号
      * @param record   当前行渲染的数据
@@ -251,16 +259,12 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
         rowSelectedKeys: [],
         onSelect: () => true,
         onRow: () => { },
-        onSave: () => { },
-        // 默认返回默认dom节点
-        onBeforeRenderPromiseColumn: (_record: any, _column: any, render: JSX.Element) => {
-            return render
-        },
-        // 默认不添加其他的css样式
+        onSave:  async () => true,
+        onBeforeClickPromiseColumn: async () => true ,
+        onBeforeRenderPromiseColumn: (_record: any, _column: any, render: JSX.Element) => render,
         onRenderBodyRowCssStyle: () => {
             return {}
         },
-        // 默认不添加其他的css样式
         onRenderHeaderRowCssStyle: () => {
             return {}
         },
@@ -691,6 +695,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
             form,
             rowKey,
             onSave,
+            onBeforeClickPromiseColumn,
         } = this.props
         const {
             dataSource,
@@ -701,72 +706,99 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                     type='check'
                     style={this.state.disabledCheck ? { opacity: 0.2 } : {}}
                     onClick={() => {
-                        if (onSave && form !== undefined) {
-                            form.validateFields((err, values) => {
+                        const saveData = () => {
+                            if (onSave && form !== undefined) {
+                                form.validateFields((err, values) => {
 
-                                if (!err) {
-                                    const newRecord: any = {
-                                        ...record,
-                                    }
-                                    Object.keys(values).forEach((key) => {
-                                        const recordKey = key.split(';')
-                                        const recordKeyNumber = Number.parseInt(recordKey[1], 10)
-                                        if (recordKey[1]) {
-                                            if (self.getEditorRowIndex() === recordKeyNumber) {
-                                                newRecord[recordKey[0]] = values[key]
-                                            }
+                                    if (!err) {
+                                        const newRecord: any = {
+                                            ...record,
                                         }
-                                    })
-                                    // @ts-ignore
-                                    const state = newRecord.$state === 'CREATE' ? 'CREATE' : 'UPDATE'
-
-                                    onSave({
-                                        ...newRecord,
-                                    },
-                                        state).then((respState) => {
-                                            if (respState === true) {
-                                                // 修改表格中的数据
-                                                const newData: T[] = [...dataSource];
-                                                newData.forEach((data, dataIndex) => {
-                                                    if (data[rowKey!] === newRecord[rowKey!]) {
-                                                        newData[dataIndex] = { ...newRecord }
-                                                    }
-                                                })
-                                                self.setState({
-                                                    editingKey: undefined,
-                                                    dataSource: newData,
-                                                })
+                                        Object.keys(values).forEach((key) => {
+                                            const recordKey = key.split(';')
+                                            const recordKeyNumber = Number.parseInt(recordKey[1], 10)
+                                            if (recordKey[1]) {
+                                                if (self.getEditorRowIndex() === recordKeyNumber) {
+                                                    newRecord[recordKey[0]] = values[key]
+                                                }
                                             }
                                         })
-                                }
-                            })
+                                        // @ts-ignore
+                                        const state = newRecord.$state === 'CREATE' ? 'CREATE' : 'UPDATE'
+
+                                        onSave({
+                                            ...newRecord,
+                                        },
+                                            state).then((respState) => {
+                                                if (respState === true) {
+                                                    // 修改表格中的数据
+                                                    const newData: T[] = [...dataSource];
+                                                    newData.forEach((data, dataIndex) => {
+                                                        if (data[rowKey!] === newRecord[rowKey!]) {
+                                                            newData[dataIndex] = { ...newRecord }
+                                                        }
+                                                    })
+                                                    self.setState({
+                                                        editingKey: undefined,
+                                                        dataSource: newData,
+                                                    })
+                                                }
+                                            })
+                                    }
+                                })
+                            }
                         }
+                        if (onBeforeClickPromiseColumn) {
+                            form.validateFields((_err, values) => {
+                                onBeforeClickPromiseColumn('SAVE', values).then((respData) => {
+                                    if (respData) {
+                                        saveData()
+                                    }
+                                })
+                            })
+                        }else {
+                            saveData()
+                        }
+
                     }}
                 />
                 <Divider type='vertical' />
                 <Icon
                     type='undo'
                     onClick={() => {
-                        const dataIndex = this.getEditorRowIndex()
-                        if (dataIndex !== undefined && this.props.editingType === 'row') {
-                            const fields: string[] = []
-                            this.props.columns.forEach((column) => {
-                                if (column.inputModal === 'display') {
-                                    const fieldName = column.dataIndex as string + ';' + dataIndex
-                                    const oldData = this.state.dataSource[dataIndex][column.dataIndex as string]
-                                    const newData = this.props.form.getFieldValue(fieldName)
-                                    if (oldData !== newData) {
-                                        fields.push(fieldName)
+                        const cancelData = () => {
+                            const dataIndex = this.getEditorRowIndex()
+                            if (dataIndex !== undefined && this.props.editingType === 'row') {
+                                const fields: string[] = []
+                                this.props.columns.forEach((column) => {
+                                    if (column.inputModal === 'display') {
+                                        const fieldName = column.dataIndex as string + ';' + dataIndex
+                                        const oldData = this.state.dataSource[dataIndex][column.dataIndex as string]
+                                        const newData = this.props.form.getFieldValue(fieldName)
+                                        if (oldData !== newData) {
+                                            fields.push(fieldName)
+                                        }
                                     }
+                                })
+                                if (fields.length > 0) {
+                                    this.props.form.resetFields(fields)
                                 }
-                            })
-                            if (fields.length > 0) {
-                                this.props.form.resetFields(fields)
                             }
+                            this.setState({
+                                editingKey: undefined,
+                            })
                         }
-                        this.setState({
-                            editingKey: undefined,
-                        })
+                        if (onBeforeClickPromiseColumn) {
+                            form.validateFields((_err, values) => {
+                                onBeforeClickPromiseColumn('CANCEL', values).then((respData) => {
+                                    if (respData) {
+                                        cancelData()
+                                    }
+                                })
+                            })
+                        }else {
+                            cancelData()
+                        }
                     }}
                 />
             </>
@@ -858,14 +890,25 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
 
     protected getColumnDelElement(record: T) {
         const self = this
-        const { onSave } = this.props
-        const onClick = () => {
+        const { onSave, onBeforeClickPromiseColumn } = this.props
+        const deleteData = () => {
             if (onSave) {
                 onSave(record, 'DELETE').then((respState) => {
                     if (respState !== false) {
                         self.reload()
                     }
                 })
+            }
+        }
+        const onClick = () => {
+            if (onBeforeClickPromiseColumn) {
+                onBeforeClickPromiseColumn('DELETE', record).then((respData) => {
+                    if (respData) {
+                        deleteData()
+                    }
+                })
+            }else {
+                deleteData()
             }
         }
         if (this.props.locale && this.props.locale.deleteText) {
@@ -886,11 +929,22 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
     }
 
     protected getColumnEditElement(record: T) {
-        const { rowKey } = this.props
-        const onClick = () => {
+        const { rowKey, onBeforeClickPromiseColumn } = this.props
+        const editData = () => {
             this.setState({
                 editingKey: record[rowKey!],
             })
+        }
+        const onClick = () => {
+            if (onBeforeClickPromiseColumn) {
+                onBeforeClickPromiseColumn('EDIT', record).then((respData) => {
+                    if (respData) {
+                        editData()
+                    }
+                })
+            }else {
+                editData()
+            }
         }
         if (this.props.locale && this.props.locale.editText) {
             return (
@@ -1159,6 +1213,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
             this.editStash()
         })
     }
+
     protected onSelect(changeRowsKeys: string[], changeRows: T[], selected: boolean) {
         const { dataSource } = this.state
         const id = this.props.rowKey!

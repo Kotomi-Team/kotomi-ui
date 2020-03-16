@@ -16,6 +16,8 @@
 
 <code src="../../../ushio/table/TreeTable.tsx" />
 
+<code src="../../../ushio/table/BeforeClickPromiseTable.tsx" />
+
 ## Table 属性
 
 |名称                 |类型   | 描述

@@ -1,13 +1,13 @@
 /**
- * title: 树结构表格
- * desc: 无限递归的一个树结构的表格数据
+ * title: 点击特殊按钮的表格
+ * desc: 演示onBeforeClickPromiseColumn的用法
  */
 
 import React from 'react'
-import { Table } from '../../components/index'
 import { message } from 'antd'
+import { Table } from '../../components/index'
 
-const BaseTable = () =>{
+const BeforeClickPromiseTable = () =>{
   return (
     <Table
       columns={[{
@@ -22,7 +22,12 @@ const BaseTable = () =>{
         dataIndex: 'age',
         title: '年龄',
         width: 200
+      },{
+        dataIndex: '$operating',
+        title: '操作'
       }]}
+      editingType="row"
+      rowSelection="multiple"
       loadData={async ({ page, pageSize })=>{
         const datas: any = []
         for(let i =0 ;i< pageSize ; i++){
@@ -38,23 +43,12 @@ const BaseTable = () =>{
           total: 2000
         }
       }}
-      onLoadChildren={async (data)=>{
-        message.info(JSON.stringify(data))
-        return [{
-          id: new Date().getTime() + 1,
-          name: "name - 1",
-          six: "six - 1",
-          age: "$age - 1",
-        },{
-          id: new Date().getTime() + 2,
-          name: "name - 2",
-          six: "six - 2",
-          age: "$age - 2",
-          "$children": [],
-        }]
+      onBeforeClickPromiseColumn={async (type,record)=>{
+        message.info(`type: ${type} - ${JSON.stringify(record)}`)
+        return true
       }}
     />
   )
 }
 
-export default BaseTable
+export default BeforeClickPromiseTable
