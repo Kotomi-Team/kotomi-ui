@@ -1,6 +1,6 @@
 import React from 'react'
 import { Tree as AntTree } from 'antd';
-import { AntTreeNode, AntTreeNodeSelectedEvent, AntTreeNodeDropEvent } from 'antd/lib/tree/Tree'
+import { AntTreeNode, AntTreeNodeSelectedEvent, AntTreeNodeDropEvent, AntTreeNodeMouseEvent } from 'antd/lib/tree/Tree'
 import Dropdown from '../dropdown/Dropdown'
 
 /**
@@ -60,6 +60,8 @@ type Props = {
      */
     onClickContextMenu?: (key: string | number, node?: AntTreeNode) => void
 
+    onRightClick?: (options: AntTreeNodeMouseEvent) => Promise<boolean>
+
     /**
      * 拖动Tree的节点触发的事件
      * @param  源数据
@@ -84,6 +86,7 @@ export class Tree extends React.Component<Props, State>{
     static defaultProps = {
         checkable: false,
         checkedKeys: [],
+        onRightClick: async() => true,
     }
 
     state = {
@@ -115,12 +118,26 @@ export class Tree extends React.Component<Props, State>{
                     checkedKeys={this.props.checkedKeys}
                     checkable={this.props.checkable}
                     onRightClick={(e) => {
-                        this.setState({
-                            pageX: e.event.clientX,
-                            pageY: e.event.clientY,
-                            isShowMenu: true,
-                            node: e.node,
-                        })
+                        const self = this
+                        if (this.props.onRightClick) {
+                            this.props.onRightClick(e).then((respState) => {
+                                if (respState) {
+                                    self.setState({
+                                        pageX: e.event.clientX,
+                                        pageY: e.event.clientY,
+                                        isShowMenu: true,
+                                        node: e.node,
+                                    })
+                                }
+                            })
+                        }else {
+                            this.setState({
+                                pageX: e.event.clientX,
+                                pageY: e.event.clientY,
+                                isShowMenu: true,
+                                node: e.node,
+                            })
+                        }
                     }}
                     onSelect={(_selectedKeys: string[], e: AntTreeNodeSelectedEvent) => {
                         if (this.props.onTreeNodeClick) {
