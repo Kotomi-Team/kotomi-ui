@@ -1262,9 +1262,15 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                     const id = record[self.props.rowKey!] as string
                     if (selected) {
                         const rowSelectedKeys: string[] = [...self.state.rowSelectedKeys] || []
-                        self.setState({
-                            rowSelectedKeys: [...rowSelectedKeys, id],
-                        })
+                        if (this.props.rowSelection === 'single') {
+                            self.setState({
+                                rowSelectedKeys: [id],
+                            })
+                        }else {
+                            self.setState({
+                                rowSelectedKeys: [...rowSelectedKeys, id],
+                            })
+                        }
                     } else {
                         const rowSelectedKeys: string[] = [...self.state.rowSelectedKeys] || []
                         rowSelectedKeys.splice(rowSelectedKeys.indexOf(id), 1)

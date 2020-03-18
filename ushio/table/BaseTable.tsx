@@ -23,7 +23,7 @@ const BaseTable = () =>{
         width: 200
       }]}
       editingType="row"
-      rowSelection="multiple"
+      rowSelection="single"
       loadData={async ({ page, pageSize })=>{
         const datas: any = []
         for(let i =0 ;i< pageSize ; i++){
