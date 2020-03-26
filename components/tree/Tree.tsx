@@ -60,7 +60,7 @@ type Props = {
      */
     onClickContextMenu?: (key: string | number, node?: AntTreeNode) => void
 
-    onRightClick?: (options: AntTreeNodeMouseEvent) => Promise<boolean>
+    onRightClick?: (options: AntTreeNodeMouseEvent) => boolean
 
     /**
      * 拖动Tree的节点触发的事件
@@ -120,16 +120,15 @@ export class Tree extends React.Component<Props, State>{
                     onRightClick={(e) => {
                         const self = this
                         if (this.props.onRightClick) {
-                            this.props.onRightClick(e).then((respState) => {
-                                if (respState) {
-                                    self.setState({
-                                        pageX: e.event.clientX,
-                                        pageY: e.event.clientY,
-                                        isShowMenu: true,
-                                        node: e.node,
-                                    })
-                                }
-                            })
+                            const respState = this.props.onRightClick(e)
+                            if (respState) {
+                                self.setState({
+                                    pageX: e.event.clientX,
+                                    pageY: e.event.clientY,
+                                    isShowMenu: true,
+                                    node: e.node,
+                                })
+                            }
                         }else {
                             this.setState({
                                 pageX: e.event.clientX,
