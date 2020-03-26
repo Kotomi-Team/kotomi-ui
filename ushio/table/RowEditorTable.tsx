@@ -33,6 +33,16 @@ const RowEditorTable = () =>{
       >
         添加一行数据 - 不显示可编辑
       </Button>
+      <Button
+        style={{
+          marginLeft: 20
+        }}
+        onClick={()=>{
+          table.current.delRow(0, false)
+        }}
+      >
+        删除一行
+      </Button>
       <Table
         style={{
           marginTop: 10

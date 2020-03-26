@@ -203,6 +203,7 @@ interface Props<T> extends FormComponentProps<T> {
      */
     onLoadChildren?: (record: T) => Promise<T[]>,
 
+    expandedRowRender?: (record: T, index: number, indent: number, expanded: boolean) => React.ReactNode;
     /**
      * 装载数据的方法
      * @param page 当前第几页信息
@@ -412,6 +413,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                                     ...this.props.style,
                                 }}
                                 ref={this.table}
+                                expandedRowRender={this.props.expandedRowRender}
                                 childrenColumnName="$children"
                                 rowKey={this.props.rowKey}
                                 columns={this.getColumns()}
@@ -592,6 +594,19 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
         return this.state.rowSelectedKeys
     }
 
+    public delRow(id: any) {
+        const { dataSource } = this.state
+        const { rowKey } = this.props
+        const proxyDataSource: T[] = []
+        dataSource.forEach((element) => {
+            if (element[rowKey!] !== id) {
+                proxyDataSource.push(element)
+            }
+        })
+        this.setState({
+            dataSource: proxyDataSource,
+        })
+    }
     /**
      * 新增一条数据
      * @param 添加的数据
@@ -1262,9 +1277,15 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                     const id = record[self.props.rowKey!] as string
                     if (selected) {
                         const rowSelectedKeys: string[] = [...self.state.rowSelectedKeys] || []
-                        self.setState({
-                            rowSelectedKeys: [...rowSelectedKeys, id],
-                        })
+                        if (this.props.rowSelection === 'single') {
+                            self.setState({
+                                rowSelectedKeys: [id],
+                            })
+                        }else {
+                            self.setState({
+                                rowSelectedKeys: [...rowSelectedKeys, id],
+                            })
+                        }
                     } else {
                         const rowSelectedKeys: string[] = [...self.state.rowSelectedKeys] || []
                         rowSelectedKeys.splice(rowSelectedKeys.indexOf(id), 1)
