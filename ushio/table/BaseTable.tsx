@@ -10,6 +10,9 @@ const BaseTable = () =>{
   return (
     <Table
       columns={[{
+        dataIndex: '$index',
+        title: '序号',
+      },{
         dataIndex: 'name',
         title: '人员名称',
         width: 100
@@ -23,12 +26,12 @@ const BaseTable = () =>{
         width: 200
       }]}
       editingType="row"
-      rowSelection="single"
+      rowSelection="multiple"
       loadData={async ({ page, pageSize })=>{
         const datas: any = []
         for(let i =0 ;i< pageSize ; i++){
           datas.push({
-            id: i,
+            id: `${i}- ${page} `,
             name: `${page} - name - ${i} - 这是一个超出的文字内容`,
             six: `${page} - six - ${i}`,
             age: `${page} - age - ${i}`,

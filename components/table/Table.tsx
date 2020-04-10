@@ -982,10 +982,10 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
     protected getColumnIndex(column: ColumnProps<T>) {
         column.render = (_text: any, record: T, index: number) => {
             // @ts-ignore
-            if (record.$Children) {
+            /* if (record.$Children) {
                 return <a>{index + 1}</a>
-            }
-            return <a />
+            }*/
+            return <a>{index + 1}</a>
         }
         if (column.width === undefined) {
             column.width = 25
@@ -1204,7 +1204,8 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                 }
             })
 
-            const rowSelectedKeys = new Array<string>()
+            const rowSelectedKeys = this.state.rowSelectedKeys || []
+
             if (this.props.rowSelectedKeyName) {
                 dataSource.forEach((element) => {
                     if (element[this.props.rowSelectedKeyName!] === true) {
