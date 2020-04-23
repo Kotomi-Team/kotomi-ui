@@ -19,6 +19,8 @@ type Props<T> = {
     editingType?: 'cell' | 'row'
     // 用户触发保存的信息
     onSave: (record: T, type: 'DELETE' | 'UPDATE' | 'CREATE') => Promise<boolean>
+    // 渲染onRenderTooltip
+    onRenderTooltip: Function
     // 显示模式，点击编辑，或者直接显示
     inputModal?: 'click' | 'display'
     // 当前正在编辑的cell
@@ -294,15 +296,19 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
             </td>
         )
         if (this.state.ellipsis) {
-            return (
+            return this.props.onRenderTooltip(
                 <Tooltip
                     overlayClassName='kotomi-components-table-cell-ellipsis'
                     title={this.props.record[this.props.column.dataIndex!]}
+                    overlayStyle={{
+                        overflow: 'auto',
+                        maxHeight: 100,
+                    }}
                     placement='bottomLeft'
                 >
                     {td}
                 </Tooltip>
-            )
+            , this.props)
         }
         return td
     }

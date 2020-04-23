@@ -14,7 +14,8 @@ type Props = {
 
   // 按钮取消事件，非必须
   onCancel?: (self: Modal) => Promise<boolean>
-
+  // 是否点击关闭的时候销毁弹出框
+  destroyOnClose: boolean;
   width?: string | number,
 }
 
@@ -32,6 +33,7 @@ export class Modal extends React.Component<Props, State> {
     title: '',
     width: 416,
     footerButtonVisible: false,
+    destroyOnClose: true,
   }
 
   state = {
@@ -68,6 +70,7 @@ export class Modal extends React.Component<Props, State> {
         visible={visible}
         width={width}
         maskClosable={false}
+        destroyOnClose={this.props.destroyOnClose}
         onOk={() => {
           const self = this
           if (onConfirm) {

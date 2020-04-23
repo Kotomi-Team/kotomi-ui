@@ -203,6 +203,11 @@ interface Props<T> extends FormComponentProps<T> {
      */
     onLoadChildren?: (record: T) => Promise<T[]>,
 
+    /**
+     * 拦截渲染的Tooltip
+     */
+    onRenderTooltip?: (td: JSX.Element, props: any) => JSX.Element,
+
     expandedRowRender?: (record: T, index: number, indent: number, expanded: boolean) => React.ReactNode;
     /**
      * 装载数据的方法
@@ -275,6 +280,9 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                     {render}
                 </Menu>
             )
+        },
+        onRenderTooltip: (render: JSX.Element) => {
+            return render;
         },
     }
 
@@ -509,6 +517,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                         size='small'
                         current={this.state.page}
                         total={this.state.total}
+                        hideOnSinglePage
                         pageSize={this.props.defaultPageSize!}
                         onChange={(page: number, pageSize?: number) => {
                             this.requestLoadData({
@@ -980,7 +989,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
 
     // 获取index列的信息
     protected getColumnIndex(column: ColumnProps<T>) {
-        column.render = (_text: any, record: T, index: number) => {
+        column.render = (_text: any, _record: T, index: number) => {
             // @ts-ignore
             /* if (record.$Children) {
                 return <a>{index + 1}</a>
@@ -1008,6 +1017,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
             editingType,
             rowKey,
             onSave,
+            onRenderTooltip,
         } = this.props
         const {
             dataSource,
@@ -1060,6 +1070,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                         editingType: editingType,
                         inputModal: column.inputModal,
                         currentEditorCell: this.currentEditorCell,
+                        onRenderTooltip,
                         onSave: lodash.debounce(async (values: T) => {
 
                             // 修改表格中的数据
@@ -1253,7 +1264,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
         const self = this
         const rowProps: TableRowSelection<T> = {
             type: 'checkbox',
-            columnWidth: 28,
+            columnWidth: 35,
             selections: true,
             getCheckboxProps: (record: T) => {
                 let checked = false
@@ -1332,10 +1343,18 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
 
     // 导出文件
     protected exportData(type: 'xls') {
-        const { dataSource } = this.state;
+        const { dataSource, rowSelectedKeys } = this.state;
+        const { rowKey } = this.props
         const filename = `${this.props.defaultExportFileName}.${type}`
         const book = XLSX.utils.book_new()
-        const bookSheet = XLSX.utils.json_to_sheet([...dataSource]);
+        let bookSheet;
+        if (rowSelectedKeys.length > 0) {
+            bookSheet = XLSX.utils.json_to_sheet(dataSource.filter((element) => {
+                return rowSelectedKeys.indexOf(element[rowKey!]) !== -1
+            }));
+        } else {
+            bookSheet = XLSX.utils.json_to_sheet([...dataSource]);
+        }
         XLSX.utils.book_append_sheet(book, bookSheet, this.props.defaultExportFileName);
         XLSX.writeFile(book, filename);
     }
