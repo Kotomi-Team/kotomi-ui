@@ -1,12 +1,12 @@
 /**
- * title: 基础的表格
- * desc: 一个简单的表格组件
+ * title: 拦截渲染Tooltip
+ * desc: 自定义渲染Tooltip
  */
 
 import React from 'react'
 import { Table } from '../../components/index'
 
-const BaseTable = () =>{
+const RenderTooltipTable = () =>{
   return (
     <Table
       columns={[{
@@ -27,12 +27,20 @@ const BaseTable = () =>{
       }]}
       editingType="row"
       rowSelection="multiple"
+      onRenderTooltip={(element , attr) => {
+        return (
+            <>
+                <div><a>点击 - {attr.title}</a></div>
+                {element}
+            </>
+        )
+      }}
       loadData={async ({ page, pageSize })=>{
         const datas: any = []
         for(let i =0 ;i< pageSize ; i++){
           datas.push({
             id: `${i}- ${page} `,
-            name: `${page} - name - ${i} - 这是一个超出的文字内容,这是一个超出的文字内容,这是一个超出的文字内容,这是一个超出的文字内容,这是一个超出的文字内容,这是一个超出的文字内容,这是一个超出的文字内容,这是一个超出的文字内容,这是一个超出的文字内容,这是一个超出的文字内容,这是一个超出的文字内容`,
+            name: `${page} - name - ${i} - 这是一个超出的文字内容`,
             six: `${page} - six - ${i}`,
             age: `${page} - age - ${i}`,
           })
@@ -46,4 +54,4 @@ const BaseTable = () =>{
   )
 }
 
-export default BaseTable
+export default RenderTooltipTable

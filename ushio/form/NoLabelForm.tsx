@@ -14,6 +14,9 @@ const InputForm = () => {
         script={`
           [name| input 8-8-16][code|Field2 input 8-8-16 ][code1|Field3 input 8-8-16] 
         `}
+        rules={[{
+          name: 'name'
+        }]}
       />
     </>
   )
