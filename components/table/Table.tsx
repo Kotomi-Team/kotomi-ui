@@ -919,6 +919,10 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
             if (onSave) {
                 onSave(record, 'DELETE').then((respState) => {
                     if (respState !== false) {
+                        const data = self.state.rowSelectedKeys.filter(element => element !== record[self.props.rowKey!] )
+                        self.setState({
+                            rowSelectedKeys: data
+                        })
                         self.reload()
                     }
                 })
