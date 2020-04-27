@@ -620,10 +620,42 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
      * 新增一条数据
      * @param 添加的数据
      */
-    public appendRow(data: T, displayEditor = true) {
+    public appendRow(data: T | T[], displayEditor = true) {
         const { dataSource } = this.state
         // @ts-ignore
         data.$state = 'CREATE'
+        const proxyDataSource: T[] = [...dataSource]
+
+        if (lodash.isArray(data)) {
+            (data as T[]).forEach((element) => {
+                this.verifyAppendRowKey(element);
+            })
+            proxyDataSource.push(...(data as T[]))
+            this.dataSourceState.create.push(...(data as T[]))
+        }else {
+            this.verifyAppendRowKey(data as T)
+            proxyDataSource.push(data as T)
+            this.dataSourceState.create.push(data as T)
+        }
+        this.setState({
+            dataSource: proxyDataSource,
+            pageSize: this.props.defaultPageSize! + this.dataSourceState.create.length,
+        }, () => {
+            this.toScrollBottom()
+            if (displayEditor) {
+                this.setState({
+                    editingKey: data[this.props.rowKey!],
+                })
+            }
+        })
+
+    }
+
+    /**
+     * 验证ID数据是否正确
+     */
+    protected verifyAppendRowKey(data: any) {
+        const { dataSource } = this.state
         if (
             // 判断添加的id不能为空
             data[this.props.rowKey!] === undefined
@@ -636,23 +668,6 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
         ) {
             throw new Error(`KOTOMI-TABLE-5002: The added rowKey must cannot be duplicate. rowKey [${this.props.rowKey}] , data  [${JSON.stringify(data)}]`)
         }
-        const proxyDataSource: T[] = [...dataSource]
-        proxyDataSource.push(data)
-
-        // 添加到对应的数据
-        this.dataSourceState.create.push(data)
-
-        this.setState({
-            dataSource: proxyDataSource,
-            pageSize: this.props.defaultPageSize! + this.dataSourceState.create.length,
-        }, () => {
-            this.toScrollBottom()
-            if (displayEditor) {
-                this.setState({
-                    editingKey: data[this.props.rowKey!],
-                })
-            }
-        })
     }
 
     protected recursiveDataSource(dataSource: any[], callbackfn: (data: any) => any) {

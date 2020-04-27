@@ -26,12 +26,17 @@ const RowEditorTable = () =>{
           marginLeft: 20
         }}
         onClick={()=>{
-          table.current.appendRow({
-            id: new Date().getTime()
-          }, false)
+          const datas = []
+          for(let i=0;i< 20; i++){
+            datas.push({
+              id: 50 + 1 
+            })
+         
+          }
+          table.current.appendRow(datas, false)
         }}
       >
-        添加一行数据 - 不显示可编辑
+        添加20行数据 - 不显示可编辑
       </Button>
       <Button
         onClick={()=>{

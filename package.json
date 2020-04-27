@@ -1,6 +1,6 @@
 {
   "name": "kotomi-ui",
-  "version": "1.9.15",
+  "version": "1.9.17",
   "description": "基于Ant Design做的组件扩展，开发的一套组件库",
   "scripts": {
     "start": "dumi dev",
