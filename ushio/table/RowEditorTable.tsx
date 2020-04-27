@@ -34,6 +34,13 @@ const RowEditorTable = () =>{
         添加一行数据 - 不显示可编辑
       </Button>
       <Button
+        onClick={()=>{
+          console.log(table.current.getSelectRowKeys())
+        }}
+      >
+        获取选中的数据
+      </Button>
+      <Button
         style={{
           marginLeft: 20
         }}
@@ -86,6 +93,7 @@ const RowEditorTable = () =>{
             total: 2000
           }
         }}
+        rowSelection="multiple"
         onSave={async ( record, type: 'DELETE' | 'UPDATE' | 'CREATE')=>{
           message.info(`操作类型：${type}, 操作的数据：${JSON.stringify(record)}`)
           return true

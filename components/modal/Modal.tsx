@@ -51,7 +51,6 @@ export class Modal extends React.Component<Props, State> {
   }
   private thisDom = React.createRef<Element>()
   private antModal: any = undefined
-  private antModalHeader: any = undefined
   // 是否移动
   private isMove: boolean | undefined = undefined
 
