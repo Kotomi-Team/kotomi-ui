@@ -1,5 +1,8 @@
 import React from 'react'
 import { Modal as AntModal } from 'antd'
+import ReactDOM from 'react-dom'
+
+import './style/index.less'
 
 type Props = {
 
@@ -14,8 +17,13 @@ type Props = {
 
   // 按钮取消事件，非必须
   onCancel?: (self: Modal) => Promise<boolean>
+
   // 是否点击关闭的时候销毁弹出框
   destroyOnClose: boolean;
+
+  // 是否显示遮挡框
+  mask?: boolean;
+
   width?: string | number,
 }
 
@@ -34,11 +42,39 @@ export class Modal extends React.Component<Props, State> {
     width: 416,
     footerButtonVisible: false,
     destroyOnClose: true,
+    mask: true,
   }
 
   state = {
     loading: false,
     visible: false,
+  }
+  private thisDom = React.createRef<Element>()
+  private antModal: any = undefined
+  private antModalHeader: any = undefined
+  // 是否移动
+  private isMove: boolean | undefined = undefined
+
+  componentDidUpdate() {
+    setTimeout(() => {
+      const dom: Element = ReactDOM.findDOMNode(this.thisDom.current!) as Element
+      if (dom !== null && this.isMove === undefined && this.props.mask === false) {
+        this.antModalHeader = dom.getElementsByClassName('ant-modal-header')[0]
+        this.antModal = dom.getElementsByClassName('ant-modal')[0]
+        this.antModalHeader.addEventListener('mouseup', this.mouseup)
+        this.antModalHeader.addEventListener('mousedown', this.mousedown)
+        dom.addEventListener('mousemove', this.mousemove)
+      }
+    }, 800)
+  }
+
+  componentWillUnmount() {
+    if (this.isMove !== undefined) {
+      const dom: Element = ReactDOM.findDOMNode(this.thisDom.current!) as Element
+      dom.removeEventListener('mousemove', this.mousemove)
+      this.antModalHeader.removeEventListener('mouseup', this.mouseup)
+      this.antModalHeader.removeEventListener('mousedown', this.mousedown)
+    }
   }
 
   hide() {
@@ -69,7 +105,9 @@ export class Modal extends React.Component<Props, State> {
         confirmLoading={loading}
         visible={visible}
         width={width}
+        ref={this.thisDom}
         maskClosable={false}
+        mask={this.props.mask}
         destroyOnClose={this.props.destroyOnClose}
         onOk={() => {
           const self = this
@@ -106,5 +144,20 @@ export class Modal extends React.Component<Props, State> {
         {children}
       </AntModal>
     )
+  }
+  private mouseup = () => {
+    this.isMove = false
+  }
+
+  private mousedown = () => {
+    this.isMove = true
+  }
+
+  private mousemove = (e: any) => {
+    if (this.isMove) {
+      const left = e.clientX - (parseInt(this.antModal.style.width, 10) / 2)
+      const top = e.clientY - 30
+      this.antModal.setAttribute('style', `left: ${left}px; top: ${top}px;  margin: 0;width: ${this.antModal.style.width}`)
+    }
   }
 }

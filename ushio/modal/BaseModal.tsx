@@ -15,6 +15,9 @@ const BaseoMdal = () => {
   return (
     <>
       <Button
+        style={{
+          marginTop: 200
+        }}
         onClick={() => {
           setFooterButtonVisible(true)
           modal!.show()
@@ -30,6 +33,7 @@ const BaseoMdal = () => {
         ref={(_modal) => {
           modal = _modal
         }}
+        mask={false}
         footerButtonVisible={footerButtonVisible}
         title='My title is Modal'
       >
