@@ -58,11 +58,11 @@ export class Modal extends React.Component<Props, State> {
   componentDidUpdate() {
     setTimeout(() => {
       const dom: Element = ReactDOM.findDOMNode(this.thisDom.current!) as Element
-      if (dom !== null && this.isMove === undefined && this.props.mask === false) {
-        this.antModalHeader = dom.getElementsByClassName('ant-modal-header')[0]
+      if (dom !== null && this.props.mask === false) {
+        const antModalHeader = dom.getElementsByClassName('ant-modal-header')[0]
         this.antModal = dom.getElementsByClassName('ant-modal')[0]
-        this.antModalHeader.addEventListener('mouseup', this.mouseup)
-        this.antModalHeader.addEventListener('mousedown', this.mousedown)
+        antModalHeader.addEventListener('mouseup', this.mouseup)
+        antModalHeader.addEventListener('mousedown', this.mousedown)
         dom.addEventListener('mousemove', this.mousemove)
       }
     }, 800)
@@ -72,8 +72,6 @@ export class Modal extends React.Component<Props, State> {
     if (this.isMove !== undefined) {
       const dom: Element = ReactDOM.findDOMNode(this.thisDom.current!) as Element
       dom.removeEventListener('mousemove', this.mousemove)
-      this.antModalHeader.removeEventListener('mouseup', this.mouseup)
-      this.antModalHeader.removeEventListener('mousedown', this.mousedown)
     }
   }
 
@@ -131,6 +129,7 @@ export class Modal extends React.Component<Props, State> {
           if (onCancel) {
             onCancel(self).then((respState) => {
               if (respState === true) {
+                self.isMove = undefined
                 self.hide()
               }
             })

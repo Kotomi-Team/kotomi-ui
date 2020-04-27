@@ -1,6 +1,6 @@
 /**
- * title: 简单的对话框
- * desc: 一个简单的对话框，可动态控制footerButton是否显示
+ * title: 一个可移动的对话框
+ * desc: 可移动对话框
  */
 
 
@@ -33,6 +33,7 @@ const BaseoMdal = () => {
         ref={(_modal) => {
           modal = _modal
         }}
+        mask={false}
         footerButtonVisible={footerButtonVisible}
         title='My title is Modal'
       >
