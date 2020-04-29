@@ -56,7 +56,7 @@ interface Props<T> extends FormComponentProps<T> {
      */
     columns: ColumnProps<T>[]
 
-    bordered: boolean
+    bordered?: boolean
 
     /**
      * 是否在第一次自动装载数据，默认为true装载
