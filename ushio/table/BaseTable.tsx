@@ -17,13 +17,17 @@ const BaseTable = () =>{
         title: '人员名称',
         width: 100
       },{
-        dataIndex: 'six',
-        title: '性别',
-        width: 200
-      },{
-        dataIndex: 'age',
-        title: '年龄',
-        width: 200
+        dataIndex: 'baseInfo',
+        title: '人员基础信息',
+        children:[{
+            dataIndex: 'six',
+            title: '性别',
+            width: 200
+        },{
+            dataIndex: 'age',
+            title: '年龄',
+            width: 200
+        }]
       }]}
       editingType="row"
       rowSelection="multiple"

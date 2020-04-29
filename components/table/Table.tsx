@@ -31,6 +31,8 @@ export interface ColumnProps<T> extends AntColumnProps<T> {
     inputModal?: 'click' | 'display',
     // 显示列的别名
     aliasDataIndex?: string
+
+    children?: ColumnProps<T>[];
 }
 
 /**
@@ -53,6 +55,8 @@ interface Props<T> extends FormComponentProps<T> {
      * $index          序号
      */
     columns: ColumnProps<T>[]
+
+    bordered: boolean
 
     /**
      * 是否在第一次自动装载数据，默认为true装载
@@ -263,6 +267,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
         defaultParam: {},
         defaultExportFileName: `${new Date().getTime()}`,
         rowSelectedKeys: [],
+        bordered: false,
         onSelect: () => true,
         onRow: () => { },
         onSave:  async () => true,
@@ -421,6 +426,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                                     ...this.props.style,
                                 }}
                                 ref={this.table}
+                                bordered={this.props.bordered}
                                 expandedRowRender={this.props.expandedRowRender}
                                 childrenColumnName="$children"
                                 rowKey={this.props.rowKey}
@@ -1079,8 +1085,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                         return <span>{record[key]}</span>
                     }
                 }
-                // 如果属性设置为可编辑，则渲染可编辑的表格，默认为不可编辑
-                column.onCell = (record: T, rowIndex: number) => {
+                const onCell = (record: T, rowIndex: number) => {
                     return {
                         column,
                         record,
@@ -1139,6 +1144,23 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                             return true
                         }, 60),
                     }
+                }
+                const loops = (tempColumn: ColumnProps<T>[]): any => {
+                    return tempColumn.map((element: ColumnProps<T>) => {
+                        if (element.children) {
+                            return loops(element.children)
+                        }
+                        return {
+                            ...element,
+                            onCell,
+                        }
+                    })
+                }
+
+                // 如果属性设置为可编辑，则渲染可编辑的表格，默认为不可编辑
+                column.onCell = onCell
+                if (column.children) {
+                    column.children = loops(column.children)
                 }
                 // 给一个宽度的默认值
                 if (column.width === undefined) {

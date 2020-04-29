@@ -6,7 +6,7 @@
 
 import React from 'react'
 import { message, Button } from 'antd'
-import { Table, SketchPicker } from '../../components/index'
+import { Table } from '../../components/index'
 
 const table = React.createRef<any>()
 const RowEditorTable = () =>{
@@ -65,19 +65,19 @@ const RowEditorTable = () =>{
           isEditing: true,
           title: '人员名称'
         },{
-          dataIndex: 'six',
+          dataIndex: 'baseInfo',
+          title: '人员基础信息',
           isEditing: true,
-          title: '性别'
-        },{
-          dataIndex: 'age',
-          isEditing: true,
-          inputModal: 'display',
-          title: '年龄'
-        },{
-          dataIndex: 'color',
-          isEditing: true,
-          inputType: <SketchPicker />,
-          title: '年龄'
+          children:[{
+            dataIndex: 'six',
+            title: '性别',
+          },{
+            dataIndex: 'age',
+            title: '年龄',
+          },{
+            dataIndex: 'color',
+            title: '颜色',
+          }]
         },{
           dataIndex: '$operating',
           title: '操作'
