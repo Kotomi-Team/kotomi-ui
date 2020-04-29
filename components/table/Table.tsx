@@ -572,13 +572,14 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
     /**
      * 用来进行表格的数据刷新，如果参数为空，则是使用上一次的参数进行数据请求
      * @param param 刷新表格的参数
+     * @param isCurrentPage 是否在当前页，进行重新装载数据
      */
-    public reload(param?: any) {
+    public reload(param?: any, isCurrentPage: boolean = false) {
         if (param) {
             this.REQUEST_PARAM = param
         }
         this.requestLoadData({
-            page: this.state.page,
+            page: isCurrentPage ? this.state.page : 1,
             pageSize: this.state.pageSize! || this.props.defaultPageSize!,
             param,
             sorter: this.state.sorter,
@@ -938,7 +939,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                         self.setState({
                             rowSelectedKeys: data,
                         })
-                        self.reload()
+                        self.reload(null, true)
                     }
                 })
             }
