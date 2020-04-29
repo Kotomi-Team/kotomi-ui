@@ -50,10 +50,21 @@ const RowEditorTable = () =>{
           marginLeft: 20
         }}
         onClick={()=>{
-          table.current.delRow(0, false)
+          table.current.delRow(0)
         }}
       >
         删除一行
+      </Button>
+
+      <Button
+        style={{
+          marginLeft: 20
+        }}
+        onClick={()=>{
+          table.current.delRow([0,1,2,3,4,5,6,7,8,9], false)
+        }}
+      >
+        删除十行
       </Button>
       <Table
         style={{

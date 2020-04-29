@@ -610,13 +610,19 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
         return this.state.rowSelectedKeys
     }
 
-    public delRow(id: any) {
+    public delRow(id: any | any[]) {
         const { dataSource } = this.state
         const { rowKey } = this.props
         const proxyDataSource: T[] = []
         dataSource.forEach((element) => {
-            if (element[rowKey!] !== id) {
-                proxyDataSource.push(element)
+            if (lodash.isArray(id)) {
+                if (id.indexOf(element[rowKey!]) === -1) {
+                    proxyDataSource.push(element)
+                }
+            }else {
+                if (element[rowKey!] !== id) {
+                    proxyDataSource.push(element)
+                }
             }
         })
         this.setState({
