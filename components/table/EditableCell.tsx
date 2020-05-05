@@ -157,11 +157,14 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
     }
 
     isEditing() {
-        const { column, editing } = this.props
+        const { /*column,*/ editing } = this.props
         const { editing: stateEditing } = this.state
+
+        /*
         if (column === undefined) {
             return false
         }
+        */
 
         if (editing) {
             return true
@@ -216,7 +219,6 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
     renderCell = (tableContextProps: TableContextProps<T>) => {
         const { children, inputModal, column, editingType } = this.props
         this.form = tableContextProps.form!
-
         // 如果列允许编辑
         if (column !== undefined && column.isEditing) {
             // 如果是单元格编辑模式

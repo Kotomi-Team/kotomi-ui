@@ -6,7 +6,7 @@
 
 import React from 'react'
 import { message, Button } from 'antd'
-import { Table, SketchPicker } from '../../components/index'
+import { Table } from '../../components/index'
 
 const table = React.createRef<any>()
 const RowEditorTable = () =>{
@@ -26,12 +26,17 @@ const RowEditorTable = () =>{
           marginLeft: 20
         }}
         onClick={()=>{
-          table.current.appendRow({
-            id: new Date().getTime()
-          }, false)
+          const datas = []
+          for(let i=0;i< 20; i++){
+            datas.push({
+              id: 50 + 1 
+            })
+         
+          }
+          table.current.appendRow(datas, false)
         }}
       >
-        添加一行数据 - 不显示可编辑
+        添加20行数据 - 不显示可编辑
       </Button>
       <Button
         onClick={()=>{
@@ -45,10 +50,21 @@ const RowEditorTable = () =>{
           marginLeft: 20
         }}
         onClick={()=>{
-          table.current.delRow(0, false)
+          table.current.delRow(0)
         }}
       >
         删除一行
+      </Button>
+
+      <Button
+        style={{
+          marginLeft: 20
+        }}
+        onClick={()=>{
+          table.current.delRow([0,1,2,3,4,5,6,7,8,9], false)
+        }}
+      >
+        删除十行
       </Button>
       <Table
         style={{
@@ -60,19 +76,19 @@ const RowEditorTable = () =>{
           isEditing: true,
           title: '人员名称'
         },{
-          dataIndex: 'six',
+          dataIndex: 'baseInfo',
+          title: '人员基础信息',
           isEditing: true,
-          title: '性别'
-        },{
-          dataIndex: 'age',
-          isEditing: true,
-          inputModal: 'display',
-          title: '年龄'
-        },{
-          dataIndex: 'color',
-          isEditing: true,
-          inputType: <SketchPicker />,
-          title: '年龄'
+          children:[{
+            dataIndex: 'six',
+            title: '性别',
+          },{
+            dataIndex: 'age',
+            title: '年龄',
+          },{
+            dataIndex: 'color',
+            title: '颜色',
+          }]
         },{
           dataIndex: '$operating',
           title: '操作'

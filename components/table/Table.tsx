@@ -31,6 +31,8 @@ export interface ColumnProps<T> extends AntColumnProps<T> {
     inputModal?: 'click' | 'display',
     // 显示列的别名
     aliasDataIndex?: string
+
+    children?: ColumnProps<T>[];
 }
 
 /**
@@ -53,6 +55,8 @@ interface Props<T> extends FormComponentProps<T> {
      * $index          序号
      */
     columns: ColumnProps<T>[]
+
+    bordered?: boolean
 
     /**
      * 是否在第一次自动装载数据，默认为true装载
@@ -263,6 +267,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
         defaultParam: {},
         defaultExportFileName: `${new Date().getTime()}`,
         rowSelectedKeys: [],
+        bordered: false,
         onSelect: () => true,
         onRow: () => { },
         onSave:  async () => true,
@@ -421,6 +426,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                                     ...this.props.style,
                                 }}
                                 ref={this.table}
+                                bordered={this.props.bordered}
                                 expandedRowRender={this.props.expandedRowRender}
                                 childrenColumnName="$children"
                                 rowKey={this.props.rowKey}
@@ -572,13 +578,14 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
     /**
      * 用来进行表格的数据刷新，如果参数为空，则是使用上一次的参数进行数据请求
      * @param param 刷新表格的参数
+     * @param isCurrentPage 是否在当前页，进行重新装载数据
      */
-    public reload(param?: any) {
+    public reload(param?: any, isCurrentPage: boolean = false) {
         if (param) {
             this.REQUEST_PARAM = param
         }
         this.requestLoadData({
-            page: this.state.page,
+            page: isCurrentPage ? this.state.page : 1,
             pageSize: this.state.pageSize! || this.props.defaultPageSize!,
             param,
             sorter: this.state.sorter,
@@ -603,13 +610,19 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
         return this.state.rowSelectedKeys
     }
 
-    public delRow(id: any) {
+    public delRow(id: any | any[]) {
         const { dataSource } = this.state
         const { rowKey } = this.props
         const proxyDataSource: T[] = []
         dataSource.forEach((element) => {
-            if (element[rowKey!] !== id) {
-                proxyDataSource.push(element)
+            if (lodash.isArray(id)) {
+                if (id.indexOf(element[rowKey!]) === -1) {
+                    proxyDataSource.push(element)
+                }
+            }else {
+                if (element[rowKey!] !== id) {
+                    proxyDataSource.push(element)
+                }
             }
         })
         this.setState({
@@ -620,10 +633,42 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
      * 新增一条数据
      * @param 添加的数据
      */
-    public appendRow(data: T, displayEditor = true) {
+    public appendRow(data: T | T[], displayEditor = true) {
         const { dataSource } = this.state
         // @ts-ignore
         data.$state = 'CREATE'
+        const proxyDataSource: T[] = [...dataSource]
+
+        if (lodash.isArray(data)) {
+            (data as T[]).forEach((element) => {
+                this.verifyAppendRowKey(element);
+            })
+            proxyDataSource.push(...(data as T[]))
+            this.dataSourceState.create.push(...(data as T[]))
+        }else {
+            this.verifyAppendRowKey(data as T)
+            proxyDataSource.push(data as T)
+            this.dataSourceState.create.push(data as T)
+        }
+        this.setState({
+            dataSource: proxyDataSource,
+            pageSize: this.props.defaultPageSize! + this.dataSourceState.create.length,
+        }, () => {
+            this.toScrollBottom()
+            if (displayEditor) {
+                this.setState({
+                    editingKey: data[this.props.rowKey!],
+                })
+            }
+        })
+
+    }
+
+    /**
+     * 验证ID数据是否正确
+     */
+    protected verifyAppendRowKey(data: any) {
+        const { dataSource } = this.state
         if (
             // 判断添加的id不能为空
             data[this.props.rowKey!] === undefined
@@ -636,23 +681,6 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
         ) {
             throw new Error(`KOTOMI-TABLE-5002: The added rowKey must cannot be duplicate. rowKey [${this.props.rowKey}] , data  [${JSON.stringify(data)}]`)
         }
-        const proxyDataSource: T[] = [...dataSource]
-        proxyDataSource.push(data)
-
-        // 添加到对应的数据
-        this.dataSourceState.create.push(data)
-
-        this.setState({
-            dataSource: proxyDataSource,
-            pageSize: this.props.defaultPageSize! + this.dataSourceState.create.length,
-        }, () => {
-            this.toScrollBottom()
-            if (displayEditor) {
-                this.setState({
-                    editingKey: data[this.props.rowKey!],
-                })
-            }
-        })
     }
 
     protected recursiveDataSource(dataSource: any[], callbackfn: (data: any) => any) {
@@ -923,7 +951,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                         self.setState({
                             rowSelectedKeys: data,
                         })
-                        self.reload()
+                        self.reload(null, true)
                     }
                 })
             }
@@ -1063,8 +1091,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                         return <span>{record[key]}</span>
                     }
                 }
-                // 如果属性设置为可编辑，则渲染可编辑的表格，默认为不可编辑
-                column.onCell = (record: T, rowIndex: number) => {
+                const onCell = (record: T, rowIndex: number) => {
                     return {
                         column,
                         record,
@@ -1123,6 +1150,23 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                             return true
                         }, 60),
                     }
+                }
+                const loops = (tempColumn: ColumnProps<T>[]): any => {
+                    return tempColumn.map((element: ColumnProps<T>) => {
+                        if (element.children) {
+                            return loops(element.children)
+                        }
+                        return {
+                            ...element,
+                            onCell,
+                        }
+                    })
+                }
+
+                // 如果属性设置为可编辑，则渲染可编辑的表格，默认为不可编辑
+                column.onCell = onCell
+                if (column.children) {
+                    column.children = loops(column.children)
                 }
                 // 给一个宽度的默认值
                 if (column.width === undefined) {
