@@ -1,26 +1,19 @@
-name: Deploy CI
+name: github pages
 
 on:
-  release:
-    types: [published]
+  push:
+    branches:
+      - master # default branch
 
 jobs:
-  build-and-deploy:
-    runs-on: ubuntu-latest
+  deploy:
+    runs-on: ubuntu-18.04
     steps:
-      - name: Checkout
-        uses: actions/checkout@master
-      - run: yarn
-      - run: yarn run lint
-      # - run: yarn run tsc
-      - name: Build and Deploy
-        uses: JamesIves/github-pages-deploy-action@master
-        env:
-          CI: true
-          GIT_CONFIG_NAME: zhangj
-          GIT_CONFIG_EMAIL: zhangjin19960908@gmail.com
-          NODE_OPTIONS: --max_old_space_size=4096
-          GITHUB_TOKEN: ${{ secrets.ACTION_TOKEN }}
-          BRANCH: gh-pages
-          FOLDER: 'dist/'
-          BUILD_SCRIPT: yarn  && npm run build:dumi && git checkout . && git clean -df
+      - uses: actions/checkout@v2
+      - run: npm install
+      - run: npm run docs:build
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
