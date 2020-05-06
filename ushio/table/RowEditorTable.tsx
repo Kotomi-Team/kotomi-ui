@@ -70,6 +70,7 @@ const RowEditorTable = () =>{
         style={{
           marginTop: 10
         }}
+        bordered
         refExt={table}
         columns={[{
           dataIndex: 'name',

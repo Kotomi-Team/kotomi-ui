@@ -34,6 +34,9 @@ type State = {
     ellipsis: boolean,
 }
 
+// 计算如果含有子节点的顺序
+let calculationColumn: number = 0;
+
 export class EditableCell<T> extends React.Component<Props<T>, State>{
 
     static defaultProps = {
@@ -70,6 +73,18 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
         }
         return false
     }
+
+    getColumnInfo() {
+        const { column } = this.props
+        if (column.children) {
+            const realColumn = column.children[calculationColumn]
+            calculationColumn += 1
+            return realColumn;
+        }
+        calculationColumn = 0;
+        return column
+    }
+
     /**
      * 调用onSave的方法
      * @param isHideComponent hide 表示隐藏表格上的输入组件，none 表示不做任何操作
@@ -114,7 +129,8 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
     }
 
     renderFormItem = (form: WrappedFormUtils) => {
-        const { column, record, rowIndex, editingType, inputModal } = this.props
+        const { record, rowIndex, editingType, inputModal } = this.props
+        const column = this.getColumnInfo();
         this.form = form
         const dataIndex: string = column.dataIndex as string
         const inputType: JSX.Element = column!.inputType || <Input />
