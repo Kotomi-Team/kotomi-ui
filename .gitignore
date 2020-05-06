@@ -1,9 +1,0 @@
-/node_modules/
-/build/
-/es/
-/lib/
-/dist/
-/.umi/
-package-lock.json
-*.lock
-*.log

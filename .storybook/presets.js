@@ -1,1 +1,0 @@
-module.exports = ['@storybook/preset-ant-design','@storybook/preset-typescript'];
