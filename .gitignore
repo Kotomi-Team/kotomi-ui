@@ -2,7 +2,7 @@
 /build/
 /es/
 /lib/
-# /dist/
+/dist/
 /.umi/
 package-lock.json
 *.lock
