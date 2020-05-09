@@ -5,7 +5,7 @@
  */
 
 import React from 'react'
-import { message, Button } from 'antd'
+import { message, Button, DatePicker } from 'antd'
 import { Table } from '../../components/index'
 
 const table = React.createRef<any>()
@@ -87,8 +87,9 @@ const RowEditorTable = () =>{
             dataIndex: 'age',
             title: '年龄',
           },{
-            dataIndex: 'color',
-            title: '颜色',
+            dataIndex: 'endDate',
+            title: '截至日期',
+            inputType: <DatePicker />
           }]
         },{
           dataIndex: '$operating',
