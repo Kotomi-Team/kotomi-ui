@@ -22,7 +22,7 @@ export const TableContext = React.createContext({} as TableContextProps<any>);
 
 export interface ColumnProps<T> extends AntColumnProps<T> {
     // 是否可编辑，默认为false 不可编辑
-    isEditing?: boolean
+    isEditing?: boolean | Function
     // 行编辑的单元类型
     inputType?: JSX.Element
     // 校验规则
@@ -1097,7 +1097,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                         record,
                         rowIndex,
                         editing: this.isEditing(record),
-                        isEditing: column.isEditing,
+                        isEditing: lodash.isFunction(column.isEditing) ? column.isEditing(record) : column.isEditing,
                         editingType: editingType,
                         inputModal: column.inputModal,
                         currentEditorCell: this.currentEditorCell,
