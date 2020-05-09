@@ -153,7 +153,8 @@ export class Modal extends React.Component<Props, State> {
 
   private mousemove = (e: any) => {
     if (this.isMove) {
-      const left = e.clientX - (parseInt(this.antModal.style.width, 10) / 2)
+      const width = this.antModal.offsetWidth
+      const left = e.clientX - (parseInt(width, 10) / 2)
       const top = e.clientY - 30
       this.antModal.setAttribute('style', `left: ${left}px; top: ${top}px;  margin: 0;width: ${this.antModal.style.width}`)
     }
