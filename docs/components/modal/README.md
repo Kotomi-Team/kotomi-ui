@@ -7,6 +7,7 @@
 
 <code src="../../../ushio/modal/BaseModal.tsx" />
 
+<code src="../../../ushio/modal/MoveModal.tsx" />
 
 ## Modal 属性
 

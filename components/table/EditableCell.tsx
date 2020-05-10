@@ -19,6 +19,8 @@ type Props<T> = {
     editingType?: 'cell' | 'row'
     // 用户触发保存的信息
     onSave: (record: T, type: 'DELETE' | 'UPDATE' | 'CREATE') => Promise<boolean>
+    // 渲染onRenderTooltip
+    onRenderTooltip: Function
     // 显示模式，点击编辑，或者直接显示
     inputModal?: 'click' | 'display'
     // 当前正在编辑的cell
@@ -31,6 +33,9 @@ type State = {
     editing: boolean
     ellipsis: boolean,
 }
+
+// 计算如果含有子节点的顺序
+let calculationColumn: number = 0;
 
 export class EditableCell<T> extends React.Component<Props<T>, State>{
 
@@ -68,6 +73,18 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
         }
         return false
     }
+
+    getColumnInfo() {
+        const { column } = this.props
+        if (column.children) {
+            const realColumn = column.children[calculationColumn]
+            calculationColumn += 1
+            return realColumn;
+        }
+        calculationColumn = 0;
+        return column
+    }
+
     /**
      * 调用onSave的方法
      * @param isHideComponent hide 表示隐藏表格上的输入组件，none 表示不做任何操作
@@ -112,7 +129,8 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
     }
 
     renderFormItem = (form: WrappedFormUtils) => {
-        const { column, record, rowIndex, editingType, inputModal } = this.props
+        const { record, rowIndex, editingType, inputModal } = this.props
+        const column = this.getColumnInfo();
         this.form = form
         const dataIndex: string = column.dataIndex as string
         const inputType: JSX.Element = column!.inputType || <Input />
@@ -155,11 +173,14 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
     }
 
     isEditing() {
-        const { column, editing } = this.props
+        const { /*column,*/ editing } = this.props
         const { editing: stateEditing } = this.state
+
+        /*
         if (column === undefined) {
             return false
         }
+        */
 
         if (editing) {
             return true
@@ -214,7 +235,6 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
     renderCell = (tableContextProps: TableContextProps<T>) => {
         const { children, inputModal, column, editingType } = this.props
         this.form = tableContextProps.form!
-
         // 如果列允许编辑
         if (column !== undefined && column.isEditing) {
             // 如果是单元格编辑模式
@@ -294,15 +314,19 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
             </td>
         )
         if (this.state.ellipsis) {
-            return (
+            return this.props.onRenderTooltip(
                 <Tooltip
                     overlayClassName='kotomi-components-table-cell-ellipsis'
                     title={this.props.record[this.props.column.dataIndex!]}
+                    overlayStyle={{
+                        overflow: 'auto',
+                        maxHeight: 100,
+                    }}
                     placement='bottomLeft'
                 >
                     {td}
                 </Tooltip>
-            )
+            , this.props)
         }
         return td
     }
