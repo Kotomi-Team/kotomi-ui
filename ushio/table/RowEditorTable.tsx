@@ -74,11 +74,13 @@ const RowEditorTable = () =>{
         refExt={table}
         columns={[{
           dataIndex: 'name',
-          isEditing: true,
+          isEditing: () => {
+            return true
+          },
           title: '人员名称'
         },{
-          dataIndex: 'baseInfo',
-          title: '人员基础信息',
+          dataIndex: 'baseInfo1',
+          title: '人员基础信息一',
           isEditing: true,
           children:[{
             dataIndex: 'six',
@@ -88,6 +90,21 @@ const RowEditorTable = () =>{
             title: '年龄',
           },{
             dataIndex: 'endDate',
+            title: '截至日期',
+            inputType: <DatePicker />
+          }]
+        },{
+          dataIndex: 'baseInfo2',
+          title: '人员基础信息二',
+          isEditing: true,
+          children:[{
+            dataIndex: 'six2',
+            title: '性别',
+          },{
+            dataIndex: 'age2',
+            title: '年龄',
+          },{
+            dataIndex: 'endDate2',
             title: '截至日期',
             inputType: <DatePicker />
           }]

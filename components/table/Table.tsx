@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import { Table as AntTable, Divider, Icon, Menu, Dropdown, Pagination, Form } from 'antd'
 import { TableSize, ColumnProps as AntColumnProps, TableRowSelection, TableEventListeners } from 'antd/lib/table/interface'
 import { WrappedFormUtils, ValidationRule, FormComponentProps } from 'antd/lib/form/Form';
+import { HeightProperty } from 'csstype'
 import XLSX from 'xlsx';
 import lodash from 'lodash'
 import { DndProvider } from 'react-dnd'
@@ -86,12 +87,11 @@ interface Props<T> extends FormComponentProps<T> {
     /**
      * 表格高度
      */
-    height?: boolean | number | string
-
+    height?: HeightProperty<string | 0>
     /**
      * 表格的宽度
      */
-    width?: boolean | number | string
+    width?: HeightProperty<string | 0>
 
     /**
      * 数据中默认的key,默认字段为id
@@ -340,6 +340,17 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                 const refExt = this.props.refExt as any
                 refExt.current = this
             }
+        }
+
+        // 固定Table的高度
+        const tablElement = ReactDOM.findDOMNode(this.table.current) as Element
+        const antTableBody = tablElement.getElementsByClassName('ant-table-body')[0]
+        const style = antTableBody.getAttribute('style')
+        const height = this.props.height
+        if (lodash.isNumber(height)) {
+            antTableBody.setAttribute('style', `${style}; min-height:${height}px`)
+        }else {
+            antTableBody.setAttribute('style', `${style}; min-height:${height}`)
         }
     }
 
@@ -1026,7 +1037,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
             /* if (record.$Children) {
                 return <a>{index + 1}</a>
             }*/
-            return <a>{index + 1}</a>
+            return <span>{index + 1}</span>
         }
         if (column.width === undefined) {
             column.width = 25

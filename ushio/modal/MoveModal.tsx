@@ -30,6 +30,7 @@ const BaseoMdal = () => {
         }}
       >  显示底部的按钮</Button>
       <Modal
+        width="80%"
         ref={(_modal) => {
           modal = _modal
         }}
