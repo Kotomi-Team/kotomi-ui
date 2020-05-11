@@ -33,7 +33,7 @@ const BaseTable = () =>{
       rowSelection="multiple"
       loadData={async ({ page, pageSize })=>{
         const datas: any = []
-        for(let i =0 ;i< pageSize ; i++){
+        for(let i =0 ;i< 2 ; i++){
           datas.push({
             id: `${i}- ${page} `,
             name: `${page} - name - ${i} - 这是一个超出的文字内容,这是一个超出的文字内容,这是一个超出的文字内容,这是一个超出的文字内容,这是一个超出的文字内容,这是一个超出的文字内容,这是一个超出的文字内容,这是一个超出的文字内容,这是一个超出的文字内容,这是一个超出的文字内容,这是一个超出的文字内容`,
@@ -43,7 +43,7 @@ const BaseTable = () =>{
         }
         return {
           dataSource: datas,
-          total: 2000
+          total: 2
         }
       }}
     />
