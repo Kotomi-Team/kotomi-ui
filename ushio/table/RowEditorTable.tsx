@@ -74,7 +74,9 @@ const RowEditorTable = () =>{
         refExt={table}
         columns={[{
           dataIndex: 'name',
-          isEditing: true,
+          isEditing: () => {
+            return true
+          },
           title: '人员名称'
         },{
           dataIndex: 'baseInfo',

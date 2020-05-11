@@ -173,7 +173,7 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
     }
 
     isEditing() {
-        const { /*column,*/ editing } = this.props
+        const { /*column,*/ editing, isEditing } = this.props
         const { editing: stateEditing } = this.state
 
         /*
@@ -181,6 +181,9 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
             return false
         }
         */
+        if(isEditing === false){
+            return false
+        }
 
         if (editing) {
             return true
