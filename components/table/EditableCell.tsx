@@ -36,6 +36,7 @@ type State = {
 
 // 计算如果含有子节点的顺序
 let calculationColumn: number = 0;
+let calculationKey: string | undefined = undefined;
 
 export class EditableCell<T> extends React.Component<Props<T>, State>{
 
@@ -76,12 +77,16 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
 
     getColumnInfo() {
         const { column } = this.props
+        if (calculationKey !== column.dataIndex) {
+            calculationColumn = 0;
+        }
+        calculationKey = column.dataIndex
         if (column.children) {
             const realColumn = column.children[calculationColumn]
             calculationColumn += 1
             return realColumn;
         }
-        calculationColumn = 0;
+
         return column
     }
 
@@ -181,7 +186,7 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
             return false
         }
         */
-        if(isEditing === false){
+        if (isEditing === false) {
             return false
         }
 
