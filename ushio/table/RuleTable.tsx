@@ -22,17 +22,34 @@ const BaseTable = () =>{
             message: '这个是一个超级.....................................长的校验信息。'
         }]
       },{
+        dataIndex: 'name2',
+        title: '人员名称2',
+        width: 100,
+        isEditing: true,
+        rules: [{
+            required: true,
+            message: '这个是一个超级.....................................长的校验信息。'
+        }]
+      },{
         dataIndex: 'baseInfo',
         title: '人员基础信息',
         isEditing: true,
         children:[{
             dataIndex: 'six',
             title: '性别',
-            width: 200
+            width: 200,
+            rules: [{
+              required: true,
+              message: '这个是一个超级.....................................长的校验信息。'
+          }]
         },{
             dataIndex: 'age',
             title: '年龄',
-            width: 200
+            width: 200,
+            rules: [{
+              required: true,
+              message: '这个是一个超级.....................................长的校验信息。'
+          }]
         }]
       },{
         dataIndex: '$operating',

@@ -7,6 +7,7 @@
 .ant-table-tbody {
     >tr{
         >td{
+            border-bottom: 1px solid #e8e8e8 !important;
             >.ant-form-item{
                 margin-bottom: 0px;
                 >.ant-form-item-control-wrapper{
@@ -14,6 +15,14 @@
                         line-height: 1.5;
                         >.ant-form-item-children{
                             display: flex;
+                        }
+                        >.ant-form-explain{
+                            position: absolute;
+                            margin-top: 5px;
+                            border-radius: 2px;
+                            background-color: white;
+                            text-indent: 5px;
+                            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
                         }
                     }
                 }
@@ -70,12 +79,12 @@
 
 .kotomi-table-row-drag-downward {
     >td{
-        border-bottom: 2px dashed #1890ff !important;;
+        border-bottom: 2px dashed #1890ff !important;
     }
 }
   
 .kotomi-table-row-drag-upward {
     >td{
-        border-top: 2px dashed #1890ff !important;; 
+        border-top: 2px dashed #1890ff !important;
     }
 }

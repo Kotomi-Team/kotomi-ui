@@ -341,16 +341,20 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                 refExt.current = this
             }
         }
+    }
 
-        // 固定Table的高度
-        const tablElement = ReactDOM.findDOMNode(this.table.current) as Element
-        const antTableBody = tablElement.getElementsByClassName('ant-table-body')[0]
-        const style = antTableBody.getAttribute('style')
-        const height = this.props.height
-        if (lodash.isNumber(height)) {
-            antTableBody.setAttribute('style', `${style}; min-height:${height}px`)
-        }else {
-            antTableBody.setAttribute('style', `${style}; min-height:${height}`)
+    componentDidUpdate() {
+        if (this.state.dataSource.length > 0) {
+            // 固定Table的高度
+            const tablElement = ReactDOM.findDOMNode(this.table.current) as Element
+            const antTableBody = tablElement.getElementsByClassName('ant-table-body')[0]
+            const style = antTableBody.getAttribute('style')
+            const height = this.props.height
+            if (lodash.isNumber(height)) {
+                antTableBody.setAttribute('style', `${style}; min-height:${height}px`)
+            }else {
+                antTableBody.setAttribute('style', `${style}; min-height:${height}`)
+            }
         }
     }
 
