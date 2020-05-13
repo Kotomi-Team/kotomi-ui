@@ -1,11 +1,11 @@
 /**
- * title: 基础的表格
- * desc: 一个简单的表格组件
+ * title: 可校验表格
+ * desc: 对表格输入的内容进行校验
  */
 
 import React from 'react'
+import { Select } from 'antd'
 import { Table } from '../../components/index'
-
 
 const BaseTable = () =>{
   return (
@@ -16,25 +16,56 @@ const BaseTable = () =>{
       },{
         dataIndex: 'name',
         title: '人员名称',
-        width: 100
+        width: 100,
+        inputType:   (
+          <Select defaultValue="lucy" style={{ width: 120 }} disabled>
+            <Select.Option value="lucy">Lucy</Select.Option>
+          </Select>
+        ),
+        isEditing: true,
+        rules: [{
+            required: true,
+            message: '这个是一个超级.....................................长的校验信息。'
+        }]
+      },{
+        dataIndex: 'name2',
+        title: '人员名称2',
+        width: 100,
+        isEditing: true,
+        rules: [{
+            required: true,
+            message: '这个是一个超级.....................................长的校验信息。'
+        }]
       },{
         dataIndex: 'baseInfo',
         title: '人员基础信息',
+        isEditing: true,
         children:[{
             dataIndex: 'six',
             title: '性别',
-            width: 200
+            width: 200,
+            rules: [{
+              required: true,
+              message: '这个是一个超级.....................................长的校验信息。'
+          }]
         },{
             dataIndex: 'age',
             title: '年龄',
-            width: 200
+            width: 200,
+            rules: [{
+              required: true,
+              message: '这个是一个超级.....................................长的校验信息。'
+          }]
         }]
+      },{
+        dataIndex: '$operating',
+        title: '操作'
       }]}
       editingType="row"
       rowSelection="multiple"
       loadData={async ({ page, pageSize })=>{
         const datas: any = []
-        for(let i =0 ;i< 2 ; i++){
+        for(let i =0 ;i< pageSize ; i++){
           datas.push({
             id: `${i}- ${page} `,
             name: `${page} - name - ${i} - 这是一个超出的文字内容,这是一个超出的文字内容,这是一个超出的文字内容,这是一个超出的文字内容,这是一个超出的文字内容,这是一个超出的文字内容,这是一个超出的文字内容,这是一个超出的文字内容,这是一个超出的文字内容,这是一个超出的文字内容,这是一个超出的文字内容`,
@@ -44,7 +75,7 @@ const BaseTable = () =>{
         }
         return {
           dataSource: datas,
-          total: 2
+          total: pageSize
         }
       }}
     />

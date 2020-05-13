@@ -341,16 +341,20 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                 refExt.current = this
             }
         }
+    }
 
-        // 固定Table的高度
-        const tablElement = ReactDOM.findDOMNode(this.table.current) as Element
-        const antTableBody = tablElement.getElementsByClassName('ant-table-body')[0]
-        const style = antTableBody.getAttribute('style')
-        const height = this.props.height
-        if (lodash.isNumber(height)) {
-            antTableBody.setAttribute('style', `${style}; min-height:${height}px`)
-        }else {
-            antTableBody.setAttribute('style', `${style}; min-height:${height}`)
+    componentDidUpdate() {
+        if (this.state.dataSource.length > 0) {
+            // 固定Table的高度
+            const tablElement = ReactDOM.findDOMNode(this.table.current) as Element
+            const antTableBody = tablElement.getElementsByClassName('ant-table-body')[0]
+            const style = antTableBody.getAttribute('style')
+            const height = this.props.height
+            if (lodash.isNumber(height)) {
+                antTableBody.setAttribute('style', `${style}; min-height:${height}px`)
+            }else {
+                antTableBody.setAttribute('style', `${style}; min-height:${height}`)
+            }
         }
     }
 
@@ -1324,7 +1328,8 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
         const rowProps: TableRowSelection<T> = {
             type: 'checkbox',
             columnWidth: 35,
-            selections: true,
+            // 暂时不显示下拉框。
+            selections: false,
             getCheckboxProps: (record: T) => {
                 let checked = false
                 if (self.state.rowSelectedKeys.indexOf(record[self.props.rowKey!] as never) !== -1) {
