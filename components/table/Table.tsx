@@ -1328,7 +1328,8 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
         const rowProps: TableRowSelection<T> = {
             type: 'checkbox',
             columnWidth: 35,
-            selections: true,
+            // 暂时不显示下拉框。
+            selections: false,
             getCheckboxProps: (record: T) => {
                 let checked = false
                 if (self.state.rowSelectedKeys.indexOf(record[self.props.rowKey!] as never) !== -1) {
