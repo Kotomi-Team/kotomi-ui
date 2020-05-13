@@ -6,6 +6,7 @@
 import React from 'react'
 import { Table } from '../../components/index'
 
+
 const BaseTable = () =>{
   return (
     <Table

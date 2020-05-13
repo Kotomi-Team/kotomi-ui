@@ -4,6 +4,7 @@
  */
 
 import React from 'react'
+import { Select } from 'antd'
 import { Table } from '../../components/index'
 
 const BaseTable = () =>{
@@ -16,6 +17,11 @@ const BaseTable = () =>{
         dataIndex: 'name',
         title: '人员名称',
         width: 100,
+        inputType:   (
+          <Select defaultValue="lucy" style={{ width: 120 }} disabled>
+            <Select.Option value="lucy">Lucy</Select.Option>
+          </Select>
+        ),
         isEditing: true,
         rules: [{
             required: true,
@@ -59,7 +65,7 @@ const BaseTable = () =>{
       rowSelection="multiple"
       loadData={async ({ page, pageSize })=>{
         const datas: any = []
-        for(let i =0 ;i< 2 ; i++){
+        for(let i =0 ;i< pageSize ; i++){
           datas.push({
             id: `${i}- ${page} `,
             name: `${page} - name - ${i} - 这是一个超出的文字内容,这是一个超出的文字内容,这是一个超出的文字内容,这是一个超出的文字内容,这是一个超出的文字内容,这是一个超出的文字内容,这是一个超出的文字内容,这是一个超出的文字内容,这是一个超出的文字内容,这是一个超出的文字内容,这是一个超出的文字内容`,
@@ -69,7 +75,7 @@ const BaseTable = () =>{
         }
         return {
           dataSource: datas,
-          total: 2
+          total: pageSize
         }
       }}
     />
