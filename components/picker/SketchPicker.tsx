@@ -80,6 +80,7 @@ export class SketchPicker extends React.Component<Props, State>{
                                 right: '0px',
                                 bottom: '0px',
                                 left: '0px',
+                                zIndex: 999,
                             }}
                             onClick={() => {
                                 this.setState({
