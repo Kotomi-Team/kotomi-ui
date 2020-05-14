@@ -1,12 +1,12 @@
 {
   "name": "kotomi-ui",
-  "version": "1.11.30",
+  "version": "1.11.31",
   "description": "基于Ant Design做的组件扩展，开发的一套组件库",
   "scripts": {
     "start": "dumi dev",
     "start:storybook": "start-storybook -p 3000",
     "build": "antd-tools run compile && antd-tools run dist",
-    "build:dumi": "dumi build docs/",
+    "build:dumi": "echo kotomi.site > CNAME && dumi build docs/",
     "build:typedoc": "typedoc --out build/docs/typedoc",
     "build:storybook": "build-storybook  -c .storybook -o docs",
     "lint": "antd-tools run ts-lint",

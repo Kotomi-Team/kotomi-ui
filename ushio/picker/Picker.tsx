@@ -4,11 +4,24 @@
  */
 
 import React from 'react'
+import { Row, Col } from 'antd'
 import { SketchPicker as Picker } from '../../components/index';
 
 const SketchPicker = () => {
     return (
-        <Picker />
+        <div>
+            <Row>
+                <Col span={4}>
+                    <Picker />
+                </Col>
+                <Col span={4}>
+                    <Picker />
+                </Col>
+                <Col span={4}>
+                    <Picker />
+                </Col>
+            </Row>
+        </div>
     )
 }
 
