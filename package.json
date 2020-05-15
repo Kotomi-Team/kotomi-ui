@@ -6,7 +6,7 @@
     "start": "dumi dev",
     "start:storybook": "start-storybook -p 3000",
     "build": "antd-tools run compile && antd-tools run dist",
-    "build:dumi": "echo kotomi.site > ./docs/CNAME && dumi build docs/",
+    "build:dumi": "echo kotomi.site > ./dist/CNAME && dumi build docs/",
     "build:typedoc": "typedoc --out build/docs/typedoc",
     "build:storybook": "build-storybook  -c .storybook -o docs",
     "lint": "antd-tools run ts-lint",

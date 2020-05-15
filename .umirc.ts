@@ -24,6 +24,7 @@ export default {
           '/components/upload/README',
           '/components/picker/README',
           '/components/modal/README',
+          '/components/rich/README',
         ]
       },
     ],
