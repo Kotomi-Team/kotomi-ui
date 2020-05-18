@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
-import './style/zh-cn.css'
+import './style/zh-cn.less'
 
 export const RichEditor = (props: any) => {
     return (

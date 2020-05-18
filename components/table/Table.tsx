@@ -8,6 +8,7 @@ import XLSX from 'xlsx';
 import lodash from 'lodash'
 import { DndProvider } from 'react-dnd'
 import Backend from 'react-dnd-html5-backend'
+import { Resizable } from 'react-resizable';
 
 import DragRow from './DragRow'
 import { EditableCell } from './EditableCell'
@@ -167,7 +168,7 @@ interface Props<T> extends FormComponentProps<T> {
      * @param column 当前的列的信息
      * @returns 返回一个true/false对象，true表示执行默认逻辑，false表示不执行默认逻辑
      */
-    onBeforeClickPromiseColumn?: (type: 'EDIT' | 'DELETE' | 'SAVE' | 'CANCEL' , record: T) => Promise<boolean>
+    onBeforeClickPromiseColumn?: (type: 'EDIT' | 'DELETE' | 'SAVE' | 'CANCEL', record: T) => Promise<boolean>
 
     /**
      * 表格渲染的行事件
@@ -213,6 +214,9 @@ interface Props<T> extends FormComponentProps<T> {
     onRenderTooltip?: (td: JSX.Element, props: any) => JSX.Element,
 
     expandedRowRender?: (record: T, index: number, indent: number, expanded: boolean) => React.ReactNode;
+
+    onExpand?: (expanded: boolean, record: T) => void
+
     /**
      * 装载数据的方法
      * @param page 当前第几页信息
@@ -270,8 +274,8 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
         bordered: false,
         onSelect: () => true,
         onRow: () => { },
-        onSave:  async () => true,
-        onBeforeClickPromiseColumn: async () => true ,
+        onSave: async () => true,
+        onBeforeClickPromiseColumn: async () => true,
         onBeforeRenderPromiseColumn: (_record: any, _column: any, render: JSX.Element) => render,
         onRenderBodyRowCssStyle: () => {
             return {}
@@ -350,9 +354,10 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
             const antTableBody = tablElement.getElementsByClassName('ant-table-body')[0]
             const style = antTableBody.getAttribute('style')
             const height = this.props.height
+            // antTableBody.removeAttribute('style')
             if (lodash.isNumber(height)) {
                 antTableBody.setAttribute('style', `${style}; min-height:${height}px`)
-            }else {
+            } else {
                 antTableBody.setAttribute('style', `${style}; min-height:${height}`)
             }
         }
@@ -392,6 +397,19 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
     }
 
     render() {
+
+        /*
+        const columns = this.props.columns.map((col, index) => ({
+            ...col,
+            onHeaderCell: (column: any) => ({
+              width: column.width,
+              onResize: (index: any) => {
+                console.log(index)
+              },
+            }),
+        }));
+        */
+
         const extProps = {
             expandIconColumnIndex: 0,
         }
@@ -401,6 +419,26 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
             delete extProps.expandIconColumnIndex
         }
         const components: any = {
+            header: {
+                cell: (props: any) => {
+                    const { onResize, width, ...restProps } = props
+                    if (!width) {
+                        return <th {...restProps} />;
+                    }
+
+                    return (
+                        <Resizable
+                            width={width}
+                            height={0}
+                            onResize={onResize}
+                            draggableOpts={{ enableUserSelectHack: false }}
+                        >
+                            <th {...restProps} />
+                        </Resizable>
+                    );
+
+                },
+            },
             body: {
                 cell: EditableCell,
             },
@@ -449,12 +487,12 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                                 rowClassName={() => 'kotomi-components-table-row'}
                                 components={components}
                                 onExpand={(expanded: boolean, record: T) => {
-                                    const { rowKey } = this.props
+                                    const { rowKey, onExpand } = this.props
                                     if (expanded && this.props.onLoadChildren) {
                                         this.props.onLoadChildren(record).then((children: T[]) => {
                                             const dataSource = this.state.dataSource
                                             const loops = (loopsDataSource: any[]): any[] => loopsDataSource.map((element: any) => {
-                                                 // @ts-ignore
+                                                // @ts-ignore
                                                 const chil = element.$children
                                                 if (element[rowKey!] === record[rowKey!]) {
                                                     return {
@@ -475,6 +513,10 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                                                 dataSource: loops(dataSource),
                                             })
                                         })
+                                    }
+
+                                    if (onExpand) {
+                                        onExpand(expanded, record)
                                     }
                                 }}
                                 dataSource={this.getDataSource()}
@@ -634,7 +676,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                 if (id.indexOf(element[rowKey!]) === -1) {
                     proxyDataSource.push(element)
                 }
-            }else {
+            } else {
                 if (element[rowKey!] !== id) {
                     proxyDataSource.push(element)
                 }
@@ -660,7 +702,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
             })
             proxyDataSource.push(...(data as T[]))
             this.dataSourceState.create.push(...(data as T[]))
-        }else {
+        } else {
             this.verifyAppendRowKey(data as T)
             proxyDataSource.push(data as T)
             this.dataSourceState.create.push(data as T)
@@ -823,7 +865,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                                     }
                                 })
                             })
-                        }else {
+                        } else {
                             saveData()
                         }
 
@@ -863,7 +905,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                                     }
                                 })
                             })
-                        }else {
+                        } else {
                             cancelData()
                         }
                     }}
@@ -978,7 +1020,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                         deleteData()
                     }
                 })
-            }else {
+            } else {
                 deleteData()
             }
         }
@@ -1013,7 +1055,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                         editData()
                     }
                 })
-            }else {
+            } else {
                 editData()
             }
         }
@@ -1357,7 +1399,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                             self.setState({
                                 rowSelectedKeys: [id],
                             })
-                        }else {
+                        } else {
                             self.setState({
                                 rowSelectedKeys: [...rowSelectedKeys, id],
                             })

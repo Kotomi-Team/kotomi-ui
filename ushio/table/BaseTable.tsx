@@ -16,14 +16,14 @@ const BaseTable = () =>{
       },{
         dataIndex: 'name',
         title: '人员名称',
-        width: 100
+        width: 80
       },{
         dataIndex: 'baseInfo',
         title: '人员基础信息',
         children:[{
             dataIndex: 'six',
             title: '性别',
-            width: 200
+            width: 80
         },{
             dataIndex: 'age',
             title: '年龄',
@@ -37,8 +37,8 @@ const BaseTable = () =>{
         for(let i =0 ;i< 2 ; i++){
           datas.push({
             id: `${i}- ${page} `,
-            name: `${page} - name - ${i} - 这是一个超出的文字内容,这是一个超出的文字内容,这是一个超出的文字内容,这是一个超出的文字内容,这是一个超出的文字内容,这是一个超出的文字内容,这是一个超出的文字内容,这是一个超出的文字内容,这是一个超出的文字内容,这是一个超出的文字内容,这是一个超出的文字内容`,
-            six: `${page} - six - ${i}`,
+            name: `@！#@#@@！#&……#&*@&￥@*&#@&#`,
+            six: `@！#@#@@！#&……#&*@&￥@*&#@&#`,
             age: `${page} - age - ${i}`,
           })
         }

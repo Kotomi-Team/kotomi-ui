@@ -68,7 +68,7 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
 
         // eslint-disable-next-line react/no-find-dom-node
         const element: Element = ReactDom.findDOMNode(this)! as Element
-        if (element.clientWidth < element.scrollWidth) {
+        if (element.clientWidth - 20 < element.scrollWidth) {
             if (this.props.column !== undefined) {
                 return true
             }
@@ -330,6 +330,9 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
                 <Tooltip
                     overlayClassName='kotomi-components-table-cell-ellipsis'
                     title={this.props.record[this.props.column.dataIndex!]}
+                    getPopupContainer={(node: any) => {
+                        return node.parentNode.parentNode
+                    }}
                     overlayStyle={{
                         overflow: 'auto',
                         maxHeight: 100,
