@@ -212,6 +212,8 @@ interface Props<T> extends FormComponentProps<T> {
      * 拦截渲染的Tooltip
      */
     onRenderTooltip?: (td: JSX.Element, props: any) => JSX.Element,
+    
+    expandedRowKeys?: string []
 
     expandedRowRender?: (record: T, index: number, indent: number, expanded: boolean) => React.ReactNode;
 
@@ -412,11 +414,15 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
 
         const extProps = {
             expandIconColumnIndex: 0,
+            expandedRowKeys: this.props.expandedRowKeys
         }
         if (this.props.expandIconColumnIndex) {
             extProps.expandIconColumnIndex = this.props.expandIconColumnIndex
         } else {
             delete extProps.expandIconColumnIndex
+        }
+        if(!this.props.expandedRowKeys){
+            delete extProps.expandedRowKeys
         }
         const components: any = {
             header: {
@@ -630,6 +636,10 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
     public setRowSelectedKeys(rowSelectedKeys: string[]) {
         this.setState({
             rowSelectedKeys,
+        })
+        const table = this.table.current!
+        table.store.setState({
+            selectedRowKeys: rowSelectedKeys
         })
     }
     /**
