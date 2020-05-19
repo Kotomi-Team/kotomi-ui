@@ -5,7 +5,6 @@ import { Form, Input, Tooltip } from 'antd'
 import { WrappedFormUtils } from 'antd/lib/form/Form';
 import { ColumnProps, TableContext, TableContextProps } from './Table'
 import './style/index.less'
-import ReactDOM from 'react-dom';
 
 type Props<T> = {
     // 列的信息
@@ -154,9 +153,7 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
                     }
                 }
             },
-            getPopupContainer: () => {
-                return ReactDOM.findDOMNode(this)!.parentNode!.parentNode
-            },
+            getPopupContainer: (trigger: any) => trigger.parentNode.parentNode.parentNode,
             onBlur: () => {
                 // 失去焦点的时候隐藏输入框
                 if (editingType === 'cell') {

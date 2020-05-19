@@ -1170,7 +1170,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                         inputModal: column.inputModal,
                         currentEditorCell: this.currentEditorCell,
                         onRenderTooltip,
-                        onSave:  lodash.debounce(async (values: T) => {
+                        onSave: async (values: T) => {
 
                             // 修改表格中的数据
                             const newData: T[] = [...dataSource];
@@ -1216,7 +1216,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                                 return respState
                             }
                             return true
-                        }, 60),
+                        },
                     }
                 }
                 const loops = (tempColumn: ColumnProps<T>[]): any => {
