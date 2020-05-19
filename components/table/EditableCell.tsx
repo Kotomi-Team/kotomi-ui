@@ -68,7 +68,7 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
 
         // eslint-disable-next-line react/no-find-dom-node
         const element: Element = ReactDom.findDOMNode(this)! as Element
-        if (element.clientWidth - 20 < element.scrollWidth) {
+        if (element.clientWidth < element.scrollWidth) {
             if (this.props.column !== undefined) {
                 return true
             }
@@ -112,7 +112,6 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
                             newRecord[recordKey[0]] = values[key]
                         }
                     })
-
                     if (!lodash.isEqual(record, newRecord)) {
                         onSave({
                             ...newRecord,
@@ -140,7 +139,6 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
         this.form = form
         const dataIndex: string = column.dataIndex as string
         const inputType: JSX.Element = column!.inputType || <Input />
-
         const key = column!.dataIndex as string + ';' + rowIndex
         return form.getFieldDecorator(key, {
             rules: column!.rules,
@@ -330,9 +328,6 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
                 <Tooltip
                     overlayClassName='kotomi-components-table-cell-ellipsis'
                     title={this.props.record[this.props.column.dataIndex!]}
-                    getPopupContainer={(node: any) => {
-                        return node.parentNode.parentNode
-                    }}
                     overlayStyle={{
                         overflow: 'auto',
                         maxHeight: 100,

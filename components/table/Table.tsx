@@ -8,7 +8,7 @@ import XLSX from 'xlsx';
 import lodash from 'lodash'
 import { DndProvider } from 'react-dnd'
 import Backend from 'react-dnd-html5-backend'
-import { Resizable } from 'react-resizable';
+// import { Resizable } from 'react-resizable';
 
 import DragRow from './DragRow'
 import { EditableCell } from './EditableCell'
@@ -212,7 +212,7 @@ interface Props<T> extends FormComponentProps<T> {
      * 拦截渲染的Tooltip
      */
     onRenderTooltip?: (td: JSX.Element, props: any) => JSX.Element,
-    
+
     expandedRowKeys?: string []
 
     expandedRowRender?: (record: T, index: number, indent: number, expanded: boolean) => React.ReactNode;
@@ -414,17 +414,18 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
 
         const extProps = {
             expandIconColumnIndex: 0,
-            expandedRowKeys: this.props.expandedRowKeys
+            expandedRowKeys: this.props.expandedRowKeys,
         }
         if (this.props.expandIconColumnIndex) {
             extProps.expandIconColumnIndex = this.props.expandIconColumnIndex
         } else {
             delete extProps.expandIconColumnIndex
         }
-        if(!this.props.expandedRowKeys){
+        if (!this.props.expandedRowKeys) {
             delete extProps.expandedRowKeys
         }
         const components: any = {
+            /*
             header: {
                 cell: (props: any) => {
                     const { onResize, width, ...restProps } = props
@@ -444,7 +445,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                     );
 
                 },
-            },
+            },*/
             body: {
                 cell: EditableCell,
             },
@@ -639,7 +640,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
         })
         const table = this.table.current!
         table.store.setState({
-            selectedRowKeys: rowSelectedKeys
+            selectedRowKeys: rowSelectedKeys,
         })
     }
     /**
@@ -1169,7 +1170,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                         inputModal: column.inputModal,
                         currentEditorCell: this.currentEditorCell,
                         onRenderTooltip,
-                        onSave: async (values: T) => {
+                        onSave:  lodash.debounce(async (values: T) => {
 
                             // 修改表格中的数据
                             const newData: T[] = [...dataSource];
@@ -1215,7 +1216,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                                 return respState
                             }
                             return true
-                        },
+                        }, 60),
                     }
                 }
                 const loops = (tempColumn: ColumnProps<T>[]): any => {
