@@ -1,6 +1,6 @@
 {
   "name": "kotomi-ui",
-  "version": "1.12.43",
+  "version": "1.12.44",
   "description": "基于Ant Design做的组件扩展，开发的一套组件库",
   "scripts": {
     "start": "dumi dev",
@@ -91,13 +91,6 @@
     "react-dom": "~16.12.0",
     "react-quill": "^1.3.5",
     "react-resizable": "^1.10.1",
-    "xlsx": "~0.15.5"
-  },
-  "peerDependencies": {
-    "antd": "~3.26.8",
-    "react": "~16.12.0",
-    "react-color": "~2.18.0",
-    "react-dom": "~16.12.0",
     "xlsx": "~0.15.5"
   }
 }

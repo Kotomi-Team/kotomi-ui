@@ -137,15 +137,26 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
         const column = this.getColumnInfo();
         this.form = form
         const dataIndex: string = column.dataIndex as string
-        const inputType: JSX.Element = column!.inputType || <Input />
+        let inputType: JSX.Element = <Input />
+        if (lodash.isFunction(column!.inputType)) {
+            inputType = column!.inputType(record)
+        }else if (column!.inputType) {
+            inputType = column!.inputType
+        }
+
         const key = column!.dataIndex as string + ';' + rowIndex
+
+        const extProps: any = {}
+        if (inputModal === 'display' && !this.isEditing() && editingType === 'row') {
+            extProps.disabled = true
+        }
+
         return form.getFieldDecorator(key, {
             rules: column!.rules,
             initialValue: record[dataIndex],
 
         })(React.cloneElement(inputType, {
-            // 如果是行编辑模式下，并且是display的模式，则显示为不可编辑
-            disabled: inputModal === 'display' && !this.isEditing() && editingType === 'row',
+            ...extProps,
             ref: (input: Input) => {
                 if (input.focus) {
                     if (column.inputModal === 'click') {
@@ -153,7 +164,7 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
                     }
                 }
             },
-            getPopupContainer: (trigger: any) => trigger.parentNode.parentNode.parentNode,
+            getPopupContainer: (trigger: any) => trigger.parentNode.parentNode.parentNode.parentNode.parentNode,
             onBlur: () => {
                 // 失去焦点的时候隐藏输入框
                 if (editingType === 'cell') {
