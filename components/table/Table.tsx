@@ -26,7 +26,7 @@ export interface ColumnProps<T> extends AntColumnProps<T> {
     // 是否可编辑，默认为false 不可编辑
     isEditing?: boolean | Function
     // 行编辑的单元类型
-    inputType?: JSX.Element
+    inputType?: JSX.Element | Function
     // 校验规则
     rules?: ValidationRule[]
     // 编辑模式，默认为点击编辑，可选为直接显示编辑

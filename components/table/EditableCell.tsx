@@ -141,7 +141,7 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
         if (lodash.isFunction(column!.inputType)) {
             inputType = column!.inputType(record)
         }else if (column!.inputType) {
-            inputType = column!.inputType
+            inputType = column!.inputType as JSX.Element
         }
 
         const key = column!.dataIndex as string + ';' + rowIndex
