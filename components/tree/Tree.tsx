@@ -221,7 +221,7 @@ export class Tree extends React.Component<Props, State>{
                             })
                         }
                     }}
-                    onSelect={(selectedKeys: string[], e: AntTreeNodeSelectedEvent) => {
+                    onSelect={(_selectedKeys: string[], e: AntTreeNodeSelectedEvent) => {
                         if (this.props.onTreeNodeClick) {
                             this.props.onTreeNodeClick(e.node.props.dataRef, e.selected!)
                         }
