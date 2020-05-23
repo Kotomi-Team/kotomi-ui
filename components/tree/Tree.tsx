@@ -1,6 +1,7 @@
 import React from 'react'
 import { Tree as AntTree } from 'antd';
 import { AntTreeNode, AntTreeNodeSelectedEvent, AntTreeNodeDropEvent, AntTreeNodeMouseEvent } from 'antd/lib/tree/Tree'
+import lodash from 'lodash'
 import Dropdown from '../dropdown/Dropdown'
 
 /**
@@ -15,6 +16,9 @@ export type TreeNodeData = {
     dataRef: any
     // 子节点数据
     children: TreeNodeData[],
+    // 是否装载
+    loaded?: boolean
+    extChildren?: TreeNodeData[],
 }
 
 type Props = {
@@ -76,6 +80,7 @@ type State = {
     pageY: number
     isShowMenu: boolean,
     node?: AntTreeNode,
+    loadedKeys: string[],
 }
 
 /**
@@ -95,6 +100,7 @@ export class Tree extends React.Component<Props, State>{
         pageY: 0,
         isShowMenu: false,
         node: undefined,
+        loadedKeys: [],
     }
 
     constructor(props: Props) {
@@ -110,6 +116,82 @@ export class Tree extends React.Component<Props, State>{
         })
     }
 
+    public appendNode(parent: string | null, nodes: TreeNodeData[]) {
+        const loops = (nodeDatas: TreeNodeData[], callback: (node: TreeNodeData) => Boolean) => {
+            nodeDatas.some((element) => {
+                if (element.children && element.children.length > 0) {
+                    loops(element.children, callback)
+                }
+                return callback(element)
+            })
+        }
+        let parentNode: TreeNodeData | undefined;
+        loops(this.state.treeData, (node) => {
+            if (node.key === parent) {
+                parentNode = node
+                return true
+            }
+            return false
+        })
+
+        if (parentNode) {
+            if (parentNode.loaded) {
+                nodes.forEach((element) => {
+                    parentNode!.children.push(element)
+                })
+            }
+
+            if (lodash.isArray(parentNode.extChildren)) {
+                nodes.forEach((element) => {
+                    parentNode!.extChildren!.push(element)
+                })
+            }else {
+                parentNode.extChildren = nodes
+            }
+
+            this.setState({
+                treeData: [...this.state.treeData],
+            })
+        }
+
+    }
+
+    // 删除指定的节点信息
+    public delNode(keys: string | string[]) {
+        let delKey: string[] = []
+        if (lodash.isArray(keys)) {
+            delKey = keys
+        }else {
+            delKey.push(keys)
+        }
+
+        const loops = (treeData: TreeNodeData[], callback: (node: TreeNodeData) => boolean) => {
+            const result: TreeNodeData[] = []
+
+            for (let i = 0; i < treeData.length ; i++) {
+                if (treeData[i].children && treeData[i].children.length > 0) {
+                    const node = {
+                        ...treeData[i],
+                        children: loops(treeData[i].children, callback),
+                    } as unknown as TreeNodeData
+                    result.push(node)
+                }else {
+                    if (callback(treeData[i])) {
+                        result.push(treeData[i])
+                    }
+                }
+            }
+            return result
+        }
+        const tempTreeData = loops(this.state.treeData, (node: TreeNodeData) => {
+            return delKey.indexOf(node.key) === -1
+        })
+
+        this.setState({
+            treeData: tempTreeData,
+        })
+    }
+
     render() {
         return (
             <>
@@ -117,6 +199,7 @@ export class Tree extends React.Component<Props, State>{
                     loadData={this.onLoadData}
                     checkedKeys={this.props.checkedKeys}
                     checkable={this.props.checkable}
+                    loadedKeys={this.state.loadedKeys}
                     onRightClick={(e) => {
                         const self = this
                         if (this.props.onRightClick) {
@@ -138,7 +221,7 @@ export class Tree extends React.Component<Props, State>{
                             })
                         }
                     }}
-                    onSelect={(_selectedKeys: string[], e: AntTreeNodeSelectedEvent) => {
+                    onSelect={(selectedKeys: string[], e: AntTreeNodeSelectedEvent) => {
                         if (this.props.onTreeNodeClick) {
                             this.props.onTreeNodeClick(e.node.props.dataRef, e.selected!)
                         }
@@ -241,9 +324,15 @@ export class Tree extends React.Component<Props, State>{
 
     // 装载节点数据
     protected async onLoadData(node: AntTreeNode) {
+
         const children = await this.props.loadData(node.props.dataRef)
         if (children && children.length > 0) {
-            node.props.dataRef.children = children
+            let tempChildren = children
+            if (node.props.dataRef.extChildren) {
+                tempChildren = tempChildren.concat(node.props.dataRef.extChildren)
+            }
+            node.props.dataRef.children = tempChildren
+            node.props.dataRef.loaded = true
             this.setState({
                 treeData: [...this.state.treeData],
             });

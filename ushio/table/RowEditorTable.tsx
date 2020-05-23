@@ -66,6 +66,13 @@ const RowEditorTable = () =>{
       >
         删除十行
       </Button>
+      <Button
+        onClick={()=>{
+          table.current.setRowSelectedKeys([])
+        }}
+      >
+        清空选中
+      </Button>
       <Table
         style={{
           marginTop: 10

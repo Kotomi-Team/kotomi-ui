@@ -10,12 +10,13 @@ import { message } from 'antd';
 
 
 const BaseTree = () => {
+    const tree = React.createRef<Tree>()
     return (
         <Tree
+            ref={tree}
             contextMenu={[
-                <span key ='1'>Kotomi</span>,
-                <span key ='2'>Ushio</span>,
-                <span key ='3'>Clannad</span>
+                <span key ='add'>add</span>,
+                <span key ='delete'>delete</span>
             ]}
             loadData={async (data: TreeNodeData) => {
                 if (data === undefined) {
@@ -36,7 +37,25 @@ const BaseTree = () => {
                 return [newData]
             }}
             onClickContextMenu={(key,node)=>{
-                message.info(`key: ${key}, dataRef: ${JSON.stringify(node!.props.dataRef)}`)
+                if(key === 'delete'){
+                    if(tree.current){
+                        const id = node!.props.dataRef.key as string 
+                        tree.current.delNode(id)
+                    }
+                }else if(key === 'add'){
+                    const tempData: TreeNodeData[] = [{
+                            title: `add - ${new Date().getTime()}`,
+                            key: `${new Date().getTime()}`,
+                            dataRef: 1,
+                            children: []
+                        }]
+                    if(tree.current){
+                        const id = node!.props.dataRef.key as string 
+                        tree.current.appendNode(id, tempData)
+                    }
+                }else{
+                    message.info(`key: ${key}, dataRef: ${JSON.stringify(node!.props.dataRef)}`)
+                }
             }}
         />
     )

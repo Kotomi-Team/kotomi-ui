@@ -14,12 +14,7 @@ module.exports = {
     module: {
         rules: [{
             test: /\.less$/,
-            exclude: /node_modules/,
-            use: [
-              {
-                loader: 'style-loader',
-              },
-              {
+            use: [{
                 loader: 'css-loader',
               },
               {
@@ -30,6 +25,14 @@ module.exports = {
                 },
               },
             ],
+          },{
+            test: /\.css$/i,
+            use: [{
+              loader: 'css-loader',
+              options: {
+                esModule: true
+              },
+            }],
           },{
             enforce: "pre",
             test: /\.js$/,
