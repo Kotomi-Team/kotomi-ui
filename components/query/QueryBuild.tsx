@@ -169,8 +169,8 @@ const queryRender = (
                             setDropState({
                                 ...dropState,
                                 visible: true,
-                                pageX: e.pageX,
-                                pageY: e.pageY,
+                                pageX: e.clientX,
+                                pageY: e.clientY,
                                 key,
                                 menus,
                             })
@@ -196,8 +196,8 @@ const queryRender = (
                             setDropState({
                                 ...dropState,
                                 visible: true,
-                                pageX: e.pageX,
-                                pageY: e.pageY,
+                                pageX: e.clientX,
+                                pageY: e.clientY,
                                 key,
                                 menus,
                             })

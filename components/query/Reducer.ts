@@ -5,7 +5,7 @@ export interface State {
     querys: Query[]
 }
 
-type Action = { type: 'SET_QUERYS', payload: Query[] }
+export type Action = { type: 'SET_QUERYS', payload: Query[] }
 
 export const initialState = { querys: [] };
 
