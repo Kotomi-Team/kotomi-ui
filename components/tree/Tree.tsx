@@ -80,7 +80,6 @@ type State = {
     pageY: number
     isShowMenu: boolean,
     node?: AntTreeNode,
-    loadedKeys: string[],
 }
 
 /**
@@ -100,7 +99,6 @@ export class Tree extends React.Component<Props, State>{
         pageY: 0,
         isShowMenu: false,
         node: undefined,
-        loadedKeys: [],
     }
 
     constructor(props: Props) {
@@ -199,7 +197,6 @@ export class Tree extends React.Component<Props, State>{
                     loadData={this.onLoadData}
                     checkedKeys={this.props.checkedKeys}
                     checkable={this.props.checkable}
-                    loadedKeys={this.state.loadedKeys}
                     onRightClick={(e) => {
                         const self = this
                         if (this.props.onRightClick) {
@@ -221,7 +218,7 @@ export class Tree extends React.Component<Props, State>{
                             })
                         }
                     }}
-                    onSelect={(selectedKeys: string[], e: AntTreeNodeSelectedEvent) => {
+                    onSelect={(_selectedKeys: string[], e: AntTreeNodeSelectedEvent) => {
                         if (this.props.onTreeNodeClick) {
                             this.props.onTreeNodeClick(e.node.props.dataRef, e.selected!)
                         }
