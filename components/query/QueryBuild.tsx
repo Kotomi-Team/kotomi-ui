@@ -2,9 +2,10 @@ import React, { useState, useImperativeHandle, useReducer, useContext } from 're
 import * as shortid from 'shortid'
 import { QueryBuild as RcQueryBuild } from 'rc-query'
 import { Query } from 'rc-query/dist/interface'
-import { Input, Select, Col, Icon } from 'antd'
+import { Icon } from 'antd'
 import Dropdown from '../dropdown/Dropdown'
 import { reducer, initialState, State } from './Reducer'
+import { QueryInput, Field } from './QueryInput'
 
 interface DropdownState {
     key: string
@@ -21,77 +22,6 @@ const loops = (querys: Query[], cellback: (query: Query) => boolean) => {
         }
         return cellback(query)
     })
-}
-
-interface Field {
-    name: string
-    title: string
-}
-
-interface QueryInputProps {
-    // 字段信息
-    fields: Field[]
-    // 符号信息
-    symbols: string[]
-
-    field?: string
-    value?: string
-    symbol?: string
-
-    onChange?: (field: string, symbol: string, value: string) => void
-}
-
-const QueryInput = (props: QueryInputProps) => {
-    const [field, setField] = useState(props.field)
-    const [value, setValue] = useState(props.value)
-    const [symbol, setSymbol] = useState(props.symbol)
-    return (
-        <>
-            <Input.Group compact>
-                <Col span={9}>
-                    <Select
-                        style={{ width: '100%' }}
-                        value={field}
-                        onChange={(changeValue: string) => {
-                            setField(changeValue)
-                            if (props.onChange) {
-                                props.onChange(changeValue, symbol!, value!)
-                            }
-                        }}
-                    >
-                        {props.fields.map((element) => <Select.Option key={element.name} value={element.name}>{element.title}</Select.Option>)}
-                    </Select>
-                </Col>
-                <Col span={6}>
-                    <Select
-                        style={{ width: '100%' }}
-                        value={symbol}
-                        onChange={(changeValue: string) => {
-                            setSymbol(changeValue)
-                            if (props.onChange) {
-                                props.onChange(field!, changeValue, value!)
-                            }
-                        }}
-                    >
-                        {props.symbols.map(element => <Select.Option key={element} value={element}>{element}</Select.Option>)}
-                    </Select>
-                </Col>
-                <Col span={9}>
-                    <Input
-                        style={{ width: '100%' }}
-                        value={value}
-                        onChange={(e) => {
-                            const { value: tempValue } = e.target
-                            setValue(tempValue)
-                            if (props.onChange) {
-                                props.onChange(field!, symbol!, tempValue)
-                            }
-                        }}
-                    />
-                </Col>
-            </Input.Group>
-        </>
-    )
 }
 
 interface QueryBuildProps {
