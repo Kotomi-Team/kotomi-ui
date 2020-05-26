@@ -162,6 +162,7 @@ const queryRender = (
                             }
                             loopsFindQuery(rState.querys)
                             tempQuery!.dataRef = {
+                                ...tempQuery!.dataRef,
                                 field, symbol, value,
                             }
 
@@ -190,6 +191,9 @@ const getQuery = (
         margin: {
             x: 10,
             y: 20,
+        },
+        dataRef: {
+            type,
         },
         render: queryRender(
             type,
