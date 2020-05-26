@@ -16,6 +16,8 @@ export type TreeNodeData = {
     dataRef: any
     // 子节点数据
     children: TreeNodeData[],
+
+    isLeaf: boolean
     // 是否装载
     loaded?: boolean
     extChildren?: TreeNodeData[],
@@ -362,14 +364,20 @@ export class Tree extends React.Component<Props, State>{
             if (this.props.onRenderTreeNodeTitle) {
                 title = this.props.onRenderTreeNodeTitle(item)
             }
+
+            const extProps: any = {}
+            if (item.isLeaf) {
+                extProps.isLeaf = item.isLeaf
+            }
+
             if (item.children) {
                 return (
-                    <AntTree.TreeNode title={title} key={item.key} dataRef={item}>
+                    <AntTree.TreeNode {...extProps} title={title} key={item.key} dataRef={item}>
                         {this.renderTreeNodes(item.children)}
                     </AntTree.TreeNode>
                 )
             }
-            return <AntTree.TreeNode title={title} key={item.key} dataRef={item} />;
+            return <AntTree.TreeNode {...extProps} title={title} key={item.key} dataRef={item} />;
         })
     }
 }
