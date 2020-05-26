@@ -588,6 +588,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                         current={this.state.page}
                         total={this.state.total}
                         hideOnSinglePage
+                        showSizeChanger
                         pageSize={this.props.defaultPageSize!}
                         onChange={(page: number, pageSize?: number) => {
                             this.requestLoadData({
