@@ -114,6 +114,24 @@ export class Tree extends React.Component<Props, State>{
         })
     }
 
+    public updateNode(key: string, title: any) {
+        const loops = (nodeDatas: TreeNodeData[]) => {
+            nodeDatas.some((element) => {
+                if (element.key === key) {
+                    element.title = title
+                    return true
+                }
+                loops(element.children)
+                return false
+            })
+        }
+
+        loops(this.state.treeData)
+        this.setState({
+            treeData: [...this.state.treeData],
+        })
+    }
+
     public appendNode(parent: string | null, nodes: TreeNodeData[]) {
         const loops = (nodeDatas: TreeNodeData[], callback: (node: TreeNodeData) => Boolean) => {
             nodeDatas.some((element) => {

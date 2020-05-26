@@ -1,5 +1,6 @@
 import React from 'react'
 import { Checkbox as AntCheckbox } from 'antd';
+import './style/index.less'
 
 class Checkbox extends React.Component<any> {
 
@@ -10,9 +11,15 @@ class Checkbox extends React.Component<any> {
   }
 
   render() {
+    // 多状态
+    const extProps: any = {}
+    /* if(this.props.multistate){
+      extProps.className = 'kotomi-ext-checkbox'
+    } */
     return (
       <AntCheckbox
         {...this.props}
+        {...extProps}
         checked={this.state.value}
         onChange={(e: any) => {
           this.setState({

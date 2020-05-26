@@ -6,6 +6,8 @@ import { Tree } from './tree/Tree'
 import { Upload } from './upload/Upload'
 import { SketchPicker } from './picker/SketchPicker'
 import { RichEditor } from './rich/RichEditor'
+import { QueryBuild } from './query/QueryBuild'
+
 
 export {
     Table,
@@ -15,5 +17,6 @@ export {
     Upload,
     SketchPicker,
     Checkbox,
-    RichEditor
+    RichEditor,
+    QueryBuild 
 }

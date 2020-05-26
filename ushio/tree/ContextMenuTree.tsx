@@ -16,7 +16,8 @@ const BaseTree = () => {
             ref={tree}
             contextMenu={[
                 <span key ='add'>add</span>,
-                <span key ='delete'>delete</span>
+                <span key ='delete'>delete</span>,
+                <span key ='update'>update</span>
             ]}
             loadData={async (data: TreeNodeData) => {
                 if (data === undefined) {
@@ -52,6 +53,11 @@ const BaseTree = () => {
                     if(tree.current){
                         const id = node!.props.dataRef.key as string 
                         tree.current.appendNode(id, tempData)
+                    }
+                }else if(key === 'update'){
+                    if(tree.current){
+                        const id = node!.props.dataRef.key as string
+                        tree.current.updateNode(id, '-修改的标题')
                     }
                 }else{
                     message.info(`key: ${key}, dataRef: ${JSON.stringify(node!.props.dataRef)}`)
