@@ -350,17 +350,19 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
     }
 
     componentDidUpdate() {
+        const tablElement = ReactDOM.findDOMNode(this.table.current) as Element
+        const antTableBody = tablElement.getElementsByClassName('ant-table-body')[0]
+        const style = antTableBody.getAttribute('style')
+
+        antTableBody.setAttribute('style', style!.replace(/min-height:.*;/g, ''))
         if (this.state.dataSource.length > 0) {
             // 固定Table的高度
-            const tablElement = ReactDOM.findDOMNode(this.table.current) as Element
-            const antTableBody = tablElement.getElementsByClassName('ant-table-body')[0]
-            const style = antTableBody.getAttribute('style')
             const height = this.props.height
-            // antTableBody.removeAttribute('style')
+
             if (lodash.isNumber(height)) {
-                antTableBody.setAttribute('style', `${style}; min-height:${height}px`)
+                antTableBody.setAttribute('style', `${style}; min-height:${height}px;`)
             } else {
-                antTableBody.setAttribute('style', `${style}; min-height:${height}`)
+                antTableBody.setAttribute('style', `${style}; min-height:${height};`)
             }
         }
     }
@@ -590,7 +592,14 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                         hideOnSinglePage
                         showSizeChanger
                         showQuickJumper
-                        pageSize={this.props.defaultPageSize!}
+                        defaultPageSize={this.props.defaultPageSize!}
+                        onShowSizeChange={(page: number, pageSize?: number) => {
+                            this.requestLoadData({
+                                page,
+                                pageSize: pageSize!,
+                                sorter: {} as TableSorter,
+                            })
+                        }}
                         onChange={(page: number, pageSize?: number) => {
                             this.requestLoadData({
                                 page,
