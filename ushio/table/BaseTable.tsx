@@ -5,49 +5,66 @@
 
 import React from 'react'
 import { Table } from '../../components/index'
+import { Button } from 'antd'
 
 
 const BaseTable = () =>{
+  const table = React.createRef<any>()
   return (
-    <Table
-      columns={[{
-        dataIndex: '$index',
-        title: '序号',
-      },{
-        dataIndex: 'name',
-        title: '人员名称',
-        width: 80
-      },{
-        dataIndex: 'baseInfo',
-        title: '人员基础信息',
-        children:[{
-            dataIndex: 'six',
-            title: '性别',
-            width: 80
+    <>
+      <Button onClick={()=>{
+        table.current.reload({type: 'zeno'})
+      }}>清空</Button>
+       <Button onClick={()=>{
+        table.current.reload({})
+      }}>加载</Button>
+      <Table
+        refExt={table}
+        columns={[{
+          dataIndex: '$index',
+          title: '序号',
         },{
-            dataIndex: 'age',
-            title: '年龄',
-            width: 200
-        }]
-      }]}
-      editingType="row"
-      rowSelection="multiple"
-      loadData={async ({ page, pageSize })=>{
-        const datas: any = []
-        for(let i =0 ;i< 2 ; i++){
-          datas.push({
-            id: `${i}- ${page} `,
-            name: `@！#@#@@！#&……#&*@&￥@*&#@&#`,
-            six: `@！#@#@@！#&……#&*@&￥@*&#@&#`,
-            age: `${page} - age - ${i}`,
-          })
-        }
-        return {
-          dataSource: datas,
-          total: 2
-        }
-      }}
-    />
+          dataIndex: 'name',
+          title: '人员名称',
+          width: 80
+        },{
+          dataIndex: 'baseInfo',
+          title: '人员基础信息',
+          children:[{
+              dataIndex: 'six',
+              title: '性别',
+              width: 80
+          },{
+              dataIndex: 'age',
+              title: '年龄',
+              width: 200
+          }]
+        }]}
+        editingType="row"
+        rowSelection="multiple"
+        loadData={async ({ page, pageSize ,param})=>{
+          const datas: any = []
+          for(let i =0 ;i< 2 ; i++){
+            datas.push({
+              id: `${i}- ${page} `,
+              name: `@！#@#@@！#&……#&*@&￥@*&#@&#`,
+              six: `@！#@#@@！#&……#&*@&￥@*&#@&#`,
+              age: `${page} - age - ${i}`,
+            })
+          }
+          if(param.type === 'zeno'){
+            return {
+              dataSource: [],
+              total: 0
+            }
+          } 
+          return {
+            dataSource: datas,
+            total: 3
+          }
+        }}
+      />
+    </>
   )
 }
 

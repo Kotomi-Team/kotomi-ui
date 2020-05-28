@@ -64,15 +64,18 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
     }
 
     getEllipsisState(): boolean {
-
-        // eslint-disable-next-line react/no-find-dom-node
-        const element: Element = ReactDom.findDOMNode(this)! as Element
-        if (element.clientWidth < element.scrollWidth) {
-            if (this.props.column !== undefined) {
-                return true
+        try {
+            // eslint-disable-next-line react/no-find-dom-node
+            const element: Element = ReactDom.findDOMNode(this)! as Element
+            if (element.clientWidth < element.scrollWidth) {
+                if (this.props.column !== undefined) {
+                    return true
+                }
             }
+            return false
+        } catch (error) {
+            return false
         }
-        return false
     }
 
     getColumnInfo() {

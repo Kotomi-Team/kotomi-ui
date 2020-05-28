@@ -57,7 +57,10 @@ const BaseTree = () => {
                 }else if(key === 'update'){
                     if(tree.current){
                         const id = node!.props.dataRef.key as string
-                        tree.current.updateNode(id, '-修改的标题')
+                        tree.current.updateNode(id, (treeNode) => {
+                            treeNode.title = '修改数据'
+                            return treeNode
+                        })
                     }
                 }else{
                     message.info(`key: ${key}, dataRef: ${JSON.stringify(node!.props.dataRef)}`)

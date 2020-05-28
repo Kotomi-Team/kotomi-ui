@@ -16,6 +16,8 @@ export type TreeNodeData = {
     dataRef: any
     // 子节点数据
     children: TreeNodeData[],
+
+    isLeaf?: boolean
     // 是否装载
     loaded?: boolean
     extChildren?: TreeNodeData[],
@@ -114,98 +116,112 @@ export class Tree extends React.Component<Props, State>{
         })
     }
 
-    public updateNode(key: string, title: any) {
-        const loops = (nodeDatas: TreeNodeData[]) => {
-            nodeDatas.some((element) => {
-                if (element.key === key) {
-                    element.title = title
-                    return true
-                }
-                loops(element.children)
-                return false
-            })
-        }
+    public updateNode(key: string, callback: (treeNode: TreeNodeData) => TreeNodeData) {
+        return new Promise((resolve) => {
+            const loops = (nodeDatas: TreeNodeData[]) => {
+                nodeDatas.some((element) => {
+                    if (element.key === key) {
+                        element = callback(element)
+                        return true
+                    }
+                    loops(element.children)
+                    return false
+                })
+            }
 
-        loops(this.state.treeData)
-        this.setState({
-            treeData: [...this.state.treeData],
+            loops(this.state.treeData)
+            this.setState({
+                treeData: [...this.state.treeData],
+            }, () => {
+                resolve()
+            })
         })
+
     }
 
     public appendNode(parent: string | null, nodes: TreeNodeData[]) {
-        const loops = (nodeDatas: TreeNodeData[], callback: (node: TreeNodeData) => Boolean) => {
-            nodeDatas.some((element) => {
-                if (element.children && element.children.length > 0) {
-                    loops(element.children, callback)
+        return new Promise((resolve) => {
+            const loops = (nodeDatas: TreeNodeData[], callback: (node: TreeNodeData) => Boolean) => {
+                nodeDatas.some((element) => {
+                    if (element.children && element.children.length > 0) {
+                        loops(element.children, callback)
+                    }
+                    return callback(element)
+                })
+            }
+            let parentNode: TreeNodeData | undefined;
+            loops(this.state.treeData, (node) => {
+                if (node.key === parent) {
+                    parentNode = node
+                    return true
                 }
-                return callback(element)
+                return false
             })
-        }
-        let parentNode: TreeNodeData | undefined;
-        loops(this.state.treeData, (node) => {
-            if (node.key === parent) {
-                parentNode = node
-                return true
+
+            if (parentNode) {
+                if (parentNode.loaded) {
+                    nodes.forEach((element) => {
+                        parentNode!.children.push(element)
+                    })
+                }
+
+                if (lodash.isArray(parentNode.extChildren)) {
+                    nodes.forEach((element) => {
+                        parentNode!.extChildren!.push(element)
+                    })
+                }else {
+                    parentNode.extChildren = nodes
+                }
+
+                this.setState({
+                    treeData: [...this.state.treeData],
+                }, () => {
+                    resolve()
+                })
             }
-            return false
         })
-
-        if (parentNode) {
-            if (parentNode.loaded) {
-                nodes.forEach((element) => {
-                    parentNode!.children.push(element)
-                })
-            }
-
-            if (lodash.isArray(parentNode.extChildren)) {
-                nodes.forEach((element) => {
-                    parentNode!.extChildren!.push(element)
-                })
-            }else {
-                parentNode.extChildren = nodes
-            }
-
-            this.setState({
-                treeData: [...this.state.treeData],
-            })
-        }
 
     }
 
     // 删除指定的节点信息
     public delNode(keys: string | string[]) {
-        let delKey: string[] = []
-        if (lodash.isArray(keys)) {
-            delKey = keys
-        }else {
-            delKey.push(keys)
-        }
+        return new Promise((resolve) => {
+            let delKey: string[] = []
+            if (lodash.isArray(keys)) {
+                delKey = keys
+            }else {
+                delKey.push(keys)
+            }
 
-        const loops = (treeData: TreeNodeData[], callback: (node: TreeNodeData) => boolean) => {
-            const result: TreeNodeData[] = []
+            const loops = (treeData: TreeNodeData[], callback: (node: TreeNodeData) => boolean) => {
+                const result: TreeNodeData[] = []
 
-            for (let i = 0; i < treeData.length ; i++) {
-                if (treeData[i].children && treeData[i].children.length > 0) {
-                    const node = {
-                        ...treeData[i],
-                        children: loops(treeData[i].children, callback),
-                    } as unknown as TreeNodeData
-                    result.push(node)
-                }else {
-                    if (callback(treeData[i])) {
-                        result.push(treeData[i])
+                for (let i = 0; i < treeData.length ; i++) {
+                    if (treeData[i].children && treeData[i].children.length > 0) {
+                        const node = {
+                            ...treeData[i],
+                            children: loops(treeData[i].children, callback),
+                        } as unknown as TreeNodeData
+                        result.push(node)
+                    }else {
+                        if (callback(treeData[i])) {
+                            result.push(treeData[i])
+                        }
                     }
                 }
+                return result
             }
-            return result
-        }
-        const tempTreeData = loops(this.state.treeData, (node: TreeNodeData) => {
-            return delKey.indexOf(node.key) === -1
+            const tempTreeData = loops(this.state.treeData, (node: TreeNodeData) => {
+                return delKey.indexOf(node.key) === -1
+            })
+
+            this.setState({
+                treeData: tempTreeData,
+            }, () => {
+                resolve()
+            })
         })
 
-        this.setState({
-            treeData: tempTreeData,
-        })
     }
 
     render() {
@@ -362,14 +378,20 @@ export class Tree extends React.Component<Props, State>{
             if (this.props.onRenderTreeNodeTitle) {
                 title = this.props.onRenderTreeNodeTitle(item)
             }
+
+            const extProps: any = {}
+            if (item.isLeaf) {
+                extProps.isLeaf = item.isLeaf
+            }
+
             if (item.children) {
                 return (
-                    <AntTree.TreeNode title={title} key={item.key} dataRef={item}>
+                    <AntTree.TreeNode {...extProps} title={title} key={item.key} dataRef={item}>
                         {this.renderTreeNodes(item.children)}
                     </AntTree.TreeNode>
                 )
             }
-            return <AntTree.TreeNode title={title} key={item.key} dataRef={item} />;
+            return <AntTree.TreeNode {...extProps} title={title} key={item.key} dataRef={item} />;
         })
     }
 }
