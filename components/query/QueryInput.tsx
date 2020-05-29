@@ -24,21 +24,7 @@ export const QueryInput = (props: QueryInputProps) => {
     const [value, setValue] = useState(props.value)
     const [symbol, setSymbol] = useState(props.symbol)
 
-    const [valueInput, setValueInput] = useState<any>((
-        <>
-            <Input
-                style={{ width: '100%' }}
-                value={value}
-                onChange={(e) => {
-                    const { value: tempValue } = e.target
-                    setValue(tempValue)
-                    if (props.onChange) {
-                       props.onChange(field!, symbol!, tempValue)
-                    }
-                }}
-            />
-        </>
-    ))
+    const [valueInput, setValueInput] = useState<any>()
     return (
         <>
             <Input.Group compact>
@@ -75,7 +61,19 @@ export const QueryInput = (props: QueryInputProps) => {
                     </Select>
                 </Col>
                 <Col span={9}>
-                    {valueInput}
+                    {valueInput === undefined ? (
+                        <Input
+                            style={{ width: '100%' }}
+                            value={value}
+                            onChange={(e) => {
+                                const { value: tempValue } = e.target
+                                if (props.onChange) {
+                                    props.onChange(field!, symbol!, tempValue)
+                                    setValue(tempValue)
+                                }
+                            }}
+                        />
+                    ) : valueInput}
                 </Col>
             </Input.Group>
         </>
