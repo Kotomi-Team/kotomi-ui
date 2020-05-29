@@ -23,6 +23,16 @@ const CellTable = () => {
       >
         添加一行
       </Button>
+      <Button
+        style={{
+          marginLeft: 20
+        }}
+        onClick={()=>{
+          table.current.reload({})
+        }}
+      >
+        刷新数据
+      </Button>
       <Table
         refExt={table}
         columns={[{

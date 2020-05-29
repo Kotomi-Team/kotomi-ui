@@ -16,13 +16,29 @@ interface QueryInputProps {
     value?: string
     symbol?: string
 
-    onChange?: (field: string, symbol: string, value: string) => void
+    onChange?: (field: string, symbol: string, value: string) => JSX.Element | void
 }
 
 export const QueryInput = (props: QueryInputProps) => {
     const [field, setField] = useState(props.field)
     const [value, setValue] = useState(props.value)
     const [symbol, setSymbol] = useState(props.symbol)
+
+    const [valueInput, setValueInput] = useState<any>((
+        <>
+            <Input
+                style={{ width: '100%' }}
+                value={value}
+                onChange={(e) => {
+                    const { value: tempValue } = e.target
+                    setValue(tempValue)
+                    if (props.onChange) {
+                       props.onChange(field!, symbol!, tempValue)
+                    }
+                }}
+            />
+        </>
+    ))
     return (
         <>
             <Input.Group compact>
@@ -33,7 +49,11 @@ export const QueryInput = (props: QueryInputProps) => {
                         onChange={(changeValue: string) => {
                             setField(changeValue)
                             if (props.onChange) {
-                                props.onChange(changeValue, symbol!, value!)
+                                const tempElement = props.onChange(changeValue, symbol!, value!)
+                                 // @ts-ignore
+                                if (React.isValidElement(tempElement)) {
+                                    setValueInput(tempElement)
+                                }
                             }
                         }}
                     >
@@ -55,17 +75,7 @@ export const QueryInput = (props: QueryInputProps) => {
                     </Select>
                 </Col>
                 <Col span={9}>
-                    <Input
-                        style={{ width: '100%' }}
-                        value={value}
-                        onChange={(e) => {
-                            const { value: tempValue } = e.target
-                            setValue(tempValue)
-                            if (props.onChange) {
-                                props.onChange(field!, symbol!, tempValue)
-                            }
-                        }}
-                    />
+                    {valueInput}
                 </Col>
             </Input.Group>
         </>

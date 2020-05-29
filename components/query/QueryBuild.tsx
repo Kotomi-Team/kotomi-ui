@@ -27,6 +27,9 @@ const loops = (querys: Query[], cellback: (query: Query) => boolean) => {
 interface QueryBuildProps {
     fields: Field[]
     symbols: string[]
+    // 默认的查询构建语法
+    defaultQuerys?: Query[]
+    onChangeField?: (field: string, symbol: string, value: string) => JSX.Element | void
 }
 
 interface IContextProps {
@@ -165,7 +168,9 @@ const queryRender = (
                                 ...tempQuery!.dataRef,
                                 field, symbol, value,
                             }
-
+                            if (props.onChangeField) {
+                                return props.onChangeField(field, symbol, value)
+                            }
                         }}
                     />
                 </div>
@@ -209,8 +214,7 @@ const getQuery = (
 }
 
 export const QueryBuild = React.forwardRef((props: QueryBuildProps, ref: any) => {
-    const [state, dispatch] = useReducer(reducer, initialState);
-    const { querys } = state
+    const defaultQuerys = props.defaultQuerys || []
     const [dropState, setDropState] = useState<DropdownState>({
         key: '',
         visible: false,
@@ -223,8 +227,29 @@ export const QueryBuild = React.forwardRef((props: QueryBuildProps, ref: any) =>
         ],
     })
 
+    /** 初始化保存的节点信息 */
+    const loopsQuerys = (loopQuery: Query[]) => {
+        loopQuery.forEach((query: Query) => {
+            if (query.children && query.children.length > 0) {
+                loopsQuerys(query.children)
+            }
+            const tempQuery = getQuery(query.dataRef.type, dropState, setDropState, props)
+            query.render = tempQuery.render
+            query.key = tempQuery.key
+        })
+    }
+    loopsQuerys(defaultQuerys)
+    initialState.querys = defaultQuerys
+    const [state, dispatch] = useReducer(reducer, initialState);
+
+    const { querys } = state
+
     useImperativeHandle(ref, () => ({
         getQueryJSON: () => JSON.parse(JSON.stringify(querys)),
+        setQueryJSON: (json: Query[]) => {
+            loopsQuerys(json)
+            dispatch({ type: 'SET_QUERYS', payload: [...json] });
+        },
     }))
 
     return (
