@@ -22,14 +22,44 @@ const BaseTable = () =>{
         refExt={table}
         columns={[{
           dataIndex: '$index',
+          width: 180,
           title: '序号',
+        },{
+          dataIndex: '$index',
+          width: 180,
+          title: '序号1',
+        },{
+          dataIndex: '$index',
+          width: 180,
+          title: '序号2',
+        },{
+          dataIndex: '$index',
+          width: 180,
+          title: '序号3',
+        },{
+          dataIndex: '$index',
+          width: 180,
+          title: '序号4',
+        },{
+          dataIndex: '$index',
+          width: 180,
+          title: '序号5',
+        },{
+          dataIndex: '$index',
+          width: 180,
+          title: '序号6',
+        },{
+          dataIndex: '$index',
+          width: 180,
+          title: '序号7',
         },{
           dataIndex: 'name',
           title: '人员名称',
-          width: 80
+          width: 180
         },{
           dataIndex: 'baseInfo',
           title: '人员基础信息',
+          width: 280,
           children:[{
               dataIndex: 'six',
               title: '性别',

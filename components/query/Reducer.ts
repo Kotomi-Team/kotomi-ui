@@ -7,7 +7,7 @@ export interface State {
 
 export type Action = { type: 'SET_QUERYS', payload: Query[] }
 
-export const initialState = { querys: [] };
+export const initialState: { querys: Query[] } = { querys: [] }
 
 export function reducer(state: State, action: Action) {
     switch (action.type) {
