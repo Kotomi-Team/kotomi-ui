@@ -34,12 +34,15 @@ export const QueryInput = (props: QueryInputProps) => {
                         value={field}
                         onChange={(changeValue: string) => {
                             setField(changeValue)
+                            setValue('')
                             if (props.onChange) {
-                                const tempElement = props.onChange(changeValue, symbol!, value!)
+
+                                const tempElement = props.onChange(changeValue, symbol!, '')
                                  // @ts-ignore
                                 if (React.isValidElement(tempElement)) {
                                     setValueInput(tempElement)
                                 }
+
                             }
                         }}
                     >
@@ -73,7 +76,16 @@ export const QueryInput = (props: QueryInputProps) => {
                                 }
                             }}
                         />
-                    ) : valueInput}
+                    ) : React.cloneElement(valueInput,{
+                        style:{ width: '100%' },
+                        value,
+                        onChange: (tempValue: string) => {
+                            setValue(tempValue)
+                            if (props.onChange) {
+                                props.onChange(field!, symbol!, tempValue!)
+                            }
+                        }
+                    })}
                 </Col>
             </Input.Group>
         </>

@@ -5,7 +5,7 @@
 
 import React, { useRef } from 'react'
 import { QueryBuild } from '../../components/query/QueryBuild'
-import { Button, message, InputNumber } from 'antd'
+import { Button, message, Select } from 'antd'
 
 const BaseForm = () => {
   const querybuild = useRef()
@@ -50,7 +50,12 @@ const BaseForm = () => {
         }}
         onChangeField={(field) => {
           if(field === 'six'){
-            return <InputNumber />
+            return (
+              <Select defaultValue="0">
+                <Select.Option value="0">女</Select.Option>
+                <Select.Option value="1">男</Select.Option>
+              </Select>
+            )
           }
           return ;
         }}
