@@ -286,7 +286,7 @@ export const QueryBuild = React.forwardRef((props: QueryBuildProps, ref: any) =>
                 menus={dropState.menus}
                 onClick={(element) => {
                     const key = element.key as string
-                    const tempQuery = getQuery({ type: key}, dropState, setDropState, props)
+                    const tempQuery = getQuery({ type: key }, dropState, setDropState, props)
                     if (dropState.key === '') {
                         querys.push(tempQuery)
 

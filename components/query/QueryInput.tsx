@@ -76,15 +76,15 @@ export const QueryInput = (props: QueryInputProps) => {
                                 }
                             }}
                         />
-                    ) : React.cloneElement(valueInput,{
-                        style:{ width: '100%' },
+                    ) : React.cloneElement(valueInput, {
+                        style: { width: '100%' },
                         value,
                         onChange: (tempValue: string) => {
                             setValue(tempValue)
                             if (props.onChange) {
                                 props.onChange(field!, symbol!, tempValue!)
                             }
-                        }
+                        },
                     })}
                 </Col>
             </Input.Group>

@@ -5,7 +5,7 @@
 
 import React, { useRef } from 'react'
 import { QueryBuild } from '../../components/query/QueryBuild'
-import { Button, message, Select } from 'antd'
+import { Button, message, Select, Input } from 'antd'
 
 const BaseForm = () => {
   const querybuild = useRef()
@@ -57,7 +57,7 @@ const BaseForm = () => {
               </Select>
             )
           }
-          return ;
+          return <Input />;
         }}
         fields={[{
           name: 'name',

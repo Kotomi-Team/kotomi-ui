@@ -12,7 +12,8 @@ const DropdownMenuTable = () => {
     <Table
       columns={[{
         dataIndex: 'name',
-        title: '人员名称'
+        title: '人员名称',
+        sorter: true
       }, {
         dataIndex: 'six',
         title: '性别'
