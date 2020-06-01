@@ -37,7 +37,7 @@ const DropdownMenuTable = () => {
           total: 2000
         }
       }}
-      onRenderDropdownMenu={(render: JSX.Element) => {
+      onRenderDropdownMenu={() => {
         return (
           <Menu>
             <Menu.Item
@@ -45,7 +45,6 @@ const DropdownMenuTable = () => {
             >
               这是一个右键demo
             </Menu.Item>
-            {render}
           </Menu>
         )
       }}

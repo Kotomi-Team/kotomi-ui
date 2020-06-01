@@ -66,7 +66,7 @@
     "@typescript-eslint/parser": "~2.14.0",
     "babel-loader": "~8.0.6",
     "css-loader": "^3.5.3",
-    "dumi": "~1.0.26",
+    "dumi": "~1.0.28",
     "eslint": "~6.8.0",
     "eslint-plugin-react": "~7.17.0",
     "husky": "~4.0.0",

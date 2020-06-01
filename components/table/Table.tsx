@@ -200,7 +200,7 @@ interface Props<T> extends FormComponentProps<T> {
     /**
      * 渲染下拉框的时候触发的事件
      */
-    onRenderDropdownMenu?: (render: JSX.Element) => JSX.Element
+    onRenderDropdownMenu?: () => JSX.Element
 
     /**
      * 装载子节点数据
@@ -403,19 +403,6 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
     }
 
     render() {
-
-        /*
-        const columns = this.props.columns.map((col, index) => ({
-            ...col,
-            onHeaderCell: (column: any) => ({
-              width: column.width,
-              onResize: (index: any) => {
-                console.log(index)
-              },
-            }),
-        }));
-        */
-
         const extProps = {
             expandIconColumnIndex: 0,
             expandedRowKeys: this.props.expandedRowKeys,
@@ -743,6 +730,24 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
             }
         })
 
+    }
+
+    // 导出文件
+    public exportData(type: 'xls') {
+        const { dataSource, rowSelectedKeys } = this.state;
+        const { rowKey } = this.props
+        const filename = `${this.props.defaultExportFileName}.${type}`
+        const book = XLSX.utils.book_new()
+        let bookSheet;
+        if (rowSelectedKeys.length > 0) {
+            bookSheet = XLSX.utils.json_to_sheet(dataSource.filter((element) => {
+                return rowSelectedKeys.indexOf(element[rowKey!]) !== -1
+            }));
+        } else {
+            bookSheet = XLSX.utils.json_to_sheet([...dataSource]);
+        }
+        XLSX.utils.book_append_sheet(book, bookSheet, this.props.defaultExportFileName);
+        XLSX.writeFile(book, filename);
     }
 
     /**
@@ -1471,36 +1476,9 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
         }
     }
 
-    // 导出文件
-    protected exportData(type: 'xls') {
-        const { dataSource, rowSelectedKeys } = this.state;
-        const { rowKey } = this.props
-        const filename = `${this.props.defaultExportFileName}.${type}`
-        const book = XLSX.utils.book_new()
-        let bookSheet;
-        if (rowSelectedKeys.length > 0) {
-            bookSheet = XLSX.utils.json_to_sheet(dataSource.filter((element) => {
-                return rowSelectedKeys.indexOf(element[rowKey!]) !== -1
-            }));
-        } else {
-            bookSheet = XLSX.utils.json_to_sheet([...dataSource]);
-        }
-        XLSX.utils.book_append_sheet(book, bookSheet, this.props.defaultExportFileName);
-        XLSX.writeFile(book, filename);
-    }
-
     // 获取右键点击
     protected getDropdownMenu() {
-        const dropdownMenu = (
-            <Menu.Item
-                key="xls"
-                onClick={() => { this.exportData('xls') }}
-            >
-                <Icon type="file-excel" />
-                Export xls
-            </Menu.Item>
-        )
-        return this.props.onRenderDropdownMenu!(dropdownMenu)
+        return this.props.onRenderDropdownMenu!()
     }
 }
 
