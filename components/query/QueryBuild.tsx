@@ -39,7 +39,7 @@ interface IContextProps {
 const QueryContext = React.createContext({} as IContextProps);
 
 const queryRender = (
-    type: string,
+    dataRef: any,
     dropState: any,
     setDropState: any,
     key: string,
@@ -87,7 +87,7 @@ const queryRender = (
                 }}
             />
         )
-        if (type === 'AND') {
+        if (dataRef.type === 'AND') {
             return (
                 <>
                     <div
@@ -115,7 +115,7 @@ const queryRender = (
                 </>
             )
         }
-        else if (type === 'OR') {
+        else if (dataRef.type === 'OR') {
             return (
                 <>
                     <div
@@ -149,6 +149,9 @@ const queryRender = (
                     <QueryInput
                         fields={props.fields}
                         symbols={props.symbols}
+                        field={dataRef.field}
+                        value={dataRef.value}
+                        symbol={dataRef.symbol}
                         onChange={(field, symbol, value) => {
                             let tempQuery: Query | undefined;
                             const loopsFindQuery = (tempQuerys: Query[]) => {
@@ -181,14 +184,14 @@ const queryRender = (
 }
 
 const getQuery = (
-    type: string,
+    dataRef: any,
     dropState: any,
     setDropState: any,
     queryBuildProps: QueryBuildProps,
 ) => {
     const key = shortid.generate()
-    const width = type === 'NORMAL' ? 400 : 60
-    const height = type === 'NORMAL' ? 32 : 30
+    const width = dataRef.type === 'NORMAL' ? 400 : 60
+    const height = dataRef.type === 'NORMAL' ? 32 : 30
     return {
         key,
         height,
@@ -197,11 +200,9 @@ const getQuery = (
             x: 10,
             y: 20,
         },
-        dataRef: {
-            type,
-        },
+        dataRef,
         render: queryRender(
-            type,
+            dataRef,
             dropState,
             setDropState,
             key,
@@ -233,9 +234,10 @@ export const QueryBuild = React.forwardRef((props: QueryBuildProps, ref: any) =>
             if (query.children && query.children.length > 0) {
                 loopsQuerys(query.children)
             }
-            const tempQuery = getQuery(query.dataRef.type, dropState, setDropState, props)
+            const tempQuery = getQuery(query.dataRef, dropState, setDropState, props)
             query.render = tempQuery.render
             query.key = tempQuery.key
+            query.dataRef = query.dataRef
         })
     }
     loopsQuerys(defaultQuerys)
@@ -284,7 +286,7 @@ export const QueryBuild = React.forwardRef((props: QueryBuildProps, ref: any) =>
                 menus={dropState.menus}
                 onClick={(element) => {
                     const key = element.key as string
-                    const tempQuery = getQuery(key, dropState, setDropState, props)
+                    const tempQuery = getQuery({ type: key }, dropState, setDropState, props)
                     if (dropState.key === '') {
                         querys.push(tempQuery)
 

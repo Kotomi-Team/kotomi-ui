@@ -377,6 +377,8 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
         self.dataSourceState.create.splice(0)
         self.dataSourceState.delete.splice(0)
         self.dataSourceState.update.splice(0)
+        // 清空当前编辑的数据
+        this.currentEditorCell.splice(0)
         self.setState({})
     }
 
