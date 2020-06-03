@@ -16,15 +16,14 @@ interface QueryInputProps {
     value?: string
     symbol?: string
 
-    onChange?: (field: string, symbol: string, value: string) => JSX.Element | void
+    onChange: (field: string, symbol: string, value: string) => JSX.Element | void
 }
 
 export const QueryInput = (props: QueryInputProps) => {
     const [field, setField] = useState(props.field)
     const [value, setValue] = useState(props.value)
     const [symbol, setSymbol] = useState(props.symbol)
-
-    const [valueInput, setValueInput] = useState<any>()
+    const [valueInput, setValueInput] = useState<any>(props.onChange(field!, symbol!, value!))
     return (
         <>
             <Input.Group compact>

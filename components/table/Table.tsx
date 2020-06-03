@@ -130,6 +130,9 @@ interface Props<T> extends FormComponentProps<T> {
     // 扩展的表格信息
     refExt?: Function | any
 
+    // 指定每页可以显示多少条
+    pageSizeOptions?: string[]
+
     /**
      * 当前表格的选择状态
      * @param changeRowsKeys  当前所有变化的Row的key
@@ -274,6 +277,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
         defaultExportFileName: `${new Date().getTime()}`,
         rowSelectedKeys: [],
         bordered: false,
+        pageSizeOptions: ['50', '40', '30', '20', '10'],
         onSelect: () => true,
         onRow: () => { },
         onSave: async () => true,
@@ -581,6 +585,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                         hideOnSinglePage
                         showSizeChanger
                         showQuickJumper
+                        pageSizeOptions={this.props.pageSizeOptions}
                         defaultPageSize={this.props.defaultPageSize!}
                         onShowSizeChange={(page: number, pageSize?: number) => {
                             this.requestLoadData({
