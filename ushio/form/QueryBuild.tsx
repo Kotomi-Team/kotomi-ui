@@ -7,6 +7,15 @@ import React, { useRef } from 'react'
 import { QueryBuild } from '../../components/query/QueryBuild'
 import { Button, message, Select, Input } from 'antd'
 
+const TempInput = (props: any) => {
+  return <Input
+    value={props.value}
+    onChange={(e) => {
+      props.onChange(e.target.value)
+    }} 
+  />
+}
+
 const BaseForm = () => {
   const querybuild = useRef()
  
@@ -57,7 +66,7 @@ const BaseForm = () => {
               </Select>
             )
           }
-          return <Input />;
+          return <TempInput />;
         }}
         fields={[{
           name: 'name',
