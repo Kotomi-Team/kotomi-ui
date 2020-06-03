@@ -28,7 +28,7 @@ const BaseTable = () =>{
         for(let i =0 ;i< pageSize ; i++){
           datas.push({
             id: i,
-            name: `${page} - name - ${i} - 这是一个超出的文字内容`,
+            name: `${page} - name - ${i} - 这是一个超出的文字内容是一个超出的文字内容是一个超出的文字内容是一个超出的文字内容\n 我的名字 \n\t 叫做张尽`,
             six: `${page} - six - ${i}`,
             age: `${page} - age - ${i}`,
           })
