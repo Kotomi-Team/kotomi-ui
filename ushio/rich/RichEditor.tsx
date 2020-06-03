@@ -6,7 +6,7 @@ import React from 'react'
 import { RichEditor as TempRichEditor } from '../../components/index'
 
 const RichEditor = () => {
-    return <TempRichEditor onChange={(context: any)=>{ console.log(context)}}/>
+    return <div style={{ height: 200}}><TempRichEditor onChange={(context: any)=>{ console.log(context)}}/></div>
 }
 
 export default RichEditor

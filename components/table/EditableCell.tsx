@@ -339,10 +339,6 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
                 <Tooltip
                     overlayClassName='kotomi-components-table-cell-ellipsis'
                     title={this.props.record[this.props.column.dataIndex!]}
-                    overlayStyle={{
-                        overflow: 'auto',
-                        maxHeight: 100,
-                    }}
                     placement='bottomLeft'
                 >
                     {td}
