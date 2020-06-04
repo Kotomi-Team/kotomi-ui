@@ -167,12 +167,14 @@ const queryRender = (
                                 })
                             }
                             loopsFindQuery(rState.querys)
-                            tempQuery!.dataRef = {
-                                ...tempQuery!.dataRef,
-                                field, symbol, value,
-                            }
-                            if (props.onChangeField) {
-                                return props.onChangeField(field, symbol, value)
+                            if(tempQuery){
+                                tempQuery!.dataRef = {
+                                    ...tempQuery!.dataRef,
+                                    field, symbol, value,
+                                }
+                                if (props.onChangeField) {
+                                    return props.onChangeField(field, symbol, value)
+                                }
                             }
                         }}
                     />

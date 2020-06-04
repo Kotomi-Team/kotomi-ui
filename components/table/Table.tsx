@@ -277,7 +277,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
         defaultExportFileName: `${new Date().getTime()}`,
         rowSelectedKeys: [],
         bordered: false,
-        pageSizeOptions: ['50', '40', '30', '20', '10'],
+        pageSizeOptions: ['10', '20', '30', '40', '50'],
         onSelect: () => true,
         onRow: () => { },
         onSave: async () => true,

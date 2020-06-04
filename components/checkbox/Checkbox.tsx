@@ -13,9 +13,6 @@ class Checkbox extends React.Component<any> {
   render() {
     // 多状态
     const extProps: any = {}
-    /* if(this.props.multistate){
-      extProps.className = 'kotomi-ext-checkbox'
-    } */
     return (
       <AntCheckbox
         {...this.props}
