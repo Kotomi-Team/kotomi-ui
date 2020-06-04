@@ -1,34 +1,39 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Checkbox as AntCheckbox } from 'antd';
+
 import './style/index.less'
 
-class Checkbox extends React.Component<any> {
+const Checkbox = (props: any) => {
 
-  public static Group = AntCheckbox.Group
+  const [value, setValue] = useState(props.value)
 
-  state = {
-    value: this.props.value,
-  }
+  return (
+    <AntCheckbox
+      {...props}
+      className={ value === undefined ? 'kotomi-ext-checkbox' : undefined}
+      checked={value || false}
+      onChange={() => {
+        let tempValue;
+        if (value === undefined) {
+          tempValue = false
+        }
 
-  render() {
-    // 多状态
-    const extProps: any = {}
-    return (
-      <AntCheckbox
-        {...this.props}
-        {...extProps}
-        checked={this.state.value}
-        onChange={(e: any) => {
-          this.setState({
-            value: e.target.checked,
-          })
-          if (this.props.onChange) {
-            this.props.onChange(e.target.checked)
-          }
-        }}
-      />
-    )
-  }
+        if (value === false) {
+          tempValue = true
+        }
+
+        if (value === true) {
+          tempValue = undefined
+        }
+
+        setValue(tempValue)
+        if (props.onChange) {
+          props.onChange(tempValue)
+        }
+
+      }}
+    />
+  )
 }
 
-export default Checkbox
+export default Checkbox;

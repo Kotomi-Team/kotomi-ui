@@ -167,7 +167,7 @@ const queryRender = (
                                 })
                             }
                             loopsFindQuery(rState.querys)
-                            if(tempQuery){
+                            if (tempQuery) {
                                 tempQuery!.dataRef = {
                                     ...tempQuery!.dataRef,
                                     field, symbol, value,
