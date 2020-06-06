@@ -3,24 +3,25 @@
  * desc: 选择受控的目录树
  */
 
-import React, { useState } from 'react'
+import React, { useRef } from 'react'
 
 import { Tree, TreeNodeData } from '../../components/tree/Tree';
 import { Button } from 'antd';
 
 
 const SelectTree = () => {
-    const [selectKey, setSelectKey] = useState<string[]>([])
+    const treeRef = useRef<any>()
     return (
         <>
             <Button
                 onClick={() => {
-                    setSelectKey(['1'])
+                    treeRef.current!.setSelectedKeys(['1'])
                 }}
             >
                 选择Key 为 1的数据
             </Button>
             <Tree
+                ref={treeRef}
                 loadData={async (data: TreeNodeData) => {
                     if (data === undefined) {
                         return [{
@@ -40,7 +41,6 @@ const SelectTree = () => {
                     return [newData]
                 }}
                 isDirectoryTree
-                selectedKeys={selectKey}
             />
         </>
     )

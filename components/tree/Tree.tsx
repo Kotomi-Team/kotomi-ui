@@ -57,11 +57,6 @@ type Props = {
     isDirectoryTree?: boolean
 
     /**
-     * 选中树节点
-     */
-    selectedKeys?: string[]
-
-    /**
      * 渲染节点title的时候触发的事件，返回一个新的title对象
      * @param data 当前树状节点的数据
      * @param render 当前渲染的节点数据
@@ -112,13 +107,6 @@ export class Tree extends React.Component<Props, State>{
         isDirectoryTree: false,
     }
 
-    static getDerivedStateFromProps(nextProps: Readonly<Props>, preState: State) {
-        if (!lodash.isEqual(nextProps.selectedKeys, preState.selectedKeys)) {
-            return { ...preState, selectedKeys: nextProps.selectedKeys }
-        }
-        return null
-    }
-
     state = {
         treeData: [],
         pageX: 0,
@@ -130,7 +118,6 @@ export class Tree extends React.Component<Props, State>{
 
     constructor(props: Props) {
         super(props)
-        this.state.selectedKeys = (props.selectedKeys || []) as never[]
         this.onLoadData = this.onLoadData.bind(this)
     }
 
@@ -163,6 +150,12 @@ export class Tree extends React.Component<Props, State>{
             })
         })
 
+    }
+
+    public setSelectedKeys(keys: string[]) {
+        this.setState({
+            selectedKeys: keys,
+        })
     }
 
     public appendNode(parent: string | null, nodes: TreeNodeData[]) {
@@ -253,6 +246,7 @@ export class Tree extends React.Component<Props, State>{
     render() {
 
         const TempTree = this.props.isDirectoryTree === true ? AntTree.DirectoryTree : AntTree
+
         return (
             <>
                 <TempTree
@@ -284,7 +278,7 @@ export class Tree extends React.Component<Props, State>{
                     blockNode={this.props.blockNode}
                     onSelect={(selectedKeys: string[], e: AntTreeNodeSelectedEvent) => {
                         this.setState({
-                            selectedKeys,
+                            selectedKeys: lodash.cloneDeep(selectedKeys),
                         })
                         if (this.props.onTreeNodeClick) {
                             this.props.onTreeNodeClick(e.node.props.dataRef, e.selected!)
