@@ -25,6 +25,9 @@
 |onTreeNodeClick       | 点击树节点触发的事件
 |onClickContextMenu    | 点击右键菜单的时候触发的事件
 |onDrag                | 拖拽节点触发的事件
+|blockNode             | 是否独占一行
+|isDirectoryTree       | 是否是目录树
+|selectedKeys          | 选中树节点
 
 ## TreeNodeData 
 
