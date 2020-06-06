@@ -1,6 +1,6 @@
 /**
- * title: 选择受控的树
- * desc: 一个简单的树组件
+ * title: 目录树
+ * desc: 选择受控的目录树
  */
 
 import React, { useState } from 'react'
@@ -39,7 +39,6 @@ const SelectTree = () => {
                     }
                     return [newData]
                 }}
-                blockNode
                 isDirectoryTree
                 selectedKeys={selectKey}
             />

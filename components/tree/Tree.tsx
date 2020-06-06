@@ -97,7 +97,7 @@ type State = {
     pageY: number
     isShowMenu: boolean,
     node?: AntTreeNode,
-    selectedKeys?: string[]
+    selectedKeys?: string[],
 }
 
 /**
@@ -109,7 +109,14 @@ export class Tree extends React.Component<Props, State>{
         checkable: false,
         checkedKeys: [],
         onRightClick: async() => true,
-        isDirectoryTree: false
+        isDirectoryTree: false,
+    }
+
+    static getDerivedStateFromProps(nextProps: Readonly<Props>, preState: State) {
+        if (!lodash.isEqual(nextProps.selectedKeys, preState.selectedKeys)) {
+            return { ...preState, selectedKeys: nextProps.selectedKeys }
+        }
+        return null
     }
 
     state = {
@@ -123,15 +130,8 @@ export class Tree extends React.Component<Props, State>{
 
     constructor(props: Props) {
         super(props)
-        this.state.selectedKeys = (props.selectedKeys || []) as never[] 
+        this.state.selectedKeys = (props.selectedKeys || []) as never[]
         this.onLoadData = this.onLoadData.bind(this)
-    }
-
-    static getDerivedStateFromProps(nextProps: Readonly<Props>, preState: State){
-        if(!lodash.isEqual(nextProps.selectedKeys, preState.selectedKeys)){
-            return { ...preState, selectedKeys: nextProps.selectedKeys}
-        }
-        return null
     }
 
     componentDidMount() {

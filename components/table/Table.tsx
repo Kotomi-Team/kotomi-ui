@@ -251,7 +251,7 @@ type State<T> = {
     editingKey?: string,
     disabledCheck: boolean,
     rowSelectedKeys: string[],
-    columns?: ColumnProps<T>[]
+    columns?: ColumnProps<T>[],
 }
 
 export type TableSorter = {
@@ -292,8 +292,8 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
         },
         onRenderDropdownMenu: () => {
             return (
-                <Menu>
-                </Menu>
+
+                <Menu/>
             )
         },
         onRenderTooltip: (render: JSX.Element) => {
@@ -313,7 +313,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
         editingKey: undefined,
         disabledCheck: false,
         rowSelectedKeys: [],
-        columns: []
+        columns: [],
     }
 
     private table: React.RefObject<AntTable<T>> = React.createRef<AntTable<T>>()
@@ -333,7 +333,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
     constructor(props: Props<T>) {
         super(props)
         this.state.rowSelectedKeys = (props.rowSelectedKeys || []) as never[]
-        this.state.columns =  (props.columns || []) as never[]
+        this.state.columns = (props.columns || []) as never[]
     }
 
     componentDidMount() {
@@ -1266,15 +1266,14 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                     column.width = 120
                 }
 
-
                 // 设置列的可配置
                 column.filterDropdown = () => {
                     return (
                         <Tree
                             checkable
-                            
+
                         >
-                            {columns.map((tempCol, index) => <Tree.TreeNode title={tempCol.title} selectable={false} key={`${tempCol.dataIndex}`} ></Tree.TreeNode>)}
+                            {columns.map((tempCol, _index) => <Tree.TreeNode title={tempCol.title} selectable={false} key={`${tempCol.dataIndex}`} />)}
                         </Tree>
                     )
                 }
