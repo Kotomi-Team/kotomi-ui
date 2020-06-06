@@ -47,6 +47,21 @@ type Props = {
     contextMenu?: JSX.Element[]
 
     /**
+     * 是否独占一行
+     */
+    blockNode?: boolean,
+
+    /**
+     * 是否是目录树
+     */
+    isDirectoryTree?: boolean
+
+    /**
+     * 选中树节点
+     */
+    selectedKeys?: string[]
+
+    /**
      * 渲染节点title的时候触发的事件，返回一个新的title对象
      * @param data 当前树状节点的数据
      * @param render 当前渲染的节点数据
@@ -82,6 +97,7 @@ type State = {
     pageY: number
     isShowMenu: boolean,
     node?: AntTreeNode,
+    selectedKeys?: string[],
 }
 
 /**
@@ -93,6 +109,14 @@ export class Tree extends React.Component<Props, State>{
         checkable: false,
         checkedKeys: [],
         onRightClick: async() => true,
+        isDirectoryTree: false,
+    }
+
+    static getDerivedStateFromProps(nextProps: Readonly<Props>, preState: State) {
+        if (!lodash.isEqual(nextProps.selectedKeys, preState.selectedKeys)) {
+            return { ...preState, selectedKeys: nextProps.selectedKeys }
+        }
+        return null
     }
 
     state = {
@@ -101,10 +125,12 @@ export class Tree extends React.Component<Props, State>{
         pageY: 0,
         isShowMenu: false,
         node: undefined,
+        selectedKeys: [],
     }
 
     constructor(props: Props) {
         super(props)
+        this.state.selectedKeys = (props.selectedKeys || []) as never[]
         this.onLoadData = this.onLoadData.bind(this)
     }
 
@@ -225,12 +251,15 @@ export class Tree extends React.Component<Props, State>{
     }
 
     render() {
+
+        const TempTree = this.props.isDirectoryTree === true ? AntTree.DirectoryTree : AntTree
         return (
             <>
-                <AntTree
+                <TempTree
                     loadData={this.onLoadData}
                     checkedKeys={this.props.checkedKeys}
                     checkable={this.props.checkable}
+                    selectedKeys={this.state.selectedKeys}
                     onRightClick={(e) => {
                         const self = this
                         if (this.props.onRightClick) {
@@ -252,7 +281,11 @@ export class Tree extends React.Component<Props, State>{
                             })
                         }
                     }}
-                    onSelect={(_selectedKeys: string[], e: AntTreeNodeSelectedEvent) => {
+                    blockNode={this.props.blockNode}
+                    onSelect={(selectedKeys: string[], e: AntTreeNodeSelectedEvent) => {
+                        this.setState({
+                            selectedKeys,
+                        })
                         if (this.props.onTreeNodeClick) {
                             this.props.onTreeNodeClick(e.node.props.dataRef, e.selected!)
                         }
@@ -325,7 +358,7 @@ export class Tree extends React.Component<Props, State>{
                     }}
                 >
                     {this.renderTreeNodes(this.state.treeData)}
-                </AntTree>
+                </TempTree>
                 <Dropdown
                     visible={this.state.isShowMenu}
                     left={this.state.pageX}
