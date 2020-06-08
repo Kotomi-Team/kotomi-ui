@@ -1369,7 +1369,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
      * @param pageSize 当前页面显示的数据条数
      */
     protected requestLoadData({ page, pageSize, param, sorter }: { page: number, pageSize: number, param?: any, sorter?: TableSorter }) {
-        const { defaultParam, rowKey, defaultPageSize } = this.props
+        const { defaultParam, rowKey } = this.props
 
         this.setState({
             loading: true,
@@ -1421,7 +1421,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                 loading: false,
                 editingKey: undefined,
                 page,
-                pageSize: defaultPageSize!,
+                pageSize,
                 rowSelectedKeys,
             })
             this.backupDataSource = [...dataSource]
