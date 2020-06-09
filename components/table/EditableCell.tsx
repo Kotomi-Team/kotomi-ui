@@ -162,9 +162,7 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
             ...extProps,
             ref: (input: Input) => {
                 if (input.focus) {
-                    if (column.inputModal === 'click') {
-                        input.focus()
-                    }
+                    input.focus()
                 }
             },
             getPopupContainer: (trigger: any) => trigger.parentNode.parentNode.parentNode.parentNode.parentNode,

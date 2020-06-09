@@ -1,6 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom';
-import { Table as AntTable, Divider, Icon, Menu, Dropdown, Pagination, Form, Tree } from 'antd'
+import { Table as AntTable, Divider, Icon, Menu, Dropdown, Pagination, Form /* Tree */ } from 'antd'
 import { TableSize, ColumnProps as AntColumnProps, TableRowSelection, TableEventListeners } from 'antd/lib/table/interface'
 import { WrappedFormUtils, ValidationRule, FormComponentProps } from 'antd/lib/form/Form';
 import { HeightProperty } from 'csstype'
@@ -607,6 +607,41 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                 </DndProvider>
             </TableContext.Provider>
         )
+    }
+
+    /**
+     *
+     * 修改当前行的数据
+     *
+     * @param id     当前行的唯一ID
+     * @param value  要修改的数据
+     */
+    public updateRow(id: string, value: any) {
+        const rowIndexEditor = this.getEditorRowIndex()
+        const { form, rowKey } = this.props
+        const self = this
+        this.getDataSource().forEach((data, dataIndex) => {
+            if (data[rowKey!] === id) {
+                this.getDataSource().splice(dataIndex, 1, {
+                    ...data,
+                    ...value,
+                });
+
+                const fields = {}
+                Object.keys(value).forEach(key => {
+                    if (rowIndexEditor) {
+                        fields[`${key};${rowIndexEditor}`] = value[key]
+                    }
+                })
+                if (rowIndexEditor) {
+                    form.setFieldsValue(fields)
+                }
+            }
+        })
+
+        self.setState({
+            dataSource: lodash.cloneDeep(this.getDataSource()),
+        })
     }
 
     public exchangeRow(source: T, targe: T) {
@@ -1267,16 +1302,16 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                 }
 
                 // 设置列的可配置
-                column.filterDropdown = () => {
-                    return (
-                        <Tree
-                            checkable
+                // column.filterDropdown = () => {
+                //     return (
+                //         <Tree
+                //             checkable
 
-                        >
-                            {columns.map((tempCol, _index) => <Tree.TreeNode title={tempCol.title} selectable={false} key={`${tempCol.dataIndex}`} />)}
-                        </Tree>
-                    )
-                }
+                //         >
+                //             {columns.map((tempCol, _index) => <Tree.TreeNode title={tempCol.title} selectable={false} key={`${tempCol.dataIndex}`} />)}
+                //         </Tree>
+                //     )
+                // }
             }
 
         })
@@ -1334,7 +1369,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
      * @param pageSize 当前页面显示的数据条数
      */
     protected requestLoadData({ page, pageSize, param, sorter }: { page: number, pageSize: number, param?: any, sorter?: TableSorter }) {
-        const { defaultParam, rowKey, defaultPageSize } = this.props
+        const { defaultParam, rowKey } = this.props
 
         this.setState({
             loading: true,
@@ -1386,7 +1421,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                 loading: false,
                 editingKey: undefined,
                 page,
-                pageSize: defaultPageSize!,
+                pageSize,
                 rowSelectedKeys,
             })
             this.backupDataSource = [...dataSource]

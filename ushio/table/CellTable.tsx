@@ -28,6 +28,19 @@ const CellTable = () => {
           marginLeft: 20
         }}
         onClick={()=>{
+          table.current.updateRow(0,{
+            six: '未知',
+            age: '未知'
+          })
+        }}
+      >
+        修改第一条数据
+      </Button>
+      <Button
+        style={{
+          marginLeft: 20
+        }}
+        onClick={()=>{
           table.current.reload({})
         }}
       >
