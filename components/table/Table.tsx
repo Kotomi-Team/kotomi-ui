@@ -1154,7 +1154,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
             /* if (record.$Children) {
                 return <a>{index + 1}</a>
             }*/
-            return <span>{index + 1}</span>
+            return <span style={{ textAlign: column.align }}>{index + 1}</span>
         }
         if (column.width === undefined) {
             column.width = 25
