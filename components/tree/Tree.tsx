@@ -56,6 +56,7 @@ type Props = {
      */
     isDirectoryTree?: boolean
 
+    defaultExpandedKeys?: string[]
     /**
      * 渲染节点title的时候触发的事件，返回一个新的title对象
      * @param data 当前树状节点的数据
@@ -253,6 +254,7 @@ export class Tree extends React.Component<Props, State>{
                     loadData={this.onLoadData}
                     checkedKeys={this.props.checkedKeys}
                     checkable={this.props.checkable}
+                    defaultExpandedKeys={this.props.defaultExpandedKeys}
                     selectedKeys={this.state.selectedKeys}
                     onRightClick={(e) => {
                         const self = this
