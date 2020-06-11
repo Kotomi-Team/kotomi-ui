@@ -101,7 +101,7 @@ type State = {
     isShowMenu: boolean
     node?: AntTreeNode
     selectedKeys: string[]
-    expandedKeys: string[]
+    expandedKeys: string[],
 }
 
 /**
@@ -137,7 +137,7 @@ export class Tree extends React.Component<Props, State>{
             const newExpandedKeys = expandedKeys.concat(treeData.map(element => element.key))
             this.setState({
                 treeData,
-                expandedKeys: this.props.defaultExpandAll ? newExpandedKeys : []
+                expandedKeys: this.props.defaultExpandAll ? newExpandedKeys : [],
             })
         })
     }
@@ -170,21 +170,21 @@ export class Tree extends React.Component<Props, State>{
         const loops = (tempTreeNode: TreeNodeData[]): TreeNodeData[] => {
             const newTempTreeNode: TreeNodeData[] = []
             tempTreeNode.forEach((element) => {
-                
-                if(element.children && element.children.length > 0){
+
+                if (element.children && element.children.length > 0) {
                     const treeChildren = loops(element.children)
-                    if(treeChildren.length === 0 && !callback(element)){
+                    if (treeChildren.length === 0 && !callback(element)) {
                         return;
                     }
-                    if(callback(element)){
+                    if (callback(element)) {
                         selectedKeys.push(element.key)
                     }
                     newTempTreeNode.push({
                         ...element,
-                        children: treeChildren
+                        children: treeChildren,
                     })
-                }else{
-                    if(callback(element)){
+                }else {
+                    if (callback(element)) {
                         selectedKeys.push(element.key)
                         newTempTreeNode.push(element)
                     }
@@ -207,9 +207,9 @@ export class Tree extends React.Component<Props, State>{
         })
     }
 
-    public setExpandedKeys(expandedKeys: string[]){
+    public setExpandedKeys(expandedKeys: string[]) {
         this.setState({
-            expandedKeys
+            expandedKeys,
         })
     }
 
@@ -333,9 +333,9 @@ export class Tree extends React.Component<Props, State>{
                     }}
                     onExpand={(expandedKeys: string[], info: AntTreeNodeExpandedEvent) => {
                         this.setState({
-                            expandedKeys
+                            expandedKeys,
                         })
-                        if(this.props.onExpand){
+                        if (this.props.onExpand) {
                             this.props.onExpand(expandedKeys, info)
                         }
                     }}
@@ -454,18 +454,18 @@ export class Tree extends React.Component<Props, State>{
                 tempChildren = tempChildren.concat(node.props.dataRef.extChildren)
             }
 
-            if(this.props.defaultExpandAll){
+            if (this.props.defaultExpandAll) {
                 tempChildren.forEach(element => {
                     expandedKeys.push(element.key)
                 })
             }
             node.props.dataRef.children = tempChildren
             node.props.dataRef.loaded = true
-            
+
             this.oldTreeData = lodash.cloneDeep(this.state.treeData)
             this.setState({
                 treeData: lodash.cloneDeep(this.state.treeData),
-                expandedKeys
+                expandedKeys,
             });
         }
     }
