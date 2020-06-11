@@ -3,7 +3,7 @@ import BaseTree from './Tree'
 import ContextMenuTree from './ContextMenuTree'
 import DraggableTree from './DraggableTree'
 import SelectedKeys from './SelectedKeys'
-
+import FilterTree from './FilterTree'
 
 export const baseTree = () => {
   return <BaseTree />
@@ -19,6 +19,10 @@ export const draggableTree = () => {
 
 export const selectedKeys = () => {
   return <SelectedKeys />
+}
+
+export const filterTree = () => {
+  return <FilterTree />
 }
 
 export default { title: 'Tree' };

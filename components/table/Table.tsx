@@ -1347,8 +1347,8 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
     /**
      * 获取当前表格数据的数据源
      */
-    protected getDataSource(): T[] {
-        return this.state.dataSource
+    public getDataSource(): T[] {
+        return lodash.cloneDeep(this.state.dataSource)
     }
 
     /**
