@@ -793,6 +793,13 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
     }
 
     /**
+     * 获取当前表格数据的数据源
+     */
+    public getDataSource(): T[] {
+        return lodash.cloneDeep(this.state.dataSource)
+    }
+
+    /**
      * 验证ID数据是否正确
      */
     protected verifyAppendRowKey(data: any) {
@@ -1154,7 +1161,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
             /* if (record.$Children) {
                 return <a>{index + 1}</a>
             }*/
-            return <span>{index + 1}</span>
+            return <span style={{ textAlign: column.align }}>{index + 1}</span>
         }
         if (column.width === undefined) {
             column.width = 25
@@ -1342,13 +1349,6 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
             // 如果不存在与update中，则添加一个标识信息
             dataSourceState.update.push(values)
         }
-    }
-
-    /**
-     * 获取当前表格数据的数据源
-     */
-    protected getDataSource(): T[] {
-        return this.state.dataSource
     }
 
     /**

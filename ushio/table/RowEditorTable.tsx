@@ -22,6 +22,16 @@ const RowEditorTable = () =>{
         添加一行数据 - 直接显示可编辑
       </Button>
       <Button
+        onClick={()=>{
+          table.current.appendRow({
+            id: new Date().getTime(),
+            name: "这是一个超级超级长的名字，真的很长很长的名字"
+          },false)
+        }}
+      >
+        添加一行数据 - 不显示编辑
+      </Button>
+      <Button
         style={{
           marginLeft: 20
         }}
