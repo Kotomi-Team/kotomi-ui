@@ -37,6 +37,15 @@ const BaseTree = () => {
                 }
                 return [newData]
             }}
+            onExpand={(_, info) =>{
+                const key = info.node.props.dataRef.key
+                if(tree.current){
+                    tree.current.updateNode(key, (treeNode) => {
+                        treeNode.title = '修改数据'
+                        return treeNode
+                    })
+                }
+            }}
             onClickContextMenu={(key,node)=>{
                 if(key === 'delete'){
                     if(tree.current){
