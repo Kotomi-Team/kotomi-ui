@@ -4,7 +4,7 @@
  */
 
 import React from 'react'
-
+import * as shortid from 'shortid'
 import { Tree, TreeNodeData } from '../../components/tree/Tree';
 
 
@@ -16,18 +16,18 @@ const DraggableTree = () => {
                   if (data === undefined) {
                       return [{
                           title: '节点-1',
-                          key: '1',
+                          key: shortid.generate(),
                           dataRef: 1,
                           children: []
                       },{
                         title: '节点-11',
-                        key: '11',
+                        key: shortid.generate(),
                         dataRef: 11,
                         children: []
                     }]
                   }
                   const newData = JSON.parse(JSON.stringify(data))
-                  newData.key = `${data.dataRef + 1}`
+                  newData.key = shortid.generate()
                   newData.dataRef = data.dataRef + 1
                   newData.title = `节点-${data.dataRef + 1}`
                   if (data.dataRef >= 10) {
