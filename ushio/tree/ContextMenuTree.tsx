@@ -4,7 +4,7 @@
  */
 
 import React from 'react'
-
+import * as shortid from 'shortid'
 import { Tree, TreeNodeData } from '../../components/tree/Tree';
 import { message } from 'antd';
 
@@ -23,16 +23,16 @@ const BaseTree = () => {
                 if (data === undefined) {
                     return [{
                         title: '节点-1',
-                        key: '1',
+                        key: shortid.generate(),
                         dataRef: 1,
                         children: []
                     }]
                 }
                 const newData = JSON.parse(JSON.stringify(data))
-                newData.key = data.dataRef + 1
+                newData.key = shortid.generate()
                 newData.dataRef = data.dataRef + 1
                 newData.title = `节点-${data.dataRef + 1}`
-                if (data.dataRef === 10) {
+                if (data.dataRef >= 10) {
                     return []
                 }
                 return [newData]
@@ -55,8 +55,8 @@ const BaseTree = () => {
                 }else if(key === 'add'){
                     const tempData: TreeNodeData[] = [{
                             title: `add - ${new Date().getTime()}`,
-                            key: `${new Date().getTime()}`,
-                            dataRef: 1,
+                            key: shortid.generate(),
+                            dataRef: 12,
                             children: []
                         }]
                     if(tree.current){

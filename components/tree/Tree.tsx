@@ -448,6 +448,7 @@ export class Tree extends React.Component<Props, State>{
     protected async onLoadData(node: AntTreeNode) {
         const expandedKeys: string[] = lodash.cloneDeep(this.state.expandedKeys)
         const children = await this.props.loadData(node.props.dataRef)
+        node.props.dataRef.loaded = true
         if (children && children.length > 0) {
             let tempChildren = children
             if (node.props.dataRef.extChildren) {
@@ -460,8 +461,6 @@ export class Tree extends React.Component<Props, State>{
                 })
             }
             node.props.dataRef.children = tempChildren
-            node.props.dataRef.loaded = true
-
             this.oldTreeData = lodash.cloneDeep(this.state.treeData)
             this.setState({
                 treeData: lodash.cloneDeep(this.state.treeData),
