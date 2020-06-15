@@ -33,7 +33,8 @@ export interface ColumnProps<T> extends AntColumnProps<T> {
     inputModal?: 'click' | 'display',
     // 显示列的别名
     aliasDataIndex?: string
-
+    // 输入框的宽度
+    inputWidth?: number
     children?: ColumnProps<T>[];
 }
 

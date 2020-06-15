@@ -253,6 +253,12 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
 
     renderCell = (tableContextProps: TableContextProps<T>) => {
         const { children, inputModal, column, editingType } = this.props
+
+        const inputProps: any = {}
+        if (column && column.inputWidth) {
+            inputProps.width = column.inputWidth
+        }
+
         this.form = tableContextProps.form!
         // 如果列允许编辑
         if (column !== undefined && column.isEditing) {
@@ -266,7 +272,9 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
                         this.addBlank(tableContextProps)
                         return (
                             <>
-                                <Form.Item>
+                                <Form.Item
+                                    style={inputProps}
+                                >
                                     {this.renderFormItem(tableContextProps.form!)}
                                 </Form.Item>
                             </>
@@ -277,7 +285,9 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
                 if (inputModal === 'display') {
                     return (
                         <>
-                            <Form.Item>
+                            <Form.Item
+                                style={inputProps}
+                            >
                                 {this.renderFormItem(tableContextProps.form!)}
                             </Form.Item>
                         </>
