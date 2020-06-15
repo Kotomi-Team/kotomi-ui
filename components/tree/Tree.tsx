@@ -213,7 +213,15 @@ export class Tree extends React.Component<Props, State>{
         })
     }
 
-    public appendNode(parent: string | null, nodes: TreeNodeData[]) {
+    public async appendNode(parent: string | null, nodes: TreeNodeData[]){
+        return await this.insertNode(parent,nodes, (node: TreeNodeData, children: TreeNodeData[]) => {
+            children.push(node)
+            return children
+        })
+    }
+
+    // appendNode install
+    public insertNode(parent: string | null, nodes: TreeNodeData[], callback: (node: TreeNodeData, children: TreeNodeData[]) => TreeNodeData[] ) {
         return new Promise((resolve) => {
             const loops = (nodeDatas: TreeNodeData[], callback: (node: TreeNodeData) => Boolean) => {
                 nodeDatas.some((element) => {
@@ -235,13 +243,13 @@ export class Tree extends React.Component<Props, State>{
             if (parentNode) {
                 if (parentNode.loaded) {
                     nodes.forEach((element) => {
-                        parentNode!.children.push(element)
+                        parentNode!.children = callback(element, lodash.cloneDeep(parentNode!.children))
                     })
                 }
 
                 if (lodash.isArray(parentNode.extChildren)) {
                     nodes.forEach((element) => {
-                        parentNode!.extChildren!.push(element)
+                        parentNode!.extChildren! = callback(element, lodash.cloneDeep(parentNode!.extChildren!))
                     })
                 }else {
                     parentNode.extChildren = nodes

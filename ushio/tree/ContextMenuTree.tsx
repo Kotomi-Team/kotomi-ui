@@ -17,7 +17,8 @@ const BaseTree = () => {
             contextMenu={[
                 <span key ='add'>add</span>,
                 <span key ='delete'>delete</span>,
-                <span key ='update'>update</span>
+                <span key ='update'>update</span>,
+                <span key ='insert'>insert</span>
             ]}
             loadData={async (data: TreeNodeData) => {
                 if (data === undefined) {
@@ -54,7 +55,7 @@ const BaseTree = () => {
                     }
                 }else if(key === 'add'){
                     const tempData: TreeNodeData[] = [{
-                            title: `add - ${new Date().getTime()}`,
+                            title: `add - ${shortid.generate()}`,
                             key: shortid.generate(),
                             dataRef: 12,
                             children: []
@@ -69,6 +70,20 @@ const BaseTree = () => {
                         tree.current.updateNode(id, (treeNode) => {
                             treeNode.title = '修改数据'
                             return treeNode
+                        })
+                    }
+                }else if (key === 'insert'){
+                    const tempData: TreeNodeData[] = [{
+                        title: `add - ${shortid.generate()}`,
+                        key: shortid.generate(),
+                        dataRef: 12,
+                        children: []
+                    }]
+                    if(tree.current){
+                        const id = node!.props.dataRef.key as string 
+                        tree.current.insertNode(id, tempData,(node, children) =>{
+                            children.splice(0,0,node)
+                            return children
                         })
                     }
                 }else{
