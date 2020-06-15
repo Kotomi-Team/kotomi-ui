@@ -4,7 +4,7 @@
  */
 
 import React from 'react'
-import { message, Button } from 'antd'
+import { message, Button, Input } from 'antd'
 import { Table, SketchPicker } from '../../components/index'
 
 const CellTable = () => {
@@ -51,7 +51,14 @@ const CellTable = () => {
         columns={[{
           dataIndex: 'name',
           isEditing: true,
-          title: '人员名称'
+          title: '人员名称',
+          inputWidth: 500,
+          inputType: () => {
+            const TempInput = () => {
+              return <Input />
+            }
+            return <TempInput />
+          }
         }, {
           dataIndex: 'six',
           isEditing: true,
