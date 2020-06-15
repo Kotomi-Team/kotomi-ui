@@ -1,6 +1,6 @@
-import React from 'react'
+import React, { useState } from 'react'
 import ReactDOM from 'react-dom';
-import { Table as AntTable, Divider, Icon, Menu, Dropdown, Pagination, Form /* Tree */ } from 'antd'
+import { Table as AntTable, Divider, Icon, Menu, Dropdown, Pagination, Form , Tree } from 'antd'
 import { TableSize, ColumnProps as AntColumnProps, TableRowSelection, TableEventListeners } from 'antd/lib/table/interface'
 import { WrappedFormUtils, ValidationRule, FormComponentProps } from 'antd/lib/form/Form';
 import { HeightProperty } from 'csstype'
@@ -18,6 +18,24 @@ import './style/index.less'
 export type TableContextProps<T> = {
     form?: WrappedFormUtils
     table?: Table<T>,
+}
+
+const FilterDropdown = (props: any) => {
+    const [checkedKeys, setCheckedKeys] = useState<string[]>(props.columns.map((tempCol: any) => tempCol.dataIndex) as string[])
+    return (
+        <Tree
+            checkable
+            checkedKeys={checkedKeys}
+            onCheck={(keys) => {
+                setCheckedKeys(keys as string[])
+                if (props.onCheck) {
+                    props.onCheck(keys)
+                }
+            }}
+        >
+            {props.columns.map((tempCol: any) => <Tree.TreeNode title={tempCol.title} selectable={false} key={`${tempCol.dataIndex}`} />)}
+        </Tree>
+    )
 }
 
 export const TableContext = React.createContext({} as TableContextProps<any>);
@@ -423,27 +441,6 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
             delete extProps.expandedRowKeys
         }
         const components: any = {
-            /*
-            header: {
-                cell: (props: any) => {
-                    const { onResize, width, ...restProps } = props
-                    if (!width) {
-                        return <th {...restProps} />;
-                    }
-
-                    return (
-                        <Resizable
-                            width={width}
-                            height={0}
-                            onResize={onResize}
-                            draggableOpts={{ enableUserSelectHack: false }}
-                        >
-                            <th {...restProps} />
-                        </Resizable>
-                    );
-
-                },
-            },*/
             body: {
                 cell: EditableCell,
             },
@@ -1181,7 +1178,6 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
     protected getColumns(): ColumnProps<T>[] {
         const self = this
         const {
-            columns,
             editingType,
             rowKey,
             onSave,
@@ -1189,9 +1185,10 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
         } = this.props
         const {
             dataSource,
+            columns,
         } = this.state
         const dataSourceState = this.dataSourceState
-        columns.forEach((column) => {
+        columns.forEach((column: ColumnProps<T>) => {
             if (column.dataIndex === '$operating') {
                 // 设置操作的表格
                 this.getColumnOperating(column)
@@ -1308,22 +1305,26 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                 if (column.width === undefined) {
                     column.width = 120
                 }
-
+                column.filterIcon = () => {
+                    return <Icon type="down" />
+                }
                 // 设置列的可配置
-                // column.filterDropdown = () => {
-                //     return (
-                //         <Tree
-                //             checkable
-
-                //         >
-                //             {columns.map((tempCol, _index) => <Tree.TreeNode title={tempCol.title} selectable={false} key={`${tempCol.dataIndex}`} />)}
-                //         </Tree>
-                //     )
-                // }
+                column.filterDropdown = () => {
+                    return (
+                        <FilterDropdown
+                            columns={self.props.columns}
+                            onCheck = {(checkKey: string[]) => {
+                                self.setState({
+                                    columns: self.props.columns.filter((element: ColumnProps<T>) => checkKey.indexOf(element.dataIndex!) !== -1),
+                                })
+                            }}
+                        />
+                    )
+                }
             }
 
         })
-        return this.props.columns
+        return columns
     }
 
     protected updateDataSource(values: T) {
