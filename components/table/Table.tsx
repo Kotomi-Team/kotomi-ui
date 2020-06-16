@@ -451,8 +451,8 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                         <Dropdown overlay={this.getDropdownMenu()} trigger={['contextMenu']}>
                             <tr {...props}/>
                         </Dropdown>
-                    ) 
-                }
+                    )
+                },
             },
         }
 

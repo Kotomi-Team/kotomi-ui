@@ -131,7 +131,6 @@ const RowEditorTable = () =>{
         }]}
         editingType='row'
         loadData={async ({ page, pageSize })=>{
-          debugger
           const datas: any = []
           for(let i =0 ;i< pageSize ; i++){
             datas.push({
