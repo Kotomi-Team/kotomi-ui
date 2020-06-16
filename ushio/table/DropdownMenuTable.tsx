@@ -24,7 +24,7 @@ const DropdownMenuTable = () => {
       editingType="row"
       loadData={async ({ page, pageSize }) => {
         const datas: any = []
-        for (let i = 0; i < pageSize; i++) {
+        for (let i = 0; i < 1; i++) {
           datas.push({
             id: i,
             name: `${page} - name - ${i}`,

@@ -24,6 +24,9 @@ export type TreeNodeData = {
 }
 
 type Props = {
+
+    getPopupContainer?: () => HTMLElement;
+
     /**
      * 装载子节点数据
      * @param node 请求的数据，如果是第一次加载则数据为undefined
@@ -428,7 +431,13 @@ export class Tree extends React.Component<Props, State>{
                 <Dropdown
                     visible={this.state.isShowMenu}
                     left={this.state.pageX}
+                    getPopupContainer={this.props.getPopupContainer}
                     top={this.state.pageY}
+                    onScroll={(space) => {
+                        this.setState({
+                            pageY: this.state.pageY + space,
+                        })
+                    }}
                     onBlur={() => {
                         this.setState({
                             isShowMenu: false,

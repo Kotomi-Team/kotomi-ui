@@ -1,6 +1,6 @@
-import React from 'react'
+import React, { useState } from 'react'
 import ReactDOM from 'react-dom';
-import { Table as AntTable, Divider, Icon, Menu, Dropdown, Pagination, Form /* Tree */ } from 'antd'
+import { Table as AntTable, Divider, Icon, Menu, Dropdown, Pagination, Form , Tree } from 'antd'
 import { TableSize, ColumnProps as AntColumnProps, TableRowSelection, TableEventListeners } from 'antd/lib/table/interface'
 import { WrappedFormUtils, ValidationRule, FormComponentProps } from 'antd/lib/form/Form';
 import { HeightProperty } from 'csstype'
@@ -18,6 +18,24 @@ import './style/index.less'
 export type TableContextProps<T> = {
     form?: WrappedFormUtils
     table?: Table<T>,
+}
+
+const FilterDropdown = (props: any) => {
+    const [checkedKeys, setCheckedKeys] = useState<string[]>(props.checkedKeys)
+    return (
+        <Tree
+            checkable
+            checkedKeys={checkedKeys}
+            onCheck={(keys) => {
+                setCheckedKeys(keys as string[])
+                if (props.onCheck) {
+                    props.onCheck(keys)
+                }
+            }}
+        >
+            {props.columns.map((tempCol: any) => <Tree.TreeNode title={tempCol.title} selectable={false} key={`${tempCol.dataIndex}`} />)}
+        </Tree>
+    )
 }
 
 export const TableContext = React.createContext({} as TableContextProps<any>);
@@ -331,10 +349,13 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
     // 当前正在编辑的cell列
     private currentEditorCell: EditableCell<T>[] = []
 
+    private columnCheck: string[] = []
+
     constructor(props: Props<T>) {
         super(props)
         this.state.rowSelectedKeys = (props.rowSelectedKeys || []) as never[]
         this.state.columns = (props.columns || []) as never[]
+        this.columnCheck = props.columns.map((element) => element.dataIndex!)
     }
 
     componentDidMount() {
@@ -423,29 +444,15 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
             delete extProps.expandedRowKeys
         }
         const components: any = {
-            /*
-            header: {
-                cell: (props: any) => {
-                    const { onResize, width, ...restProps } = props
-                    if (!width) {
-                        return <th {...restProps} />;
-                    }
-
-                    return (
-                        <Resizable
-                            width={width}
-                            height={0}
-                            onResize={onResize}
-                            draggableOpts={{ enableUserSelectHack: false }}
-                        >
-                            <th {...restProps} />
-                        </Resizable>
-                    );
-
-                },
-            },*/
             body: {
                 cell: EditableCell,
+                row: (props: any) => {
+                    return (
+                        <Dropdown overlay={this.getDropdownMenu()} trigger={['contextMenu']}>
+                            <tr {...props}/>
+                        </Dropdown>
+                    )
+                },
             },
         }
 
@@ -477,109 +484,105 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                             this.editHide()
                         }}
                     />
-                    <Dropdown overlay={this.getDropdownMenu()} trigger={['contextMenu']}>
-                        <div>
-                            <AntTable
-                                style={{
-                                    ...this.props.style,
-                                }}
-                                ref={this.table}
-                                bordered={this.props.bordered}
-                                expandedRowRender={this.props.expandedRowRender}
-                                childrenColumnName="$children"
-                                rowKey={this.props.rowKey}
-                                columns={this.getColumns()}
-                                rowClassName={() => 'kotomi-components-table-row'}
-                                components={components}
-                                onExpand={(expanded: boolean, record: T) => {
-                                    const { rowKey, onExpand } = this.props
-                                    if (expanded && this.props.onLoadChildren) {
-                                        this.props.onLoadChildren(record).then((children: T[]) => {
-                                            const dataSource = this.state.dataSource
-                                            const loops = (loopsDataSource: any[]): any[] => loopsDataSource.map((element: any) => {
-                                                // @ts-ignore
-                                                const chil = element.$children
-                                                if (element[rowKey!] === record[rowKey!]) {
-                                                    return {
-                                                        ...element,
-                                                        '$children': children,
-                                                    };
-                                                }
-                                                if (chil === undefined) {
-                                                    return element
-                                                }
-                                                // @ts-ignore
-                                                return {
-                                                    ...element,
-                                                    '$children': loops(chil),
-                                                };
-                                            })
-                                            this.setState({
-                                                dataSource: loops(dataSource),
-                                            })
-                                        })
-                                    }
-
-                                    if (onExpand) {
-                                        onExpand(expanded, record)
-                                    }
-                                }}
-                                dataSource={this.getDataSource()}
-                                loading={{
-                                    indicator: <Icon
-                                        type='loading'
-                                        style={{ fontSize: 24 }}
-                                        spin
-                                    />,
-                                    spinning: this.state.loading,
-                                }}
-                                pagination={false}
-                                rowSelection={this.getRowSelection()}
-                                onHeaderRow={(_columns: ColumnProps<T>[]) => {
-                                    let propsStyle = {}
-                                    if (this.props.onRenderHeaderRowCssStyle) {
-                                        propsStyle = this.props.onRenderHeaderRowCssStyle!()
-                                    }
-                                    return {
-                                        style: propsStyle,
-                                    }
-                                }}
-                                onRow={(record: T, index: number) => {
-                                    let propsStyle = {}
-                                    if (this.props.onRenderBodyRowCssStyle) {
-                                        propsStyle = this.props.onRenderBodyRowCssStyle!(
-                                            index as number,
-                                            record as T)
-                                    }
-                                    // 如果当前行处于不可编辑状态，则不点击click事件
-                                    if (this.state.editingKey === undefined) {
-                                        const onRow = this.props.onRow
-                                        const rowData = onRow === undefined ? {} : onRow(record, index)
-                                        return {
-                                            ...rowData,
-                                            style: propsStyle,
-                                            record,
-                                            index,
-                                            table: this,
+                    <AntTable
+                        style={{
+                            ...this.props.style,
+                        }}
+                        ref={this.table}
+                        bordered={this.props.bordered}
+                        expandedRowRender={this.props.expandedRowRender}
+                        childrenColumnName="$children"
+                        rowKey={this.props.rowKey}
+                        columns={this.getColumns()}
+                        rowClassName={() => 'kotomi-components-table-row'}
+                        components={components}
+                        onExpand={(expanded: boolean, record: T) => {
+                            const { rowKey, onExpand } = this.props
+                            if (expanded && this.props.onLoadChildren) {
+                                this.props.onLoadChildren(record).then((children: T[]) => {
+                                    const dataSource = this.state.dataSource
+                                    const loops = (loopsDataSource: any[]): any[] => loopsDataSource.map((element: any) => {
+                                        // @ts-ignore
+                                        const chil = element.$children
+                                        if (element[rowKey!] === record[rowKey!]) {
+                                            return {
+                                                ...element,
+                                                '$children': children,
+                                            };
                                         }
-                                    }
-                                    // 否则不相应事件
-                                    return {
-                                        style: propsStyle,
-                                        record,
-                                        index,
-                                        table: this,
-                                    }
-                                }}
-                                size='small'
-                                scroll={{
-                                    x: this.props.width,
-                                    y: this.props.height,
-                                }}
-                                {...extProps}
-                            />
-                        </div>
-                    </Dropdown>
+                                        if (chil === undefined) {
+                                            return element
+                                        }
+                                        // @ts-ignore
+                                        return {
+                                            ...element,
+                                            '$children': loops(chil),
+                                        };
+                                    })
+                                    this.setState({
+                                        dataSource: loops(dataSource),
+                                    })
+                                })
+                            }
+
+                            if (onExpand) {
+                                onExpand(expanded, record)
+                            }
+                        }}
+                        dataSource={this.getDataSource()}
+                        loading={{
+                            indicator: <Icon
+                                type='loading'
+                                style={{ fontSize: 24 }}
+                                spin
+                            />,
+                            spinning: this.state.loading,
+                        }}
+                        pagination={false}
+                        rowSelection={this.getRowSelection()}
+                        onHeaderRow={(_columns: ColumnProps<T>[]) => {
+                            let propsStyle = {}
+                            if (this.props.onRenderHeaderRowCssStyle) {
+                                propsStyle = this.props.onRenderHeaderRowCssStyle!()
+                            }
+                            return {
+                                style: propsStyle,
+                            }
+                        }}
+                        onRow={(record: T, index: number) => {
+                            let propsStyle = {}
+                            if (this.props.onRenderBodyRowCssStyle) {
+                                propsStyle = this.props.onRenderBodyRowCssStyle!(
+                                    index as number,
+                                    record as T)
+                            }
+                            // 如果当前行处于不可编辑状态，则不点击click事件
+                            if (this.state.editingKey === undefined) {
+                                const onRow = this.props.onRow
+                                const rowData = onRow === undefined ? {} : onRow(record, index)
+                                return {
+                                    ...rowData,
+                                    style: propsStyle,
+                                    record,
+                                    index,
+                                    table: this,
+                                }
+                            }
+                            // 否则不相应事件
+                            return {
+                                style: propsStyle,
+                                record,
+                                index,
+                                table: this,
+                            }
+                        }}
+                        size='small'
+                        scroll={{
+                            x: this.props.width,
+                            y: this.props.height,
+                        }}
+                        {...extProps}
+                    />
                     <Pagination
                         className="kotomi-components-table-pagination"
                         size='small'
@@ -1181,7 +1184,6 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
     protected getColumns(): ColumnProps<T>[] {
         const self = this
         const {
-            columns,
             editingType,
             rowKey,
             onSave,
@@ -1189,9 +1191,10 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
         } = this.props
         const {
             dataSource,
+            columns,
         } = this.state
         const dataSourceState = this.dataSourceState
-        columns.forEach((column) => {
+        columns.forEach((column: ColumnProps<T>) => {
             if (column.dataIndex === '$operating') {
                 // 设置操作的表格
                 this.getColumnOperating(column)
@@ -1308,22 +1311,30 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                 if (column.width === undefined) {
                     column.width = 120
                 }
-
+                column.filterIcon = () => {
+                    return <Icon type="down" />
+                }
+                const filterDropdown = (
+                    <FilterDropdown
+                        checkedKeys={self.columnCheck}
+                        key={new Date().getTime()}
+                        columns={self.props.columns}
+                        onCheck = {(checkKey: string[]) => {
+                            self.columnCheck = checkKey
+                            self.setState({
+                                columns: self.props.columns.filter((element: ColumnProps<T>) => checkKey.indexOf(element.dataIndex!) !== -1),
+                            })
+                        }}
+                    />
+                )
                 // 设置列的可配置
-                // column.filterDropdown = () => {
-                //     return (
-                //         <Tree
-                //             checkable
-
-                //         >
-                //             {columns.map((tempCol, _index) => <Tree.TreeNode title={tempCol.title} selectable={false} key={`${tempCol.dataIndex}`} />)}
-                //         </Tree>
-                //     )
-                // }
+                column.filterDropdown = () => {
+                    return filterDropdown
+                }
             }
 
         })
-        return this.props.columns
+        return columns
     }
 
     protected updateDataSource(values: T) {

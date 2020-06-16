@@ -1,5 +1,6 @@
 import React from 'react'
 import classNames from 'classnames';
+import * as lodash from 'lodash'
 
 type Props = {
   visible: boolean
@@ -8,16 +9,30 @@ type Props = {
   menus: JSX.Element[]
   onBlur: () => void
   onClick?: (element: JSX.Element, index: number) => void,
+  getPopupContainer?: (dom: Element) => Element;
+  onScroll?: (space: number) => void
 }
 
 const dropdownElement = React.createRef<HTMLDivElement>()
 
 const Dropdown = (props: Props) => {
+  const scrollTo = React.useRef<number>(0)
   React.useEffect(() => {
     if (dropdownElement.current) {
       dropdownElement.current.focus()
     }
-  })
+
+    if (props.getPopupContainer) {
+      const dom = props.getPopupContainer(dropdownElement.current!)
+      dom.addEventListener('scroll', () => {
+        if (props.onScroll) {
+          props.onScroll(- (dom.scrollTop - scrollTo.current))
+        }
+        scrollTo.current = lodash.cloneDeep(dom.scrollTop)
+      })
+    }
+
+  }, [])
   return (
     <>
       <div
