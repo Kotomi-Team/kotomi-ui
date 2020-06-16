@@ -7,7 +7,6 @@ import React from 'react'
 import * as shortid from 'shortid'
 import { Tree, TreeNodeData } from '../../components/tree/Tree';
 import { message } from 'antd';
-import ReactDOM from 'react-dom';
 
 
 const BaseTree = () => {
@@ -24,7 +23,7 @@ const BaseTree = () => {
             >
                 <Tree
                     // @ts-ignore
-                    getPopupContainer={() => ReactDOM.findDOMNode(tree.current).parentNode!.parentNode!}
+                    getPopupContainer={(dom) => dom.parentNode!.parentNode!}
                     ref={tree}
                     contextMenu={[
                         <span key='add'>add</span>,

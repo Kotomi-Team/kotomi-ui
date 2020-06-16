@@ -9,7 +9,7 @@ type Props = {
   menus: JSX.Element[]
   onBlur: () => void
   onClick?: (element: JSX.Element, index: number) => void,
-  getPopupContainer?: () => HTMLElement;
+  getPopupContainer?: (dom: Element) => Element;
   onScroll?: (space: number) => void
 }
 
@@ -23,7 +23,7 @@ const Dropdown = (props: Props) => {
     }
 
     if (props.getPopupContainer) {
-      const dom = props.getPopupContainer()
+      const dom = props.getPopupContainer(dropdownElement.current!)
       dom.addEventListener('scroll', () => {
         if (props.onScroll) {
           props.onScroll(- (dom.scrollTop - scrollTo.current))
