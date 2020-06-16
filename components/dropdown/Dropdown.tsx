@@ -24,7 +24,7 @@ const Dropdown = (props: Props) => {
 
     if (props.getPopupContainer) {
       const dom = props.getPopupContainer()
-      dom.addEventListener('scroll', (e) => {
+      dom.addEventListener('scroll', () => {
         if (props.onScroll) {
           props.onScroll(- (dom.scrollTop - scrollTo.current))
         }
