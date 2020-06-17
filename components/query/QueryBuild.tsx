@@ -2,7 +2,7 @@ import React, { useState, useImperativeHandle, useReducer, useContext } from 're
 import * as shortid from 'shortid'
 import { QueryBuild as RcQueryBuild } from 'rc-query'
 import { Query } from 'rc-query/dist/interface'
-import { Icon } from 'antd'
+import { Icon, Form, Select } from 'antd'
 import Dropdown from '../dropdown/Dropdown'
 import { reducer, initialState, State } from './Reducer'
 import { QueryInput, Field } from './QueryInput'
@@ -314,3 +314,61 @@ export const QueryBuild = React.forwardRef((props: QueryBuildProps, ref: any) =>
         </QueryContext.Provider>
     )
 })
+
+interface Scheme {
+    id: string
+    title: string
+    query: Query[]
+}
+
+interface QueryBuildPresetProps {
+    fields: Field[]
+    symbols: string[]
+    // 查询方案
+    schemes?: Scheme[]
+    onChangeField?: (field: string, symbol: string, value: string) => JSX.Element | void
+}
+
+export const QueryBuildPreset = (props: QueryBuildPresetProps) => {
+    const propsSchemes = props.schemes || []
+    const [scheme, setScheme] = useState<undefined | Scheme>(propsSchemes.length > 0 ? props.schemes![0] : undefined)
+    const qbProps: {
+        fields: Field[]
+        symbols: string[]
+        defaultQuerys?: Query[]
+        onChangeField?: (field: string, symbol: string, value: string) => JSX.Element | void,
+    } = {
+        fields: props.fields,
+        symbols: props.symbols,
+        onChangeField: props.onChangeField,
+    }
+
+    if (propsSchemes.length > 0) {
+        qbProps.defaultQuerys = scheme!.query
+    }
+
+    return (
+        <>
+            <Form layout="inline">
+                <Form.Item label="查询方案">
+                    <Select
+                        defaultValue={scheme ? scheme.id : undefined }
+                        style={{
+                            width: 250,
+                        }}
+                        onChange={(value: string) => {
+                            if (props.schemes) {
+                                setScheme(props.schemes.filter(element => element.id === value)[0])
+                            }
+                        }}
+                    >
+                        {propsSchemes.map(element => <Select.Option title={element.title} key={element.id} />)}
+                    </Select>
+                </Form.Item>
+            </Form>
+            <QueryBuild
+                {...qbProps}
+            />
+        </>
+    )
+};

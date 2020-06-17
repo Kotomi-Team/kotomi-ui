@@ -1,6 +1,6 @@
-import React, { useState } from 'react'
+import React from 'react'
 import ReactDOM from 'react-dom';
-import { Table as AntTable, Divider, Icon, Menu, Dropdown, Pagination, Form , Tree } from 'antd'
+import { Table as AntTable, Divider, Icon, Menu, Dropdown, Pagination, Form } from 'antd'
 import { TableSize, ColumnProps as AntColumnProps, TableRowSelection, TableEventListeners } from 'antd/lib/table/interface'
 import { WrappedFormUtils, ValidationRule, FormComponentProps } from 'antd/lib/form/Form';
 import { HeightProperty } from 'csstype'
@@ -9,6 +9,8 @@ import lodash from 'lodash'
 import { DndProvider } from 'react-dnd'
 import Backend from 'react-dnd-html5-backend'
 // import { Resizable } from 'react-resizable';
+// @ts-ignore
+import { VirtualTable } from 'ant-virtual-table'
 
 import DragRow from './DragRow'
 import { EditableCell } from './EditableCell'
@@ -20,23 +22,23 @@ export type TableContextProps<T> = {
     table?: Table<T>,
 }
 
-const FilterDropdown = (props: any) => {
-    const [checkedKeys, setCheckedKeys] = useState<string[]>(props.checkedKeys)
-    return (
-        <Tree
-            checkable
-            checkedKeys={checkedKeys}
-            onCheck={(keys) => {
-                setCheckedKeys(keys as string[])
-                if (props.onCheck) {
-                    props.onCheck(keys)
-                }
-            }}
-        >
-            {props.columns.map((tempCol: any) => <Tree.TreeNode title={tempCol.title} selectable={false} key={`${tempCol.dataIndex}`} />)}
-        </Tree>
-    )
-}
+// const FilterDropdown = (props: any) => {
+//     const [checkedKeys, setCheckedKeys] = useState<string[]>(props.checkedKeys)
+//     return (
+//         <Tree
+//             checkable
+//             checkedKeys={checkedKeys}
+//             onCheck={(keys) => {
+//                 setCheckedKeys(keys as string[])
+//                 if (props.onCheck) {
+//                     props.onCheck(keys)
+//                 }
+//             }}
+//         >
+//             {props.columns.map((tempCol: any) => <Tree.TreeNode title={tempCol.title} selectable={false} key={`${tempCol.dataIndex}`} />)}
+//         </Tree>
+//     )
+// }
 
 export const TableContext = React.createContext({} as TableContextProps<any>);
 
@@ -88,6 +90,11 @@ interface Props<T> extends FormComponentProps<T> {
      * 表格显示大小
      */
     theme?: TableSize
+
+    /**
+     * 是否是虚拟表格
+     */
+    virtual?: boolean
 
     /**
      * 默认页面显示大小，默认为300条
@@ -297,6 +304,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
         defaultExportFileName: `${new Date().getTime()}`,
         rowSelectedKeys: [],
         bordered: false,
+        virtual: false,
         pageSizeOptions: ['10', '20', '30', '40', '50'],
         onSelect: () => true,
         onRow: () => { },
@@ -349,13 +357,13 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
     // 当前正在编辑的cell列
     private currentEditorCell: EditableCell<T>[] = []
 
-    private columnCheck: string[] = []
+    // private columnCheck: string[] = []
 
     constructor(props: Props<T>) {
         super(props)
         this.state.rowSelectedKeys = (props.rowSelectedKeys || []) as never[]
         this.state.columns = (props.columns || []) as never[]
-        this.columnCheck = props.columns.map((element) => element.dataIndex!)
+        // this.columnCheck = props.columns.map((element) => element.dataIndex!)
     }
 
     componentDidMount() {
@@ -380,17 +388,18 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
     componentDidUpdate() {
         const tablElement = ReactDOM.findDOMNode(this.table.current) as Element
         const antTableBody = tablElement.getElementsByClassName('ant-table-body')[0]
-        const style = antTableBody.getAttribute('style')
+        if (antTableBody) {
+            const style = antTableBody.getAttribute('style')
+            antTableBody.setAttribute('style', style!.replace(/min-height:.*;/g, ''))
+            if (this.state.dataSource.length > 0) {
+                // 固定Table的高度
+                const height = this.props.height
 
-        antTableBody.setAttribute('style', style!.replace(/min-height:.*;/g, ''))
-        if (this.state.dataSource.length > 0) {
-            // 固定Table的高度
-            const height = this.props.height
-
-            if (lodash.isNumber(height)) {
-                antTableBody.setAttribute('style', `${style}; min-height:${height}px;`)
-            } else {
-                antTableBody.setAttribute('style', `${style}; min-height:${height};`)
+                if (lodash.isNumber(height)) {
+                    antTableBody.setAttribute('style', `${style}; min-height:${height}px;`)
+                } else {
+                    antTableBody.setAttribute('style', `${style}; min-height:${height};`)
+                }
             }
         }
     }
@@ -460,7 +469,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
         if (this.props.onDragRow) {
             components.body.row = DragRow
         }
-
+        const TempTable = this.props.virtual ? VirtualTable : AntTable
         return (
             <TableContext.Provider value={{
                 form: this.props.form,
@@ -484,7 +493,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                             this.editHide()
                         }}
                     />
-                    <AntTable
+                    <TempTable
                         style={{
                             ...this.props.style,
                         }}
@@ -1188,10 +1197,10 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
             rowKey,
             onSave,
             onRenderTooltip,
+            columns,
         } = this.props
         const {
             dataSource,
-            columns,
         } = this.state
         const dataSourceState = this.dataSourceState
         columns.forEach((column: ColumnProps<T>) => {
@@ -1311,26 +1320,26 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                 if (column.width === undefined) {
                     column.width = 120
                 }
-                column.filterIcon = () => {
-                    return <Icon type="down" />
-                }
-                const filterDropdown = (
-                    <FilterDropdown
-                        checkedKeys={self.columnCheck}
-                        key={new Date().getTime()}
-                        columns={self.props.columns}
-                        onCheck = {(checkKey: string[]) => {
-                            self.columnCheck = checkKey
-                            self.setState({
-                                columns: self.props.columns.filter((element: ColumnProps<T>) => checkKey.indexOf(element.dataIndex!) !== -1),
-                            })
-                        }}
-                    />
-                )
-                // 设置列的可配置
-                column.filterDropdown = () => {
-                    return filterDropdown
-                }
+                // column.filterIcon = () => {
+                //     return <Icon type="down" />
+                // }
+                // const filterDropdown = (
+                //     <FilterDropdown
+                //         checkedKeys={self.columnCheck}
+                //         key={new Date().getTime()}
+                //         columns={self.props.columns}
+                //         onCheck = {(checkKey: string[]) => {
+                //             self.columnCheck = checkKey
+                //             self.setState({
+                //                 columns: self.props.columns.filter((element: ColumnProps<T>) => checkKey.indexOf(element.dataIndex!) !== -1),
+                //             })
+                //         }}
+                //     />
+                // )
+                // // 设置列的可配置
+                // column.filterDropdown = () => {
+                //     return filterDropdown
+                // }
             }
 
         })

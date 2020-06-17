@@ -4,6 +4,8 @@
 
 ## 代码演示
 
+<code src="../../../ushio/table/BigDataTable.tsx" />
+
 <code src="../../../ushio/table/BaseTable.tsx" />
 
 <code src="../../../ushio/table/RowEditorTable.tsx" />

@@ -80,7 +80,7 @@ const CellTable = () => {
         editingType='cell'
         loadData={async ({ page, pageSize }) => {
           const datas: any = []
-          for (let i = 0; i < pageSize; i++) {
+          for (let i = 0; i < 10; i++) {
             datas.push({
               id: i,
               name: `${page} - name - ${i}`,
