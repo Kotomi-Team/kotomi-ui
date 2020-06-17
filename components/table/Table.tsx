@@ -306,6 +306,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
         bordered: false,
         virtual: false,
         pageSizeOptions: ['10', '20', '30', '40', '50'],
+        inputModal: 'click',
         onSelect: () => true,
         onRow: () => { },
         onSave: async () => true,

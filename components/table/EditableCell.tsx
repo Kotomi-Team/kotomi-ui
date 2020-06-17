@@ -163,8 +163,7 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
             ref: (input: Input) => {
                 if (input.focus) {
 
-                    if (column.inputModal === undefined || column.inputModal === 'click') {
-
+                    if (inputModal === 'click' && editingType === 'cell') {
                         input.focus()
                     }
                 }
