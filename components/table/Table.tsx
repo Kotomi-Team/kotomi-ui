@@ -1,6 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom';
-import { Table as AntTable, Divider, Icon, Menu, Dropdown, Pagination, Form } from 'antd'
+import { Table as AntTable, Divider, Icon, Menu, Pagination, Form } from 'antd'
 import { TableSize, ColumnProps as AntColumnProps, TableRowSelection, TableEventListeners } from 'antd/lib/table/interface'
 import { WrappedFormUtils, ValidationRule, FormComponentProps } from 'antd/lib/form/Form';
 import { HeightProperty } from 'csstype'
@@ -20,6 +20,7 @@ import './style/index.less'
 export type TableContextProps<T> = {
     form?: WrappedFormUtils
     table?: Table<T>,
+    dropdownMenu?: any,
 }
 
 // const FilterDropdown = (props: any) => {
@@ -456,13 +457,6 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
         const components: any = {
             body: {
                 cell: EditableCell,
-                row: (props: any) => {
-                    return (
-                        <Dropdown overlay={this.getDropdownMenu()} trigger={['contextMenu']}>
-                            <tr {...props}/>
-                        </Dropdown>
-                    )
-                },
             },
         }
 
@@ -475,6 +469,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
             <TableContext.Provider value={{
                 form: this.props.form,
                 table: this,
+                dropdownMenu: this.getDropdownMenu(),
             }}>
                 <DndProvider backend={Backend}>
                     <div
