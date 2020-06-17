@@ -1,6 +1,6 @@
 {
   "name": "kotomi-ui",
-  "version": "1.13.92",
+  "version": "1.13.94",
   "description": "基于Ant Design做的组件扩展，开发的一套组件库",
   "scripts": {
     "start": "dumi dev",
@@ -82,6 +82,7 @@
     "webpack": "^4.41.6"
   },
   "dependencies": {
+    "ant-virtual-table": "^0.1.10",
     "antd": "~3.26.8",
     "classnames": "~2.2.6",
     "lodash": "~4.17.15",

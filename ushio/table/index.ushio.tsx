@@ -5,6 +5,7 @@ import DropdownMenuTable from './DropdownMenuTable'
 import CellTable from './CellTable'
 import TreeTable from './TreeTable'
 import RuleTable from './RuleTable'
+import BigDataTable from './BigDataTable'
 
 export const baseTable = () => {
   return <BaseTable />
@@ -30,5 +31,8 @@ export const ruleTable = () =>{
   return <RuleTable />
 }
 
+export const bigDataTable = () => {
+  return <BigDataTable />
+}
 
 export default { title: 'Table' };
