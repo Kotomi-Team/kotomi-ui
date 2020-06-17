@@ -1,6 +1,6 @@
 /**
- * title: 基础的表格
- * desc: 一个简单的表格组件
+ * title: 大数据的表格
+ * desc: 非常大的数据表格，里面一次性显示了2万条数据
  */
 
 import React from 'react'
@@ -50,6 +50,10 @@ const BigDataTable = () =>{
       <Table
         refExt={table}
         columns={[{
+          dataIndex: '$index',
+          width: 180,
+          title: '序号4',
+        },{
           dataIndex: 'name',
           isEditing: true,
           title: '人员名称',
