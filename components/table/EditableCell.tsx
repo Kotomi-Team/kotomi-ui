@@ -1,7 +1,7 @@
 import React from 'react'
 import lodash from 'lodash'
 import ReactDom from 'react-dom'
-import { Form, Input, Tooltip } from 'antd'
+import { Form, Input, Tooltip, Dropdown } from 'antd'
 import { WrappedFormUtils } from 'antd/lib/form/Form';
 import { ColumnProps, TableContext, TableContextProps } from './Table'
 import './style/index.less'
@@ -163,8 +163,7 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
             ref: (input: Input) => {
                 if (input.focus) {
 
-                    if (column.inputModal === undefined || column.inputModal === 'click') {
-
+                    if (inputModal === 'click' && editingType === 'cell') {
                         input.focus()
                     }
                 }
@@ -251,8 +250,14 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
         tableContextProps.table!.blankDivElement.current!.style.visibility = 'visible'
     }
 
-    renderDivCell(children: React.ReactNode) {
-        return children
+    renderDivCell(children: React.ReactNode, tableContextProps: TableContextProps<T>) {
+        return (
+            <Dropdown overlay={tableContextProps.dropdownMenu} trigger={['contextMenu']}>
+                <div>
+                    {children}
+                </div>
+            </Dropdown>
+        )
     }
 
     renderCell = (tableContextProps: TableContextProps<T>) => {
@@ -271,7 +276,7 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
                 if (inputModal === 'click') {
                     // 如果为只读则不能进行编辑 或者没有dataIndex的列
                     if (!this.isEditing()) {
-                        return this.renderDivCell(children)
+                        return this.renderDivCell(children, tableContextProps)
                     } else {
                         this.addBlank(tableContextProps)
                         return (
@@ -323,7 +328,7 @@ export class EditableCell<T> extends React.Component<Props<T>, State>{
             }
 
         }
-        return this.renderDivCell(children)
+        return this.renderDivCell(children, tableContextProps)
     }
 
     render() {

@@ -36,27 +36,6 @@ const BaseTable = () =>{
             message: '这个是一个超级.....................................长的校验信息。'
         }]
       },{
-        dataIndex: 'baseInfo',
-        title: '人员基础信息',
-        isEditing: true,
-        children:[{
-            dataIndex: 'six',
-            title: '性别',
-            width: 200,
-            rules: [{
-              required: true,
-              message: '这个是一个超级.....................................长的校验信息。'
-          }]
-        },{
-            dataIndex: 'age',
-            title: '年龄',
-            width: 200,
-            rules: [{
-              required: true,
-              message: '这个是一个超级.....................................长的校验信息。'
-          }]
-        }]
-      },{
         dataIndex: '$operating',
         title: '操作'
       }]}
@@ -64,7 +43,7 @@ const BaseTable = () =>{
       rowSelection="multiple"
       loadData={async ({ page, pageSize })=>{
         const datas: any = []
-        for(let i =0 ;i< pageSize ; i++){
+        for(let i =0 ;i< 2 ; i++){
           datas.push({
             id: `${i}- ${page} `,
             name: `${page} - name - ${i} - 这是一个超出的文字内容,这是一个超出的文字内容,这是一个超出的文字内容,这是一个超出的文字内容,这是一个超出的文字内容,这是一个超出的文字内容,这是一个超出的文字内容,这是一个超出的文字内容,这是一个超出的文字内容,这是一个超出的文字内容,这是一个超出的文字内容`,
