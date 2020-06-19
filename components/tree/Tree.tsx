@@ -79,6 +79,11 @@ type Props = {
     onTreeNodeClick?: (data: TreeNodeData, selected: boolean) => void
 
     /**
+     * 双击树节点触发的事件
+     */
+    onTreeNodeDoubleClick?: (data: TreeNodeData) => void
+
+    /**
      * 点击右键菜单
      * - node.props.dataRef 可获取绑定的数据
      */
@@ -128,6 +133,8 @@ export class Tree extends React.Component<Props, State>{
         selectedKeys: [],
         expandedKeys: [],
     }
+    // 点击的节点
+    private clickTreeNode: string[] = []
     private oldTreeData: TreeNodeData[] = []
     constructor(props: Props) {
         super(props)
@@ -153,7 +160,9 @@ export class Tree extends React.Component<Props, State>{
                         element = callback(element)
                         return true
                     }
-                    loops(element.children)
+                    if (element.children) {
+                        loops(element.children)
+                    }
                     return false
                 })
             }
@@ -321,6 +330,7 @@ export class Tree extends React.Component<Props, State>{
                     checkable={this.props.checkable}
                     selectedKeys={this.state.selectedKeys}
                     expandedKeys={this.state.expandedKeys}
+
                     onRightClick={(e) => {
                         const self = this
                         if (this.props.onRightClick) {
@@ -355,7 +365,21 @@ export class Tree extends React.Component<Props, State>{
                         this.setState({
                             selectedKeys: lodash.cloneDeep(selectedKeys),
                         })
-                        if (this.props.onTreeNodeClick) {
+
+                        // 双击
+                        if (this.clickTreeNode.indexOf(e.node.props.dataRef.key) !== -1) {
+                            if (this.props.onTreeNodeDoubleClick) {
+                                this.props.onTreeNodeDoubleClick(e.node.props.dataRef)
+                            }
+                        }else {
+                            this.clickTreeNode.push(e.node.props.dataRef.key)
+                            setTimeout(() => {
+                                this.clickTreeNode = this.clickTreeNode.filter(element => element !== e.node.props.dataRef.key)
+                            }, 300)
+                        }
+
+                        // 单击
+                        if (this.props.onTreeNodeClick && this.clickTreeNode.indexOf(e.node.props.dataRef.key) === -1) {
                             this.props.onTreeNodeClick(e.node.props.dataRef, e.selected!)
                         }
                     }}

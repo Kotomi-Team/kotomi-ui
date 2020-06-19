@@ -626,30 +626,26 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
      * @param value  要修改的数据
      */
     public updateRow(id: string, value: any) {
-        const rowIndexEditor = this.getEditorRowIndex()
         const { form, rowKey } = this.props
         const self = this
-        this.getDataSource().forEach((data, dataIndex) => {
+        const dataSource = this.getDataSource()
+        dataSource.forEach((data, dataIndex) => {
             if (data[rowKey!] === id) {
-                this.getDataSource().splice(dataIndex, 1, {
+                dataSource.splice(dataIndex, 1, {
                     ...data,
                     ...value,
                 });
 
                 const fields = {}
                 Object.keys(value).forEach(key => {
-                    if (rowIndexEditor) {
-                        fields[`${key};${rowIndexEditor}`] = value[key]
-                    }
+                    fields[`${key};${dataIndex}`] = value[key]
                 })
-                if (rowIndexEditor) {
-                    form.setFieldsValue(fields)
-                }
+                form.setFieldsValue(fields)
             }
         })
 
         self.setState({
-            dataSource: lodash.cloneDeep(this.getDataSource()),
+            dataSource,
         })
     }
 

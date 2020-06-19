@@ -5,7 +5,7 @@
 ## 代码演示
 
 
-<code src="../../../ushio/form/QueryBuild.tsx" />
+<code src="../../../ushio/query/QueryBuild.tsx" />
 
 
 ## Form 属性

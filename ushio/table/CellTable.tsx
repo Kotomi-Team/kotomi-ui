@@ -4,8 +4,9 @@
  */
 
 import React from 'react'
-import { message, Button, Input } from 'antd'
+import { message, Button } from 'antd'
 import { Table, SketchPicker } from '../../components/index'
+
 
 const CellTable = () => {
   const table = React.createRef<any>()
@@ -29,6 +30,7 @@ const CellTable = () => {
         }}
         onClick={()=>{
           table.current.updateRow(0,{
+            name: '未知',
             six: '未知',
             age: '未知'
           })
@@ -53,16 +55,10 @@ const CellTable = () => {
           isEditing: true,
           title: '人员名称',
           inputWidth: 500,
-          inputType: () => {
-            const TempInput = () => {
-              return <Input />
-            }
-            return <TempInput />
-          }
         }, {
           dataIndex: 'six',
           isEditing: true,
-          title: '性别'
+          title: '性别',
         }, {
           dataIndex: 'age',
           isEditing: true,
@@ -93,6 +89,7 @@ const CellTable = () => {
             total: 2000
           }
         }}
+        rowKey="id"
         onSave={async (record, type: 'DELETE' | 'UPDATE' | 'CREATE') => {
           message.info(`操作类型：${type}, 操作的数据：${JSON.stringify(record)}`)
           return true
