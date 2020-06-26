@@ -32,6 +32,7 @@ const BaseTree = () => {
             />
             <Tree
                 ref={tree}
+                defaultExpandAll={true}
                 loadData={async (data: TreeNodeData) => {
                     if (data === undefined) {
                         return [{

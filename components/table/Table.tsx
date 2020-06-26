@@ -1312,26 +1312,6 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                 if (column.width === undefined) {
                     column.width = 120
                 }
-                // column.filterIcon = () => {
-                //     return <Icon type="down" />
-                // }
-                // const filterDropdown = (
-                //     <FilterDropdown
-                //         checkedKeys={self.columnCheck}
-                //         key={new Date().getTime()}
-                //         columns={self.props.columns}
-                //         onCheck = {(checkKey: string[]) => {
-                //             self.columnCheck = checkKey
-                //             self.setState({
-                //                 columns: self.props.columns.filter((element: ColumnProps<T>) => checkKey.indexOf(element.dataIndex!) !== -1),
-                //             })
-                //         }}
-                //     />
-                // )
-                // // 设置列的可配置
-                // column.filterDropdown = () => {
-                //     return filterDropdown
-                // }
             }
 
         })

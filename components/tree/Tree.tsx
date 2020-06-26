@@ -379,7 +379,7 @@ export class Tree extends React.Component<Props, State>{
                         }
 
                         // 单击
-                        if (this.props.onTreeNodeClick && this.clickTreeNode.indexOf(e.node.props.dataRef.key) === -1) {
+                        if (this.props.onTreeNodeClick) {
                             this.props.onTreeNodeClick(e.node.props.dataRef, e.selected!)
                         }
                     }}
