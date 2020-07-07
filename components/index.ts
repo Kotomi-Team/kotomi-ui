@@ -1,3 +1,4 @@
+import { Table as FastTable } from '@rwp/react-ui'
 import Table from './table/Table'
 import Checkbox from './checkbox/Checkbox'
 import { Form } from './form/Form'
@@ -18,5 +19,6 @@ export {
     SketchPicker,
     Checkbox,
     RichEditor,
-    QueryBuild 
-}
+    QueryBuild,
+    FastTable
+};

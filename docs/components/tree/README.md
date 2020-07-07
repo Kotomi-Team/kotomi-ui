@@ -4,6 +4,9 @@
 
 ## 代码演示
 
+
+<code src="../../../ushio/tree/FilterTree.tsx" />
+
 <code src="../../../ushio/tree/Tree.tsx" />
 
 <code src="../../../ushio/tree/ContextMenuTree.tsx" />

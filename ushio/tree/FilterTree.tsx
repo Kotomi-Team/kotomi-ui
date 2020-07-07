@@ -18,6 +18,7 @@ const BaseTree = () => {
                     const value = e.target.value
                     
                     if(tree.current){
+                        tree.current.expandAll()
                         tree.current.filter((node: any) => {
                             if(value){
                               return node.title.indexOf(value) !== -1
@@ -32,7 +33,6 @@ const BaseTree = () => {
             />
             <Tree
                 ref={tree}
-                defaultExpandAll={true}
                 loadData={async (data: TreeNodeData) => {
                     if (data === undefined) {
                         return [{

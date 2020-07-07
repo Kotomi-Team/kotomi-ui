@@ -6,22 +6,6 @@
 
 <code src="../../../ushio/table/BigDataTable.tsx" />
 
-<code src="../../../ushio/table/BaseTable.tsx" />
-
-<code src="../../../ushio/table/RowEditorTable.tsx" />
-
-<code src="../../../ushio/table/EventTable.tsx" />
-
-<code src="../../../ushio/table/DropdownMenuTable.tsx" />
-
-<code src="../../../ushio/table/CellTable.tsx" />
-
-<code src="../../../ushio/table/TreeTable.tsx" />
-
-<code src="../../../ushio/table/BeforeClickPromiseTable.tsx" />
-
-<code src="../../../ushio/table/RuleTable.tsx" />
-
 ## Table 属性
 
 |名称                 |类型   | 描述
