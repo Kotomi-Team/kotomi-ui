@@ -1,5 +1,6 @@
 import React from 'react'
 import { Tree as AntTree } from 'antd';
+import * as shortid from 'shortid'
 import { AntTreeNode, AntTreeNodeSelectedEvent, AntTreeNodeDropEvent, AntTreeNodeMouseEvent, AntTreeNodeExpandedEvent } from 'antd/lib/tree/Tree'
 import lodash from 'lodash'
 import Dropdown from '../dropdown/Dropdown'
@@ -60,11 +61,6 @@ type Props = {
     isDirectoryTree?: boolean
 
     /**
-     * 默认展现
-     */
-    defaultExpandAll?: boolean
-
-    /**
      * 渲染节点title的时候触发的事件，返回一个新的title对象
      * @param data 当前树状节点的数据
      * @param render 当前渲染的节点数据
@@ -77,6 +73,11 @@ type Props = {
      * @param selected 当前节点是否选中，true表示选中，false表示不选中
      */
     onTreeNodeClick?: (data: TreeNodeData, selected: boolean) => void
+
+    /**
+     * 双击树节点触发的事件
+     */
+    onTreeNodeDoubleClick?: (data: TreeNodeData) => void
 
     /**
      * 点击右键菜单
@@ -104,7 +105,9 @@ type State = {
     isShowMenu: boolean
     node?: AntTreeNode
     selectedKeys: string[]
-    expandedKeys: string[],
+    expandedKeys: string[]
+    expandAll: boolean
+    threeKey: string,
 }
 
 /**
@@ -127,7 +130,12 @@ export class Tree extends React.Component<Props, State>{
         node: undefined,
         selectedKeys: [],
         expandedKeys: [],
+        expandAll: false,
+        expandAllOk: false,
+        threeKey: '0',
     }
+    // 点击的节点
+    private clickTreeNode: string[] = []
     private oldTreeData: TreeNodeData[] = []
     constructor(props: Props) {
         super(props)
@@ -135,16 +143,26 @@ export class Tree extends React.Component<Props, State>{
     }
 
     componentDidMount() {
-        const expandedKeys: string[] = lodash.cloneDeep(this.state.expandedKeys)
         this.props.loadData(undefined).then((treeData: TreeNodeData[]) => {
-            const newExpandedKeys = expandedKeys.concat(treeData.map(element => element.key))
             this.setState({
                 treeData,
-                expandedKeys: this.props.defaultExpandAll ? newExpandedKeys : [],
+                expandedKeys: [],
             })
         })
     }
 
+    public expandAll() {
+        const self = this
+        self.props.loadData(undefined).then((treeData: TreeNodeData[]) => {
+            const newExpandedKeys = treeData.map(element => element.key)
+            self.setState({
+                treeData,
+                expandedKeys: newExpandedKeys,
+                expandAll: true,
+                threeKey: shortid.generate(),
+            })
+        })
+    }
     public updateNode(key: string, callback: (treeNode: TreeNodeData) => TreeNodeData) {
         return new Promise((resolve) => {
             const loops = (nodeDatas: TreeNodeData[]) => {
@@ -153,7 +171,9 @@ export class Tree extends React.Component<Props, State>{
                         element = callback(element)
                         return true
                     }
-                    loops(element.children)
+                    if (element.children) {
+                        loops(element.children)
+                    }
                     return false
                 })
             }
@@ -223,6 +243,38 @@ export class Tree extends React.Component<Props, State>{
         })
     }
 
+    public sort(parent: string | null, order: (children: TreeNodeData[]) => TreeNodeData[]) {
+        return new Promise((resolve) => {
+            const loops = (nodeDatas: TreeNodeData[], callback: (node: TreeNodeData) => Boolean) => {
+                nodeDatas.some((element) => {
+                    if (element.children && element.children.length > 0) {
+                        loops(element.children, callback)
+                    }
+                    return callback(element)
+                })
+            }
+            let parentNode: TreeNodeData | undefined;
+            loops(this.state.treeData, (node) => {
+                if (node.key === parent) {
+                    parentNode = node
+                    return true
+                }
+                return false
+            })
+
+            if (parentNode) {
+                if (parentNode.loaded) {
+                    parentNode!.children = order(lodash.cloneDeep(parentNode!.children))
+                }
+
+                this.setState({
+                    treeData: [...this.state.treeData],
+                }, () => {
+                    resolve()
+                })
+            }
+        })
+    }
     // appendNode install
     public insertNode(parent: string | null, nodes: TreeNodeData[], order: (node: TreeNodeData, children: TreeNodeData[]) => TreeNodeData[]) {
         return new Promise((resolve) => {
@@ -267,7 +319,48 @@ export class Tree extends React.Component<Props, State>{
         })
 
     }
+    public refresh(keys: string | string[]) {
+        let delKey: string[] = []
+        if (lodash.isArray(keys)) {
+            delKey = keys
+        }else {
+            delKey.push(keys)
+        }
 
+        const loops = async (treeData: TreeNodeData[], callback: (node: TreeNodeData) => boolean) => {
+            const result: TreeNodeData[] = []
+            for (let i = 0; i < treeData.length ; i++) {
+                if (treeData[i].children && treeData[i].children.length > 0) {
+                    if (callback(treeData[i])) {
+                        const data: TreeNodeData = treeData[i]
+                        const newChildren = await this.props.loadData(data)
+                        result.push({
+                            ...data,
+                            children: newChildren,
+                        })
+                    }else {
+                        const node = {
+                            ...treeData[i],
+                            children: await loops(treeData[i].children, callback),
+                        } as unknown as TreeNodeData
+                        result.push(node)
+                    }
+                }else {
+                    result.push(treeData[i])
+                }
+            }
+            return result
+        }
+        const tempTreeData = loops(this.state.treeData, (node: TreeNodeData) => {
+            return delKey.indexOf(node.key) !== -1
+        })
+        tempTreeData.then((treeData) => {
+            this.setState({
+                treeData,
+            })
+        })
+
+    }
     // 删除指定的节点信息
     public delNode(keys: string | string[]) {
         return new Promise((resolve) => {
@@ -321,6 +414,7 @@ export class Tree extends React.Component<Props, State>{
                     checkable={this.props.checkable}
                     selectedKeys={this.state.selectedKeys}
                     expandedKeys={this.state.expandedKeys}
+                    key={this.state.threeKey}
                     onRightClick={(e) => {
                         const self = this
                         if (this.props.onRightClick) {
@@ -355,6 +449,20 @@ export class Tree extends React.Component<Props, State>{
                         this.setState({
                             selectedKeys: lodash.cloneDeep(selectedKeys),
                         })
+
+                        // 双击
+                        if (this.clickTreeNode.indexOf(e.node.props.dataRef.key) !== -1) {
+                            if (this.props.onTreeNodeDoubleClick) {
+                                this.props.onTreeNodeDoubleClick(e.node.props.dataRef)
+                            }
+                        }else {
+                            this.clickTreeNode.push(e.node.props.dataRef.key)
+                            setTimeout(() => {
+                                this.clickTreeNode = this.clickTreeNode.filter(element => element !== e.node.props.dataRef.key)
+                            }, 300)
+                        }
+
+                        // 单击
                         if (this.props.onTreeNodeClick) {
                             this.props.onTreeNodeClick(e.node.props.dataRef, e.selected!)
                         }
@@ -472,7 +580,7 @@ export class Tree extends React.Component<Props, State>{
                 tempChildren = tempChildren.concat(node.props.dataRef.extChildren)
             }
 
-            if (this.props.defaultExpandAll) {
+            if (this.state.expandAll) {
                 tempChildren.forEach(element => {
                     expandedKeys.push(element.key)
                 })

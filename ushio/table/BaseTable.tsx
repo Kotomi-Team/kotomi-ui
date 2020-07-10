@@ -74,7 +74,7 @@ const BaseTable = () =>{
         rowSelection="multiple"
         loadData={async ({ page, pageSize ,param})=>{
           const datas: any = []
-          for(let i =0 ;i< 2 ; i++){
+          for(let i =0 ;i< pageSize ; i++){
             datas.push({
               id: `${i}- ${page} `,
               name: `@！#@#@@！#&……#&*@&￥@*&#@&#`,

@@ -6,6 +6,7 @@
 import React from 'react'
 
 import { Tree, TreeNodeData } from '../../components/tree/Tree';
+import { message } from 'antd';
 
 
 const BaseTree = () => {
@@ -32,7 +33,11 @@ const BaseTree = () => {
                 }}
                 onTreeNodeClick={(data: TreeNodeData, select: boolean) => {
                     console.log(data)
+                    message.info('单击')
                     console.log(select)
+                }}
+                onTreeNodeDoubleClick={(data: TreeNodeData)=>{
+                    message.info('双击')
                 }}
             />
         </>
