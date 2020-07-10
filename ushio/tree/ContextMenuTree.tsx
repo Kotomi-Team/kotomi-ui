@@ -29,7 +29,8 @@ const BaseTree = () => {
                         <span key='add'>add</span>,
                         <span key='delete'>delete</span>,
                         <span key='update'>update</span>,
-                        <span key='insert'>insert</span>
+                        <span key='insert'>insert</span>,
+                        <span key='refresh'>refresh</span>
                     ]}
                     loadData={async (data: TreeNodeData) => {
                         if (data === undefined) {
@@ -49,15 +50,15 @@ const BaseTree = () => {
                         }
                         return [newData]
                     }}
-                    onExpand={(_, info) => {
-                        const key = info.node.props.dataRef.key
-                        if (tree.current) {
-                            tree.current.updateNode(key, (treeNode) => {
-                                treeNode.title = '修改数据'
-                                return treeNode
-                            })
-                        }
-                    }}
+                    // onExpand={(_, info) => {
+                    //     const key = info.node.props.dataRef.key
+                    //     if (tree.current) {
+                    //         tree.current.updateNode(key, (treeNode) => {
+                    //             treeNode.title = '修改数据'
+                    //             return treeNode
+                    //         })
+                    //     }
+                    // }}
                     onClickContextMenu={(key, node) => {
                         if (key === 'delete') {
                             if (tree.current) {
@@ -97,7 +98,14 @@ const BaseTree = () => {
                                     return children
                                 })
                             }
-                        } else {
+                        } else if (key === 'refresh'){
+                            if (tree.current) {
+                                console.log(node)
+                                const id = node!.props.dataRef.key as string
+                                tree.current.refresh(id)
+                            }
+                        }
+                         else {
                             message.info(`key: ${key}, dataRef: ${JSON.stringify(node!.props.dataRef)}`)
                         }
                     }}

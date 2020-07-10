@@ -319,7 +319,48 @@ export class Tree extends React.Component<Props, State>{
         })
 
     }
+    public refresh(keys: string | string[]) {
+        let delKey: string[] = []
+        if (lodash.isArray(keys)) {
+            delKey = keys
+        }else {
+            delKey.push(keys)
+        }
 
+        const loops = async (treeData: TreeNodeData[], callback: (node: TreeNodeData) => boolean) => {
+            const result: TreeNodeData[] = []
+            for (let i = 0; i < treeData.length ; i++) {
+                if (treeData[i].children && treeData[i].children.length > 0) {
+                    if (callback(treeData[i])) {
+                        const data: TreeNodeData = treeData[i]
+                        const newChildren = await this.props.loadData(data)
+                        result.push({
+                            ...data,
+                            children: newChildren,
+                        })
+                    }else {
+                        const node = {
+                            ...treeData[i],
+                            children: await loops(treeData[i].children, callback),
+                        } as unknown as TreeNodeData
+                        result.push(node)
+                    }
+                }else {
+                    result.push(treeData[i])
+                }
+            }
+            return result
+        }
+        const tempTreeData = loops(this.state.treeData, (node: TreeNodeData) => {
+            return delKey.indexOf(node.key) !== -1
+        })
+        tempTreeData.then((treeData) => {
+            this.setState({
+                treeData,
+            })
+        })
+
+    }
     // 删除指定的节点信息
     public delNode(keys: string | string[]) {
         return new Promise((resolve) => {

@@ -388,6 +388,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
     }
 
     componentDidUpdate() {
+        // eslint-disable-next-line react/no-find-dom-node
         const tablElement = ReactDOM.findDOMNode(this.table.current) as Element
         const antTableBody = tablElement.getElementsByClassName('ant-table-body')[0]
         if (antTableBody) {
