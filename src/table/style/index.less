@@ -1,0 +1,108 @@
+// 编辑icon设置为鼠标手形状
+.kotomi-components-table-editor-icon {
+    cursor: pointer;
+}
+
+// 设置form item 的底部消除多余的空白
+.ant-table-tbody {
+    >tr{
+        >td{
+            border-bottom: 1px solid #e8e8e8 !important;
+            >.ant-form-item{
+                margin-bottom: 0px;
+                >.ant-form-item-control-wrapper{
+                    >.ant-form-item-control{
+                        line-height: 1.5;
+                        >.ant-form-item-children{
+                            display: flex;
+                        }
+                        >.ant-form-explain{
+                            position: absolute;
+                            margin-top: 5px;
+                            border-radius: 2px;
+                            background-color: white;
+                            text-indent: 5px;
+                            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+                        }
+                    }
+                }
+            }
+            >div{
+                // 修复空白无法编辑的问题
+                min-height: 20px;
+            }
+        }
+    }  
+}
+
+
+// 设置单元格样式
+.kotomi-components-table-cell-value-wrap {
+	// padding: 5px 5px;
+	cursor: pointer;
+}
+
+// 编辑单元格的移动边框
+.kotomi-components-table-row {
+    .kotomi-components-table-cell-value-wrap {
+        &:hover {
+            border-top: 1px solid #1890ff;
+            // border-radius: 4px;
+        }
+    }
+}
+
+// 可编辑的td样式
+.kotomi-components-table-editor-td{
+    overflow: visible !important;
+}
+
+// 设置单元格显示过多数据的表格样式
+.kotomi-components-table-cell-ellipsis{
+    .ant-tooltip-content{
+        .ant-tooltip-arrow{
+            &:before {
+                background-color: white
+            }
+        }
+        .ant-tooltip-inner{
+            white-space: pre;
+            overflow: auto;
+            max-height: 500px;
+            background-color: white;
+            color: black
+        }
+    }
+}
+
+.kotomi-components-table-pagination{
+    float: right;
+    margin: 10px 10px 10px 10px;
+}
+
+.kotomi-table-row-drag-downward {
+    >td{
+        border-bottom: 2px dashed #1890ff !important;
+    }
+}
+  
+.kotomi-table-row-drag-upward {
+    >td{
+        border-top: 2px dashed #1890ff !important;
+    }
+}
+
+.react-resizable {
+    position: relative;
+    background-clip: padding-box;
+}
+
+.react-resizable-handle {
+    position: absolute;
+    width: 10px;
+    height: 100%;
+    bottom: 0;
+    right: -5px;
+    cursor: col-resize;
+    z-index: 1;
+}
