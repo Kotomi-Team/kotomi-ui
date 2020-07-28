@@ -5,7 +5,7 @@
  */
 
 import React from 'react'
-import { message, Button, DatePicker } from 'antd'
+import { message, Button, DatePicker } from 'asp-antd-compatible'
 import { Table } from '../../components/index'
 
 const table = React.createRef<any>()

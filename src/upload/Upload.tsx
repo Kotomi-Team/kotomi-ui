@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Upload as AntUpload, Icon } from 'antd'
+import { Upload as AntUpload, Icon } from 'asp-antd-compatible'
 import { UploadChangeParam, UploadLocale, HttpRequestHeader, RcFile } from 'antd/lib/upload/interface'
 
 type Props = {

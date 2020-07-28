@@ -37,18 +37,7 @@ export class Canvas extends React.Component<Props> {
         element.setAttribute('style', `height:${offsetHeight}px;`)
     }
 
-    /**
-     * 绘制贝塞尔曲线
-     * @param line 画出对应的线
-     */
-    public paintBezierLine(from: Position, to: Position): void {
-        const controlPoint: Position = { x: from.x, y: to.y * 2 }
-        const ctx2d = this.canvasElement.current!.getContext('2d')!
-        ctx2d.beginPath()
-        ctx2d.moveTo(from.x, from.y)
-        ctx2d.quadraticCurveTo(controlPoint.x, controlPoint.y, to.x, to.y)
-        ctx2d.stroke()
-    }
+
 
     /**
      * 获取当前HTML元素的坐标信息
@@ -61,6 +50,19 @@ export class Canvas extends React.Component<Props> {
             width: element.offsetWidth,
             height: element.offsetHeight,
         }
+    }
+
+    /**
+     * 绘制贝塞尔曲线
+     * @param line 画出对应的线
+     */
+    public paintBezierLine(from: Position, to: Position): void {
+        const controlPoint: Position = { x: from.x, y: to.y * 2 }
+        const ctx2d = this.canvasElement.current!.getContext('2d')!
+        ctx2d.beginPath()
+        ctx2d.moveTo(from.x, from.y)
+        ctx2d.quadraticCurveTo(controlPoint.x, controlPoint.y, to.x, to.y)
+        ctx2d.stroke()
     }
 
     render() {

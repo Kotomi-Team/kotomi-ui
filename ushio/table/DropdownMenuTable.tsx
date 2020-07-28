@@ -4,7 +4,7 @@
  */
 
 import React from 'react'
-import { Menu } from 'antd'
+import { Menu } from 'asp-antd-compatible'
 import { Table } from '../../components/index'
 
 const DropdownMenuTable = () => {

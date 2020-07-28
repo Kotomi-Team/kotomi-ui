@@ -5,7 +5,7 @@
 
 import React, { useRef } from 'react'
 import { QueryBuild } from '../../components/query/QueryBuild'
-import { Button, message, Select, Input } from 'antd'
+import { Button, message, Select, Input } from 'asp-antd-compatible'
 
 const TempInput = (props: any) => {
   return <Input

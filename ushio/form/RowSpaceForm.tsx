@@ -4,7 +4,7 @@
  */
 
 import React from 'react'
-import { InputNumber, Row } from 'antd'
+import { InputNumber, Row } from 'asp-antd-compatible'
 import { Form } from '../../components/index'
 
 const RowSpaceForm = () => {

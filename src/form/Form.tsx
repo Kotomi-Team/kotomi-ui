@@ -1,6 +1,6 @@
 import React from 'react'
 import ReactDom from 'react-dom'
-import { Form as AntForm, Row, Col, Input } from 'antd'
+import { Form as AntForm, Row, Col, Input } from 'asp-antd-compatible'
 import { WrappedFormUtils, ValidationRule, FormComponentProps } from 'antd/lib/form/Form';
 import { ColProps } from 'antd/lib/grid/col';
 

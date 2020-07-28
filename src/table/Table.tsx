@@ -1,6 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom';
-import { Table as AntTable, Divider, Icon, Menu, Pagination, Form } from 'antd'
+import { Table as AntTable, Divider, Icon, Menu, Pagination, Form } from 'asp-antd-compatible'
 import { TableSize, ColumnProps as AntColumnProps, TableRowSelection, TableEventListeners } from 'antd/lib/table/interface'
 import { WrappedFormUtils, ValidationRule, FormComponentProps } from 'antd/lib/form/Form';
 import { HeightProperty } from 'csstype'
@@ -190,7 +190,10 @@ interface Props<T> extends FormComponentProps<T> {
      * @param render 当前数据渲染的react的节点数据
      * @returns 返回一个react组件对象
      */
-    onBeforeRenderPromiseColumn?: (record: T, column: ColumnProps<T>, render: JSX.Element) => JSX.Element
+    onBeforeRenderPromiseColumn?: (
+        record: T,
+        column: ColumnProps<T>,
+        render: JSX.Element) => JSX.Element
 
     /**
      * 在调用特殊约定的列的时候触发的click事件
@@ -245,7 +248,11 @@ interface Props<T> extends FormComponentProps<T> {
 
     expandedRowKeys?: string []
 
-    expandedRowRender?: (record: T, index: number, indent: number, expanded: boolean) => React.ReactNode;
+    expandedRowRender?: (
+        record: T,
+        index: number,
+        indent: number,
+        expanded: boolean) => React.ReactNode;
 
     onExpand?: (expanded: boolean, record: T) => void
 
@@ -294,6 +301,35 @@ export type TableSorter = {
  *  和后台交互的表格对象，并且可编辑
  */
 class Table<T> extends React.Component<Props<T>, State<T>> {
+    public blankDivElement: React.RefObject<HTMLDivElement> = React.createRef<HTMLDivElement>()
+
+    state = {
+        dataSource: [],
+        total: 0,
+        loading: false,
+        page: 1,
+        pageSize: 0,
+        sorter: undefined,
+        editingKey: undefined,
+        disabledCheck: false,
+        rowSelectedKeys: [],
+        columns: [],
+    }
+
+    private table: React.RefObject<AntTable<T>> = React.createRef<AntTable<T>>()
+
+    // 用户查询参数
+    private REQUEST_PARAM = {}
+
+    // 当前用户的可编辑数据源
+    private dataSourceState: DataSourceState<T> = new DataSourceState<T>()
+
+    // 备份的数据源，用于撤销修改
+    private backupDataSource: T[] = []
+
+    // 当前正在编辑的cell列
+    private currentEditorCell: EditableCell<T>[] = []
+
     static defaultProps = {
         theme: 'small',
         defaultPageSize: 50,
@@ -323,35 +359,6 @@ class Table<T> extends React.Component<Props<T>, State<T>> {
             ),
         onRenderTooltip: (render: JSX.Element) => render,
     }
-
-    public blankDivElement: React.RefObject<HTMLDivElement> = React.createRef<HTMLDivElement>()
-
-    state = {
-        dataSource: [],
-        total: 0,
-        loading: false,
-        page: 1,
-        pageSize: 0,
-        sorter: undefined,
-        editingKey: undefined,
-        disabledCheck: false,
-        rowSelectedKeys: [],
-        columns: [],
-    }
-
-    private table: React.RefObject<AntTable<T>> = React.createRef<AntTable<T>>()
-
-    // 用户查询参数
-    private REQUEST_PARAM = {}
-
-    // 当前用户的可编辑数据源
-    private dataSourceState: DataSourceState<T> = new DataSourceState<T>()
-
-    // 备份的数据源，用于撤销修改
-    private backupDataSource: T[] = []
-
-    // 当前正在编辑的cell列
-    private currentEditorCell: EditableCell<T>[] = []
 
     // private columnCheck: string[] = []
 
@@ -436,183 +443,6 @@ class Table<T> extends React.Component<Props<T>, State<T>> {
         this.editStash()
     }
 
-    render() {
-        const extProps = {
-            expandIconColumnIndex: 0,
-            expandedRowKeys: this.props.expandedRowKeys,
-        }
-        if (this.props.expandIconColumnIndex) {
-            extProps.expandIconColumnIndex = this.props.expandIconColumnIndex
-        } else {
-            delete extProps.expandIconColumnIndex
-        }
-        if (!this.props.expandedRowKeys) {
-            delete extProps.expandedRowKeys
-        }
-        const components: any = {
-            body: {
-                cell: EditableCell,
-            },
-        }
-
-        // 如果有onDragRow事件，则表示可拖拽
-        if (this.props.onDragRow) {
-            components.body.row = DragRow
-        }
-        const TempTable = this.props.virtual ? VirtualTable : AntTable
-        return (
-            <TableContext.Provider value={{
-                form: this.props.form,
-                table: this,
-                dropdownMenu: this.getDropdownMenu(),
-            }}>
-                <DndProvider backend={Backend}>
-                    <div
-                        style={{
-                            position: 'fixed',
-                            top: '0px',
-                            right: '0px',
-                            bottom: '0px',
-                            left: '0px',
-                            visibility: 'hidden',
-                        }}
-                        ref={this.blankDivElement}
-                        onClick={() => {
-                            if (this.blankDivElement.current) {
-                                this.blankDivElement.current.style.visibility = 'hidden'
-                            }
-                            this.editHide()
-                        }}
-                    />
-                    <TempTable
-                        style={{
-                            ...this.props.style,
-                        }}
-                        ref={this.table}
-                        bordered={this.props.bordered}
-                        expandedRowRender={this.props.expandedRowRender}
-                        childrenColumnName="$children"
-                        rowKey={this.props.rowKey}
-                        columns={this.getColumns()}
-                        rowClassName={() => 'kotomi-components-table-row'}
-                        components={components}
-                        onExpand={(expanded: boolean, record: T) => {
-                            const { rowKey, onExpand } = this.props
-                            if (expanded && this.props.onLoadChildren) {
-                                this.props.onLoadChildren(record).then((children: T[]) => {
-                                    const { dataSource } = this.state
-                                    const loops = (loopsDataSource: any[]): any[] => loopsDataSource.map((element: any) => {
-                                        // @ts-ignore
-                                        const chil = element.$children
-                                        // @ts-ignore
-                                        if (element[rowKey!] === record[rowKey!]) {
-                                            return {
-                                                ...element,
-                                                $children: children,
-                                            };
-                                        }
-                                        if (chil === undefined) {
-                                            return element
-                                        }
-                                        // @ts-ignore
-                                        return {
-                                            ...element,
-                                            $children: loops(chil),
-                                        };
-                                    })
-                                    this.setState({
-                                        dataSource: loops(dataSource),
-                                    })
-                                })
-                            }
-
-                            if (onExpand) {
-                                onExpand(expanded, record)
-                            }
-                        }}
-                        dataSource={this.getDataSource()}
-                        loading={{
-                            indicator: <Icon
-                                type="loading"
-                                style={{ fontSize: 24 }}
-                                spin
-                            />,
-                            spinning: this.state.loading,
-                        }}
-                        pagination={false}
-                        rowSelection={this.getRowSelection()}
-                        onHeaderRow={(_columns: ColumnProps<T>[]) => {
-                            let propsStyle = {}
-                            if (this.props.onRenderHeaderRowCssStyle) {
-                                propsStyle = this.props.onRenderHeaderRowCssStyle!()
-                            }
-                            return {
-                                style: propsStyle,
-                            }
-                        }}
-                        onRow={(record: T, index: number) => {
-                            let propsStyle = {}
-                            if (this.props.onRenderBodyRowCssStyle) {
-                                propsStyle = this.props.onRenderBodyRowCssStyle!(
-                                    index as number,
-                                    record as T)
-                            }
-                            // 如果当前行处于不可编辑状态，则不点击click事件
-                            if (this.state.editingKey === undefined) {
-                                const { onRow } = this.props
-                                const rowData = onRow === undefined ? {} : onRow(record, index)
-                                return {
-                                    ...rowData,
-                                    style: propsStyle,
-                                    record,
-                                    index,
-                                    table: this,
-                                }
-                            }
-                            // 否则不相应事件
-                            return {
-                                style: propsStyle,
-                                record,
-                                index,
-                                table: this,
-                            }
-                        }}
-                        size="small"
-                        scroll={{
-                            x: this.props.width,
-                            y: this.props.height,
-                        }}
-                        {...extProps}
-                    />
-                    <Pagination
-                        className="kotomi-components-table-pagination"
-                        size="small"
-                        current={this.state.page}
-                        total={this.state.total}
-                        hideOnSinglePage
-                        showSizeChanger
-                        showQuickJumper
-                        pageSizeOptions={this.props.pageSizeOptions}
-                        defaultPageSize={this.props.defaultPageSize!}
-                        onShowSizeChange={(page: number, pageSize?: number) => {
-                            this.requestLoadData({
-                                page,
-                                pageSize: pageSize!,
-                                sorter: {} as TableSorter,
-                            })
-                        }}
-                        onChange={(page: number, pageSize?: number) => {
-                            this.requestLoadData({
-                                page,
-                                pageSize: pageSize!,
-                                sorter: {} as TableSorter,
-                            })
-                        }}
-                    />
-                </DndProvider>
-            </TableContext.Provider>
-        )
-    }
 
     /**
      *
@@ -1350,6 +1180,184 @@ class Table<T> extends React.Component<Props<T>, State<T>> {
         if (bodyElement) {
             bodyElement.scrollTop = bodyElement.scrollHeight;
         }
+    }
+
+    render() {
+        const extProps = {
+            expandIconColumnIndex: 0,
+            expandedRowKeys: this.props.expandedRowKeys,
+        }
+        if (this.props.expandIconColumnIndex) {
+            extProps.expandIconColumnIndex = this.props.expandIconColumnIndex
+        } else {
+            delete extProps.expandIconColumnIndex
+        }
+        if (!this.props.expandedRowKeys) {
+            delete extProps.expandedRowKeys
+        }
+        const components: any = {
+            body: {
+                cell: EditableCell,
+            },
+        }
+
+        // 如果有onDragRow事件，则表示可拖拽
+        if (this.props.onDragRow) {
+            components.body.row = DragRow
+        }
+        const TempTable = this.props.virtual ? VirtualTable : AntTable
+        return (
+            <TableContext.Provider value={{
+                form: this.props.form,
+                table: this,
+                dropdownMenu: this.getDropdownMenu(),
+            }}>
+                <DndProvider backend={Backend}>
+                    <div
+                        style={{
+                            position: 'fixed',
+                            top: '0px',
+                            right: '0px',
+                            bottom: '0px',
+                            left: '0px',
+                            visibility: 'hidden',
+                        }}
+                        ref={this.blankDivElement}
+                        onClick={() => {
+                            if (this.blankDivElement.current) {
+                                this.blankDivElement.current.style.visibility = 'hidden'
+                            }
+                            this.editHide()
+                        }}
+                    />
+                    <TempTable
+                        style={{
+                            ...this.props.style,
+                        }}
+                        ref={this.table}
+                        bordered={this.props.bordered}
+                        expandedRowRender={this.props.expandedRowRender}
+                        childrenColumnName="$children"
+                        rowKey={this.props.rowKey}
+                        columns={this.getColumns()}
+                        rowClassName={() => 'kotomi-components-table-row'}
+                        components={components}
+                        onExpand={(expanded: boolean, record: T) => {
+                            const { rowKey, onExpand } = this.props
+                            if (expanded && this.props.onLoadChildren) {
+                                this.props.onLoadChildren(record).then((children: T[]) => {
+                                    const { dataSource } = this.state
+                                    const loops = (loopsDataSource: any[]): any[] => loopsDataSource.map((element: any) => {
+                                        // @ts-ignore
+                                        const chil = element.$children
+                                        // @ts-ignore
+                                        if (element[rowKey!] === record[rowKey!]) {
+                                            return {
+                                                ...element,
+                                                $children: children,
+                                            };
+                                        }
+                                        if (chil === undefined) {
+                                            return element
+                                        }
+                                        // @ts-ignore
+                                        return {
+                                            ...element,
+                                            $children: loops(chil),
+                                        };
+                                    })
+                                    this.setState({
+                                        dataSource: loops(dataSource),
+                                    })
+                                })
+                            }
+
+                            if (onExpand) {
+                                onExpand(expanded, record)
+                            }
+                        }}
+                        dataSource={this.getDataSource()}
+                        loading={{
+                            indicator: <Icon
+                                type="loading"
+                                style={{ fontSize: 24 }}
+                                spin
+                            />,
+                            spinning: this.state.loading,
+                        }}
+                        pagination={false}
+                        rowSelection={this.getRowSelection()}
+                        onHeaderRow={(_columns: ColumnProps<T>[]) => {
+                            let propsStyle = {}
+                            if (this.props.onRenderHeaderRowCssStyle) {
+                                propsStyle = this.props.onRenderHeaderRowCssStyle!()
+                            }
+                            return {
+                                style: propsStyle,
+                            }
+                        }}
+                        onRow={(record: T, index: number) => {
+                            let propsStyle = {}
+                            if (this.props.onRenderBodyRowCssStyle) {
+                                propsStyle = this.props.onRenderBodyRowCssStyle!(
+                                    index as number,
+                                    record as T)
+                            }
+                            // 如果当前行处于不可编辑状态，则不点击click事件
+                            if (this.state.editingKey === undefined) {
+                                const { onRow } = this.props
+                                const rowData = onRow === undefined ? {} : onRow(record, index)
+                                return {
+                                    ...rowData,
+                                    style: propsStyle,
+                                    record,
+                                    index,
+                                    table: this,
+                                }
+                            }
+                            // 否则不相应事件
+                            return {
+                                style: propsStyle,
+                                record,
+                                index,
+                                table: this,
+                            }
+                        }}
+                        size="small"
+                        scroll={{
+                            x: this.props.width,
+                            y: this.props.height,
+                        }}
+                        {...extProps}
+                    />
+                    <Pagination
+                        className="kotomi-components-table-pagination"
+                        size="small"
+                        current={this.state.page}
+                        total={this.state.total}
+                        hideOnSinglePage
+                        showSizeChanger
+                        showQuickJumper
+                        pageSizeOptions={this.props.pageSizeOptions}
+                        defaultPageSize={this.props.defaultPageSize!}
+                        onShowSizeChange={(page: number, pageSize?: number) => {
+                            this.requestLoadData({
+                                page,
+                                pageSize: pageSize!,
+                                sorter: {} as TableSorter,
+                            })
+                        }}
+                        onChange={(page: number, pageSize?: number) => {
+                            this.requestLoadData({
+                                page,
+                                pageSize: pageSize!,
+                                sorter: {} as TableSorter,
+                            })
+                        }}
+                    />
+                </DndProvider>
+            </TableContext.Provider>
+        )
     }
 
     /**

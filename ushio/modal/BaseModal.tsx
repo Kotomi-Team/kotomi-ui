@@ -7,7 +7,7 @@
 import React from 'react'
 
 import { Modal } from '../../components/modal/Modal';
-import { Button } from 'antd';
+import { Button } from 'asp-antd-compatible';
 
 const BaseoMdal = () => {
   let modal: Modal | null = null

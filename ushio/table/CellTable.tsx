@@ -4,7 +4,7 @@
  */
 
 import React from 'react'
-import { message, Button, Input } from 'antd'
+import { message, Button, Input } from 'asp-antd-compatible'
 import { Table, SketchPicker } from '../../components/index'
 
 

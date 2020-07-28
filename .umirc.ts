@@ -44,7 +44,7 @@ export default {
     [
       'import',
       {
-        libraryName: 'antd',
+        libraryName: 'asp-antd-compatible',
         libraryDirectory: 'es',
         style: 'css',
       },

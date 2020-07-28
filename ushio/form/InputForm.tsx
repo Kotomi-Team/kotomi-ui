@@ -4,7 +4,7 @@
  */
 
 import React from 'react'
-import { Input, Radio, Row } from 'antd'
+import { Input, Radio, Row } from 'asp-antd-compatible'
 import { Form } from '../../components/index'
 
 

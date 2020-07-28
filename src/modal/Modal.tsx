@@ -1,5 +1,5 @@
 import React from 'react'
-import { Modal as AntModal } from 'antd'
+import { Modal as AntModal } from 'asp-antd-compatible'
 import ReactDOM from 'react-dom'
 
 import './style/index.less'

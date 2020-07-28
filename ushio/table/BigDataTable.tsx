@@ -4,7 +4,7 @@
  */
 import React from 'react'
 import { Table } from '@rwp/react-ui'
-import { Menu, DatePicker } from 'antd'
+import { Menu, DatePicker } from 'asp-antd-compatible'
 import moment from 'moment';
 
 const EditorDatePicker = (props: any) => {

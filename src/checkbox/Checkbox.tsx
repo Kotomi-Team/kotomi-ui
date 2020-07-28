@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Checkbox as AntCheckbox } from 'antd';
+import { Checkbox as AntCheckbox } from 'asp-antd-compatible';
 
 import './style/index.less'
 
@@ -24,7 +24,10 @@ const Checkbox = (props: any) => {
         if (value === true) {
           tempValue = undefined
         }
-
+        // 自定义拦截顺序
+        if (props.onBeforeChange) {
+          tempValue = props.onBeforeChange(tempValue)
+        }
         setValue(tempValue)
         if (props.onChange) {
           props.onChange(tempValue)
