@@ -1,4 +1,4 @@
-import { Table as FastTable } from '@rwp/react-ui'
+import 'asp-antd-compatible/dist/asp-antd-compatible.css'
 import Table from './table/Table'
 import Checkbox from './checkbox/Checkbox'
 import { Form } from './form/Form'
@@ -20,5 +20,4 @@ export {
     Checkbox,
     RichEditor,
     QueryBuild,
-    FastTable
 };

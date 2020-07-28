@@ -7,7 +7,7 @@ import {
     AntTreeNodeDropEvent,
     AntTreeNodeMouseEvent,
     AntTreeNodeExpandedEvent,
-} from 'antd/lib/tree/Tree'
+} from 'asp-antd-compatible/lib/tree/Tree'
 import lodash from 'lodash'
 import Dropdown from '../dropdown/Dropdown'
 

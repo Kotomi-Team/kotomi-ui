@@ -1,8 +1,8 @@
 import React from 'react'
 import ReactDom from 'react-dom'
 import { Form as AntForm, Row, Col, Input } from 'asp-antd-compatible'
-import { WrappedFormUtils, ValidationRule, FormComponentProps } from 'antd/lib/form/Form';
-import { ColProps } from 'antd/lib/grid/col';
+import { WrappedFormUtils, ValidationRule, FormComponentProps } from 'asp-antd-compatible/lib/form/Form';
+import { ColProps } from 'asp-antd-compatible/lib/grid/col';
 
 export interface FormUtils<V = any> extends WrappedFormUtils<V>{
     /**

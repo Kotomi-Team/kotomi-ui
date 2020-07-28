@@ -2,7 +2,7 @@ import React from 'react'
 import lodash from 'lodash'
 import ReactDom from 'react-dom'
 import { Form, Input, Tooltip, Dropdown } from 'asp-antd-compatible'
-import { WrappedFormUtils } from 'antd/lib/form/Form';
+import { WrappedFormUtils } from 'asp-antd-compatible/lib/form/Form';
 import { ColumnProps, TableContext, TableContextProps } from './Table'
 import './style/index.less'
 
@@ -275,6 +275,7 @@ export class EditableCell<T> extends React.Component<Props<T>, State> {
                     if (!this.isEditing()) {
                         return this.renderDivCell(children, tableContextProps)
                     }
+                    // @ts-ignore
                     this.addBlank(tableContextProps)
                         return (
                             <>

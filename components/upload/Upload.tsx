@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { Upload as AntUpload, Icon } from 'asp-antd-compatible'
-import { UploadChangeParam, UploadLocale, HttpRequestHeader, RcFile } from 'antd/lib/upload/interface'
+import { UploadChangeParam, UploadLocale, HttpRequestHeader, RcFile } from 'asp-antd-compatible/lib/upload/interface'
 
 type Props = {
     // 上传到服务器的地址
