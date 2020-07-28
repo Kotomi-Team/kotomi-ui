@@ -35,15 +35,17 @@ export const QueryInput = (props: QueryInputProps) => {
                             setField(changeValue)
                             setValue('')
                             if (props.onChange) {
+
                                 const tempElement = props.onChange(changeValue, symbol!, '')
                                  // @ts-ignore
                                 if (React.isValidElement(tempElement)) {
                                     setValueInput(tempElement)
                                 }
+
                             }
                         }}
                     >
-                        {props.fields.map(element => <Select.Option key={element.name} value={element.name}>{element.title}</Select.Option>)}
+                        {props.fields.map((element) => <Select.Option key={element.name} value={element.name}>{element.title}</Select.Option>)}
                     </Select>
                 </Col>
                 <Col span={6}>
@@ -65,7 +67,7 @@ export const QueryInput = (props: QueryInputProps) => {
                         <Input
                             style={{ width: '100%' }}
                             value={value}
-                            onChange={e => {
+                            onChange={(e) => {
                                 const { value: tempValue } = e.target
                                 if (props.onChange) {
                                     props.onChange(field!, symbol!, tempValue)

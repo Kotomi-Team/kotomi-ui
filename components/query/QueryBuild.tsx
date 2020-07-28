@@ -16,7 +16,7 @@ interface DropdownState {
 }
 
 const loops = (querys: Query[], cellback: (query: Query) => boolean) => {
-    querys.some(query => {
+    querys.some((query) => {
         if (query.children && query.children.length > 0) {
             loops(query.children, cellback)
         }
@@ -48,9 +48,9 @@ const queryRender = (
     props: QueryBuildProps,
 ) => {
     const menus = [
-        <span key="AND">并且</span>,
-        <span key="OR">或者</span>,
-        <span key="NORMAL">添加条件</span>,
+        <span key='AND'>并且</span>,
+        <span key='OR'>或者</span>,
+        <span key='NORMAL'>添加条件</span>,
     ]
     return ({ style }: { style: any }) => {
         const { dispatch: rDispatch, state: rState } = useContext(QueryContext)
@@ -66,7 +66,7 @@ const queryRender = (
                     // 删除当前节点信息
                     const loopsDelQuery = (loopsQuery: Query[]) => {
                         const result: Query[] = []
-                        loopsQuery.forEach(query => {
+                        loopsQuery.forEach((query) => {
                             if (query.key === key) {
                                 return
                             }
@@ -98,7 +98,7 @@ const queryRender = (
                             border: '1px solid #000',
                             display: 'inline-block',
                         }}
-                        onContextMenu={e => {
+                        onContextMenu={(e) => {
                             setDropState({
                                 ...dropState,
                                 visible: true,
@@ -115,7 +115,7 @@ const queryRender = (
                 </>
             )
         }
-        if (dataRef.type === 'OR') {
+        else if (dataRef.type === 'OR') {
             return (
                 <>
                     <div
@@ -125,7 +125,7 @@ const queryRender = (
                             lineHeight: '30px',
                             border: '1px solid #000',
                         }}
-                        onContextMenu={e => {
+                        onContextMenu={(e) => {
                             setDropState({
                                 ...dropState,
                                 visible: true,
@@ -170,9 +170,7 @@ const queryRender = (
                             if (tempQuery) {
                                 tempQuery!.dataRef = {
                                     ...tempQuery!.dataRef,
-                                    field,
-symbol,
-value,
+                                    field, symbol, value,
                                 }
                                 if (props.onChangeField) {
                                     return props.onChangeField(field, symbol, value)
@@ -226,9 +224,9 @@ export const QueryBuild = React.forwardRef((props: QueryBuildProps, ref: any) =>
         pageX: 0,
         pageY: 0,
         menus: [
-            <span key="AND">并且</span>,
-            <span key="OR">或者</span>,
-            <span key="NORMAL">添加条件</span>,
+            <span key='AND'>并且</span>,
+            <span key='OR'>或者</span>,
+            <span key='NORMAL'>添加条件</span>,
         ],
     })
 
@@ -262,7 +260,7 @@ export const QueryBuild = React.forwardRef((props: QueryBuildProps, ref: any) =>
         <QueryContext.Provider value={{ dispatch, state }}>
             <RcQueryBuild
                 querys={querys}
-                rightClick={position => {
+                rightClick={(position) => {
                     setDropState({
                         ...dropState,
                         key: '',
@@ -270,10 +268,11 @@ export const QueryBuild = React.forwardRef((props: QueryBuildProps, ref: any) =>
                         pageY: position.y,
                         visible: true,
                         menus: [
-                            <span key="AND">并且</span>,
-                            <span key="OR">或者</span>,
+                            <span key='AND'>并且</span>,
+                            <span key='OR'>或者</span>,
                         ],
                     })
+
                 }}
             />
             <Dropdown
@@ -287,11 +286,12 @@ export const QueryBuild = React.forwardRef((props: QueryBuildProps, ref: any) =>
                     })
                 }}
                 menus={dropState.menus}
-                onClick={element => {
+                onClick={(element) => {
                     const key = element.key as string
                     const tempQuery = getQuery({ type: key }, dropState, setDropState, props)
                     if (dropState.key === '') {
                         querys.push(tempQuery)
+
                     } else {
                         let cQuery: Query;
                         loops(querys, loopQuery => {

@@ -3,7 +3,8 @@ import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import './style/zh-cn.less'
 
-export const RichEditor = (props: any) => (
+export const RichEditor = (props: any) => {
+    return (
         <ReactQuill
             style={{
                 height: '100%',
@@ -44,4 +45,5 @@ export const RichEditor = (props: any) => (
                 ],
             }} {...props}
         />
-    );
+    )
+};

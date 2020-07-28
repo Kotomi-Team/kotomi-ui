@@ -1,14 +1,13 @@
 import React from 'react'
 import ReactDOM from 'react-dom';
 import { Table as AntTable, Divider, Icon, Menu, Pagination, Form } from 'asp-antd-compatible'
-import { TableSize, ColumnProps as AntColumnProps, TableRowSelection, TableEventListeners } from 'antd/lib/table/interface'
-import { WrappedFormUtils, ValidationRule, FormComponentProps } from 'antd/lib/form/Form';
+import { TableSize, ColumnProps as AntColumnProps, TableRowSelection, TableEventListeners } from 'asp-antd-compatible/lib/table/interface'
+import { WrappedFormUtils, ValidationRule, FormComponentProps } from 'asp-antd-compatible/lib/form/Form';
 import { HeightProperty } from 'csstype'
 import XLSX from 'xlsx';
 import lodash from 'lodash'
 import { DndProvider } from 'react-dnd'
 import Backend from 'react-dnd-html5-backend'
-// import { Resizable } from 'react-resizable';
 // @ts-ignore
 import { VirtualTable } from 'ant-virtual-table'
 

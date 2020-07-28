@@ -5,12 +5,12 @@
   "scripts": {
     "start": "dumi dev",
     "start:storybook": "start-storybook -p 3000",
-    "build": "father-build",
+    "build": "antd-tools run compile && antd-tools run dist",
     "build:dumi": "dumi build docs/",
     "build:typedoc": "typedoc --out build/docs/typedoc",
     "build:storybook": "build-storybook  -c .storybook -o docs",
-    "lint:script": "eslint ./src/**/*.{js,jsx,ts,tsx}",
-    "lint:fix": "eslint ./src/**/*.{js,jsx,ts,tsx} --fix",
+    "lint": "antd-tools run ts-lint",
+    "lint-fix": "antd-tools run ts-lint-fix",
     "test": "jest"
   },
   "files": [
@@ -24,9 +24,9 @@
     "lib/**/style/*",
     "*.less"
   ],
-  "main": "dist/index.js",
-  "module": "dist/index.esm.js",
-  "typings": "dist/index.d.ts",
+  "main": "lib/index.js",
+  "module": "es/index.js",
+  "typings": "lib/index.d.ts",
   "repository": "https://github.com/Kotomi-Team/kotomi-ui",
   "homepage": "https://kotomi.site",
   "bugs": {
@@ -41,10 +41,11 @@
   "license": "MIT",
   "husky": {
     "hooks": {
-      "pre-commit": "npm run lint:script"
+      "pre-commit": "npm run lint"
     }
   },
   "devDependencies": {
+    "@ant-design/tools": "^8.0.4",
     "@babel/core": "~7.8.3",
     "@storybook/addon-actions": "~5.2.8",
     "@storybook/addon-console": "~1.2.1",
@@ -66,10 +67,9 @@
     "babel-loader": "~8.0.6",
     "babel-plugin-optimize-clsx": "^2.6.1",
     "css-loader": "^3.5.3",
-    "dumi": "^1.0.28",
+    "dumi": "~1.0.28",
     "eslint": "~6.8.0",
     "eslint-plugin-react": "~7.17.0",
-    "father-build": "~1.17.2",
     "husky": "~4.0.0",
     "jest": "~24.9.0",
     "less-loader": "^5.0.0",
@@ -79,7 +79,7 @@
     "ts-jest": "~24.2.0",
     "ts-loader": "~6.2.1",
     "typedoc": "~0.15.3",
-    "typescript": "~3.5.3",
+    "typescript": "~3.7.2",
     "webpack": "^4.41.6"
   },
   "dependencies": {
@@ -96,6 +96,7 @@
     "react-dom": "~16.12.0",
     "react-quill": "~1.3.5",
     "react-resizable": "~1.10.1",
+    "shortid": "^2.2.15",
     "xlsx": "~0.15.5"
   }
 }

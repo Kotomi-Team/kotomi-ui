@@ -58,6 +58,7 @@ export class Modal extends React.Component<Props, State> {
 
   componentDidUpdate() {
     setTimeout(() => {
+      // eslint-disable-next-line react/no-find-dom-node
       const dom: Element = ReactDOM.findDOMNode(this.thisDom.current!) as Element
       if (dom !== null && this.props.mask === false) {
         const antModalHeader = dom.getElementsByClassName('ant-modal-header')[0]
@@ -71,6 +72,7 @@ export class Modal extends React.Component<Props, State> {
 
   componentWillUnmount() {
     if (this.isMove !== undefined) {
+      // eslint-disable-next-line react/no-find-dom-node
       const dom: Element = ReactDOM.findDOMNode(this.thisDom.current!) as Element
       dom.removeEventListener('mousemove', this.mousemove)
     }
