@@ -120,6 +120,13 @@ type State = {
  * 树形组件
  */
 export class Tree extends React.Component<Props, State> {
+
+    static defaultProps = {
+        checkable: false,
+        checkedKeys: [],
+        onRightClick: async() => true,
+        isDirectoryTree: false,
+    }
     state = {
         treeData: [],
         pageX: 0,
@@ -137,13 +144,6 @@ export class Tree extends React.Component<Props, State> {
 
     private oldTreeData: TreeNodeData[] = []
 
-    static defaultProps = {
-        checkable: false,
-        checkedKeys: [],
-        onRightClick: async() => true,
-        isDirectoryTree: false,
-    }
-
     constructor(props: Props) {
         super(props)
         this.onLoadData = this.onLoadData.bind(this)
@@ -156,34 +156,6 @@ export class Tree extends React.Component<Props, State> {
                 expandedKeys: [],
             })
         })
-    }
-
-    // 装载节点数据
-    protected async onLoadData(node: AntTreeNode) {
-        const expandedKeys: string[] = lodash.cloneDeep(this.state.expandedKeys)
-        const children = await this.props.loadData(node.props.dataRef)
-        // eslint-disable-next-line no-param-reassign
-        node.props.dataRef.loaded = true
-        if (children && children.length > 0) {
-            let tempChildren = children
-            if (node.props.dataRef.extChildren) {
-                tempChildren = tempChildren.concat(node.props.dataRef.extChildren)
-            }
-
-            if (this.state.expandAll) {
-                tempChildren.forEach(element => {
-                    expandedKeys.push(element.key)
-                })
-            }
-            // eslint-disable-next-line no-param-reassign
-            node.props.dataRef.children = tempChildren
-            this.oldTreeData = lodash.cloneDeep(this.state.treeData)
-            const { treeData } = this.state
-            this.setState({
-                treeData: lodash.cloneDeep(treeData),
-                expandedKeys,
-            });
-        }
     }
 
     public setSelectedKeys(keys: string[]) {
@@ -301,7 +273,7 @@ export class Tree extends React.Component<Props, State> {
         return new Promise(resolve => {
             const loops = (
                 nodeDatas: TreeNodeData[],
-                callback: (node: TreeNodeData
+                callback: (node: TreeNodeData,
             ) => Boolean) => {
                 nodeDatas.some(element => {
                     if (element.children && element.children.length > 0) {
@@ -435,35 +407,6 @@ export class Tree extends React.Component<Props, State> {
                 resolve()
             })
         })
-    }
-
-    // 渲染所有节点数据
-    protected renderTreeNodes = (treeData: TreeNodeData[]) => {
-        const tempTreeData = treeData.map(item => {
-            const { title: itemTitle } = item
-
-            let title: string | React.ReactNode = itemTitle
-            const { onRenderTreeNodeTitle } = this.props
-            if (onRenderTreeNodeTitle) {
-                title = onRenderTreeNodeTitle(item)!
-            }
-
-            const extProps: any = {}
-            if (item.isLeaf) {
-                extProps.isLeaf = item.isLeaf
-            }
-
-            if (item.children) {
-                return (
-                    <AntTree.TreeNode {...extProps} title={title} key={item.key} dataRef={item}>
-                        {this.renderTreeNodes(item.children)}
-                    </AntTree.TreeNode>
-                )
-            }
-            return <AntTree.TreeNode {...extProps} title={title} key={item.key} dataRef={item} />;
-        })
-
-        return tempTreeData
     }
 
     render() {
@@ -642,5 +585,62 @@ export class Tree extends React.Component<Props, State> {
                 />
             </>
         )
+    }
+
+    // 装载节点数据
+    protected async onLoadData(node: AntTreeNode) {
+        const expandedKeys: string[] = lodash.cloneDeep(this.state.expandedKeys)
+        const children = await this.props.loadData(node.props.dataRef)
+        // eslint-disable-next-line no-param-reassign
+        node.props.dataRef.loaded = true
+        if (children && children.length > 0) {
+            let tempChildren = children
+            if (node.props.dataRef.extChildren) {
+                tempChildren = tempChildren.concat(node.props.dataRef.extChildren)
+            }
+
+            if (this.state.expandAll) {
+                tempChildren.forEach(element => {
+                    expandedKeys.push(element.key)
+                })
+            }
+            // eslint-disable-next-line no-param-reassign
+            node.props.dataRef.children = tempChildren
+            this.oldTreeData = lodash.cloneDeep(this.state.treeData)
+            const { treeData } = this.state
+            this.setState({
+                treeData: lodash.cloneDeep(treeData),
+                expandedKeys,
+            });
+        }
+    }
+
+    // 渲染所有节点数据
+    protected renderTreeNodes = (treeData: TreeNodeData[]) => {
+        const tempTreeData = treeData.map(item => {
+            const { title: itemTitle } = item
+
+            let title: string | React.ReactNode = itemTitle
+            const { onRenderTreeNodeTitle } = this.props
+            if (onRenderTreeNodeTitle) {
+                title = onRenderTreeNodeTitle(item)!
+            }
+
+            const extProps: any = {}
+            if (item.isLeaf) {
+                extProps.isLeaf = item.isLeaf
+            }
+
+            if (item.children) {
+                return (
+                    <AntTree.TreeNode {...extProps} title={title} key={item.key} dataRef={item}>
+                        {this.renderTreeNodes(item.children)}
+                    </AntTree.TreeNode>
+                )
+            }
+            return <AntTree.TreeNode {...extProps} title={title} key={item.key} dataRef={item} />;
+        })
+
+        return tempTreeData
     }
 }

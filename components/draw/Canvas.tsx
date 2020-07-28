@@ -37,8 +37,6 @@ export class Canvas extends React.Component<Props> {
         element.setAttribute('style', `height:${offsetHeight}px;`)
     }
 
-
-
     /**
      * 获取当前HTML元素的坐标信息
      * @param element 当前HTML元素

@@ -30,7 +30,7 @@ type Props<T> = {
 }
 
 type State = {
-    editing: boolean
+    editing: boolean,
 }
 
 // 计算如果含有子节点的顺序
@@ -38,11 +38,6 @@ let calculationColumn: number = 0;
 let calculationKey: string | undefined;
 
 export class EditableCell<T> extends React.Component<Props<T>, State> {
-    state = {
-        editing: false,
-    }
-
-    private form: WrappedFormUtils
 
     static defaultProps = {
         editing: false,
@@ -52,6 +47,16 @@ export class EditableCell<T> extends React.Component<Props<T>, State> {
         inputModal: 'click',
     }
 
+    // eslint-disable-next-line react/sort-comp
+    static addBlank(tableContextProps: TableContextProps<any>) {
+        // eslint-disable-next-line no-param-reassign
+        tableContextProps.table!.blankDivElement.current!.style.visibility = 'visible'
+    }
+    state = {
+        editing: false,
+    }
+
+    private form: WrappedFormUtils
 
     componentDidMount() {
         this.setState({
@@ -151,7 +156,6 @@ export class EditableCell<T> extends React.Component<Props<T>, State> {
         return ''
     }
 
-
     renderFormItem = (form: WrappedFormUtils) => {
         const { record, rowIndex, editingType, inputModal } = this.props
         const column = this.getColumnInfo();
@@ -197,7 +201,6 @@ export class EditableCell<T> extends React.Component<Props<T>, State> {
         }))
     }
 
-
     clickEditCell = () => {
         const { editingType, column, currentEditorCell, rowIndex } = this.props
         const self = this
@@ -229,12 +232,6 @@ export class EditableCell<T> extends React.Component<Props<T>, State> {
                 editing: true,
             })
         }
-    }
-
-    // eslint-disable-next-line react/sort-comp
-    static addBlank(tableContextProps: TableContextProps<any>) {
-        // eslint-disable-next-line no-param-reassign
-        tableContextProps.table!.blankDivElement.current!.style.visibility = 'visible'
     }
 
     isEditing() {
