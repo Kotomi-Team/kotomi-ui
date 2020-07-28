@@ -36,7 +36,7 @@ const RowEditorTable = () =>{
           marginLeft: 20
         }}
         onClick={()=>{
-          const datas = []
+          const datas: any[] = []
           for(let i=0;i< 20; i++){
             datas.push({
               id: 50 + 1 

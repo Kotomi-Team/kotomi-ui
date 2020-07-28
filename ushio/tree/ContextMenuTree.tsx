@@ -10,7 +10,7 @@ import { message } from 'asp-antd-compatible';
 
 
 const BaseTree = () => {
-    const tree = React.createRef<Tree>()
+    const tree = React.createRef<any>()
     return (
         <div style={{
             height: 200,

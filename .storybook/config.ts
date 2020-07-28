@@ -1,4 +1,4 @@
-import 'antd/dist/antd.less'
+import 'asp-antd-compatible/dist/antd.less'
 import { configure } from '@storybook/react';
 import '@storybook/addon-console'
 

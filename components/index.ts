@@ -1,4 +1,3 @@
-import 'asp-antd-compatible/dist/asp-antd-compatible.css'
 import Table from './table/Table'
 import Checkbox from './checkbox/Checkbox'
 import { Form } from './form/Form'
