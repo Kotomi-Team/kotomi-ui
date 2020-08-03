@@ -46,17 +46,17 @@ export class EditableCell<T> extends React.Component<Props<T>, State> {
         // 默认为点击编辑模式，这个模式只在行编辑模式下生效
         inputModal: 'click',
     }
-
-    // eslint-disable-next-line react/sort-comp
-    static addBlank(tableContextProps: TableContextProps<any>) {
-        // eslint-disable-next-line no-param-reassign
-        tableContextProps.table!.blankDivElement.current!.style.visibility = 'visible'
-    }
     state = {
         editing: false,
     }
 
     private form: WrappedFormUtils
+
+    // eslint-disable-next-line react/sort-comp
+    addBlank(tableContextProps: TableContextProps<any>) {
+        // eslint-disable-next-line no-param-reassign
+        tableContextProps.table!.blankDivElement.current!.style.visibility = 'visible'
+    }
 
     componentDidMount() {
         this.setState({
@@ -356,7 +356,7 @@ export class EditableCell<T> extends React.Component<Props<T>, State> {
                 >
                     {td}
                 </Tooltip>,
-             this.props)
+             this.props, td)
         }
         return td
     }

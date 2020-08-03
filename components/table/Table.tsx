@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { ReactNode } from 'react'
 import ReactDOM from 'react-dom';
 import { Table as AntTable, Divider, Icon, Menu, Pagination, Form } from 'asp-antd-compatible'
 import { TableSize, ColumnProps as AntColumnProps, TableRowSelection, TableEventListeners } from 'asp-antd-compatible/lib/table/interface'
@@ -243,7 +243,7 @@ interface Props<T> extends FormComponentProps<T> {
     /**
      * 拦截渲染的Tooltip
      */
-    onRenderTooltip?: (td: JSX.Element, props: any) => JSX.Element,
+    onRenderTooltip?: (tooltip: JSX.Element, props: any, td: ReactNode) => JSX.Element,
 
     expandedRowKeys?: string []
 

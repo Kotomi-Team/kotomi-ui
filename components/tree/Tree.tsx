@@ -119,7 +119,7 @@ type State = {
 /**
  * 树形组件
  */
-export class Tree extends React.Component<Props, State> {
+export class Tree extends React.Component<Props, State>{
 
     static defaultProps = {
         checkable: false,
@@ -127,6 +127,7 @@ export class Tree extends React.Component<Props, State> {
         onRightClick: async() => true,
         isDirectoryTree: false,
     }
+
     state = {
         treeData: [],
         pageX: 0,
@@ -136,14 +137,12 @@ export class Tree extends React.Component<Props, State> {
         selectedKeys: [],
         expandedKeys: [],
         expandAll: false,
+        expandAllOk: false,
         threeKey: '0',
     }
-
     // 点击的节点
     private clickTreeNode: string[] = []
-
     private oldTreeData: TreeNodeData[] = []
-
     constructor(props: Props) {
         super(props)
         this.onLoadData = this.onLoadData.bind(this)
@@ -155,18 +154,6 @@ export class Tree extends React.Component<Props, State> {
                 treeData,
                 expandedKeys: [],
             })
-        })
-    }
-
-    public setSelectedKeys(keys: string[]) {
-        this.setState({
-            selectedKeys: keys,
-        })
-    }
-
-    public setExpandedKeys(expandedKeys: string[]) {
-        this.setState({
-            expandedKeys,
         })
     }
 
@@ -182,12 +169,37 @@ export class Tree extends React.Component<Props, State> {
             })
         })
     }
+    public updateNode(key: string, callback: (treeNode: TreeNodeData) => TreeNodeData) {
+        return new Promise((resolve) => {
+            const loops = (nodeDatas: TreeNodeData[]) => {
+                nodeDatas.some((element) => {
+                    if (element.key === key) {
+                        element = callback(element)
+                        return true
+                    }
+                    if (element.children) {
+                        loops(element.children)
+                    }
+                    return false
+                })
+            }
+
+            loops(this.state.treeData)
+            this.setState({
+                treeData: [...this.state.treeData],
+            }, () => {
+                resolve()
+            })
+        })
+
+    }
 
     public filter(callback: (node: TreeNodeData) => boolean) {
         const selectedKeys: string[] = []
         const loops = (tempTreeNode: TreeNodeData[]): TreeNodeData[] => {
             const newTempTreeNode: TreeNodeData[] = []
-            tempTreeNode.forEach(element => {
+            tempTreeNode.forEach((element) => {
+
                 if (element.children && element.children.length > 0) {
                     const treeChildren = loops(element.children)
                     if (treeChildren.length === 0 && !callback(element)) {
@@ -200,10 +212,12 @@ export class Tree extends React.Component<Props, State> {
                         ...element,
                         children: treeChildren,
                     })
-                } else if (callback(element)) {
+                }else {
+                    if (callback(element)) {
                         selectedKeys.push(element.key)
                         newTempTreeNode.push(element)
                     }
+                }
             })
             return newTempTreeNode
         }
@@ -216,25 +230,29 @@ export class Tree extends React.Component<Props, State> {
         })
     }
 
+    public setSelectedKeys(keys: string[]) {
+        this.setState({
+            selectedKeys: keys,
+        })
+    }
+
+    public setExpandedKeys(expandedKeys: string[]) {
+        this.setState({
+            expandedKeys,
+        })
+    }
+
     public async appendNode(parent: string | null, nodes: TreeNodeData[]) {
-        const result = await this.insertNode(
-            parent,
-            nodes,
-            (node: TreeNodeData, children: TreeNodeData[]) => {
-                children.push(node)
-                return children
-            },
-        )
-        return result
+        return await this.insertNode(parent, nodes, (node: TreeNodeData, children: TreeNodeData[]) => {
+            children.push(node)
+            return children
+        })
     }
 
     public sort(parent: string | null, order: (children: TreeNodeData[]) => TreeNodeData[]) {
-        return new Promise(resolve => {
-            const loops = (
-                nodeDatas: TreeNodeData[],
-                callback: (node: TreeNodeData,
-                ) => Boolean) => {
-                nodeDatas.some(element => {
+        return new Promise((resolve) => {
+            const loops = (nodeDatas: TreeNodeData[], callback: (node: TreeNodeData) => Boolean) => {
+                nodeDatas.some((element) => {
                     if (element.children && element.children.length > 0) {
                         loops(element.children, callback)
                     }
@@ -242,7 +260,7 @@ export class Tree extends React.Component<Props, State> {
                 })
             }
             let parentNode: TreeNodeData | undefined;
-            loops(this.state.treeData, node => {
+            loops(this.state.treeData, (node) => {
                 if (node.key === parent) {
                     parentNode = node
                     return true
@@ -254,28 +272,20 @@ export class Tree extends React.Component<Props, State> {
                 if (parentNode.loaded) {
                     parentNode!.children = order(lodash.cloneDeep(parentNode!.children))
                 }
-                const stateTreeData = this.state.treeData
+
                 this.setState({
-                    treeData: [...stateTreeData],
+                    treeData: [...this.state.treeData],
                 }, () => {
                     resolve()
                 })
             }
         })
     }
-
     // appendNode install
-    public insertNode(
-        parent: string | null,
-        nodes: TreeNodeData[],
-        order: (node: TreeNodeData, children: TreeNodeData[]) => TreeNodeData[],
-    ) {
-        return new Promise(resolve => {
-            const loops = (
-                nodeDatas: TreeNodeData[],
-                callback: (node: TreeNodeData,
-            ) => Boolean) => {
-                nodeDatas.some(element => {
+    public insertNode(parent: string | null, nodes: TreeNodeData[], order: (node: TreeNodeData, children: TreeNodeData[]) => TreeNodeData[]) {
+        return new Promise((resolve) => {
+            const loops = (nodeDatas: TreeNodeData[], callback: (node: TreeNodeData) => Boolean) => {
+                nodeDatas.some((element) => {
                     if (element.children && element.children.length > 0) {
                         loops(element.children, callback)
                     }
@@ -283,7 +293,7 @@ export class Tree extends React.Component<Props, State> {
                 })
             }
             let parentNode: TreeNodeData | undefined;
-            loops(this.state.treeData, node => {
+            loops(this.state.treeData, (node) => {
                 if (node.key === parent) {
                     parentNode = node
                     return true
@@ -293,113 +303,101 @@ export class Tree extends React.Component<Props, State> {
 
             if (parentNode) {
                 if (parentNode.loaded) {
-                    nodes.forEach(element => {
-                        parentNode!.children = order(
-                            element,
-                            lodash.cloneDeep(parentNode!.children),
-                        )
+                    nodes.forEach((element) => {
+                        parentNode!.children = order(element, lodash.cloneDeep(parentNode!.children))
                     })
                 }
 
                 if (lodash.isArray(parentNode.extChildren)) {
-                    nodes.forEach(element => {
-                        parentNode!.extChildren! = order(
-                            element,
-                            lodash.cloneDeep(parentNode!.extChildren!),
-                        )
+                    nodes.forEach((element) => {
+                        parentNode!.extChildren! = order(element, lodash.cloneDeep(parentNode!.extChildren!))
                     })
-                } else {
+                }else {
                     parentNode.extChildren = nodes
                 }
-                const stateTreeData = this.state.treeData
+
                 this.setState({
-                    treeData: [...stateTreeData],
+                    treeData: [...this.state.treeData],
                 }, () => {
                     resolve()
                 })
             }
         })
-    }
 
+    }
     public refresh(keys: string | string[]) {
         let delKey: string[] = []
         if (lodash.isArray(keys)) {
             delKey = keys
-        } else {
+        }else {
             delKey.push(keys)
         }
 
-        const loops = async (
-            treeData: TreeNodeData[],
-            callback: (node: TreeNodeData) => boolean,
-        ) => {
+        const loops = async (treeData: TreeNodeData[], callback: (node: TreeNodeData) => boolean) => {
             const result: TreeNodeData[] = []
-            for (let i = 0; i < treeData.length; i += 1) {
+            for (let i = 0; i < treeData.length ; i++) {
                 if (treeData[i].children && treeData[i].children.length > 0) {
                     if (callback(treeData[i])) {
                         const data: TreeNodeData = treeData[i]
-                        // eslint-disable-next-line no-await-in-loop
                         const newChildren = await this.props.loadData(data)
                         result.push({
                             ...data,
                             children: newChildren,
                         })
-                    } else {
+                    }else {
                         const node = {
                             ...treeData[i],
-                            // eslint-disable-next-line no-await-in-loop
                             children: await loops(treeData[i].children, callback),
                         } as unknown as TreeNodeData
                         result.push(node)
                     }
-                } else {
+                }else {
                     result.push(treeData[i])
                 }
             }
             return result
         }
-        const tempTreeData = loops(
-            this.state.treeData,
-            (node: TreeNodeData) => delKey.indexOf(node.key) !== -1,
-        )
-        tempTreeData.then(treeData => {
+        const tempTreeData = loops(this.state.treeData, (node: TreeNodeData) => {
+            return delKey.indexOf(node.key) !== -1
+        })
+        tempTreeData.then((treeData) => {
             this.setState({
                 treeData,
             })
         })
-    }
 
+    }
     // 删除指定的节点信息
     public delNode(keys: string | string[]) {
-        return new Promise(resolve => {
+        return new Promise((resolve) => {
             let delKey: string[] = []
             if (lodash.isArray(keys)) {
                 delKey = keys
-            } else {
+            }else {
                 delKey.push(keys)
             }
 
             const loops = (treeData: TreeNodeData[], callback: (node: TreeNodeData) => boolean) => {
                 const result: TreeNodeData[] = []
 
-                for (let i = 0; i < treeData.length; i += 1) {
+                for (let i = 0; i < treeData.length ; i++) {
                     if (treeData[i].children && treeData[i].children.length > 0) {
                         const node = {
                             ...treeData[i],
                             children: loops(treeData[i].children, callback),
                         } as unknown as TreeNodeData
                         result.push(node)
-                    } else if (callback(treeData[i])) {
+                    }else {
+                        if (callback(treeData[i])) {
                             result.push(treeData[i])
                         }
+                    }
                 }
                 return result
             }
-            const stateTreeData = this.state.treeData
-            const tempTreeData = loops(
-                stateTreeData,
-                (node: TreeNodeData) => delKey.indexOf(node.key) === -1,
-            )
+            const tempTreeData = loops(this.state.treeData, (node: TreeNodeData) => {
+                return delKey.indexOf(node.key) === -1
+            })
 
             this.setState({
                 treeData: tempTreeData,
@@ -407,9 +405,11 @@ export class Tree extends React.Component<Props, State> {
                 resolve()
             })
         })
+
     }
 
     render() {
+
         const TempTree = this.props.isDirectoryTree === true ? AntTree.DirectoryTree : AntTree
 
         return (
@@ -421,7 +421,7 @@ export class Tree extends React.Component<Props, State> {
                     selectedKeys={this.state.selectedKeys}
                     expandedKeys={this.state.expandedKeys}
                     key={this.state.threeKey}
-                    onRightClick={e => {
+                    onRightClick={(e) => {
                         const self = this
                         if (this.props.onRightClick) {
                             const respState = this.props.onRightClick(e)
@@ -433,7 +433,7 @@ export class Tree extends React.Component<Props, State> {
                                     node: e.node,
                                 })
                             }
-                        } else {
+                        }else {
                             this.setState({
                                 pageX: e.event.clientX,
                                 pageY: e.event.clientY,
@@ -461,12 +461,10 @@ export class Tree extends React.Component<Props, State> {
                             if (this.props.onTreeNodeDoubleClick) {
                                 this.props.onTreeNodeDoubleClick(e.node.props.dataRef)
                             }
-                        } else {
+                        }else {
                             this.clickTreeNode.push(e.node.props.dataRef.key)
                             setTimeout(() => {
-                                this.clickTreeNode = this.clickTreeNode.filter(
-                                    element => element !== e.node.props.dataRef.key,
-                                )
+                                this.clickTreeNode = this.clickTreeNode.filter(element => element !== e.node.props.dataRef.key)
                             }, 300)
                         }
 
@@ -475,42 +473,36 @@ export class Tree extends React.Component<Props, State> {
                             this.props.onTreeNodeClick(e.node.props.dataRef, e.selected!)
                         }
                     }}
-                    draggable={!!this.props.onDrag}
+                    draggable={this.props.onDrag ? true : false}
                     onDrop={(dropEven: AntTreeNodeDropEvent) => {
                         if (this.props.onDrag) {
-                            this.props.onDrag(dropEven).then(respState => {
+                            this.props.onDrag(dropEven).then((respState) => {
                                 if (respState) {
-                                    const loop = (
-                                        datas: TreeNodeData[],
-                                        callback: (data: TreeNodeData) => TreeNodeData[],
-                                    ) => {
+                                    const loop = (datas: TreeNodeData[], callback: (data: TreeNodeData) => TreeNodeData[]) => {
                                         const newDatas: TreeNodeData[] = []
-                                        datas.forEach(element => {
+                                        datas.forEach((element) => {
                                             const callbackData = callback(element)
                                             if (element.children && element.children.length > 0) {
                                                 if (callbackData) {
-                                                    callbackData.forEach(callbackElement => {
+                                                    callbackData.forEach((callbackElement) => {
                                                         newDatas.push({
                                                             ...callbackElement,
-                                                            children: loop(
-                                                                callbackElement.children,
-                                                                callback,
-                                                            ),
+                                                            children: loop(callbackElement.children, callback),
                                                         })
                                                     })
                                                 }
-                                            } else if (callbackData) {
-                                                    callbackData.forEach(callbackElement => {
+                                            } else {
+                                                if (callbackData) {
+                                                    callbackData.forEach((callbackElement) => {
                                                         newDatas.push(callbackElement)
                                                     })
                                                 }
+                                            }
                                         })
                                         return newDatas
                                     }
 
-                                    const filteTreeData = loop(
-                                        this.state.treeData,
-                                        (element: TreeNodeData) => {
+                                    const filteTreeData = loop(this.state.treeData, (element: TreeNodeData) => {
                                         if (element.key === dropEven.dragNode.props.dataRef.key) {
                                             return []
                                         }
@@ -519,9 +511,7 @@ export class Tree extends React.Component<Props, State> {
                                         }]
                                     })
 
-                                    const newTreeData = loop(
-                                        filteTreeData,
-                                        (element: TreeNodeData) => {
+                                    const newTreeData = loop(filteTreeData, (element: TreeNodeData) => {
                                         if (element.key === dropEven.node.props.dataRef.key) {
                                             const dragNode = dropEven.dragNode.props.dataRef
                                             if (dropEven.dropPosition === -1) {
@@ -530,13 +520,15 @@ export class Tree extends React.Component<Props, State> {
                                             if (dropEven.dropToGap) {
                                                 return [element, dragNode]
                                             }
-                                            return [{
+                                            const treeDataEle = {
                                                 ...element,
                                                 children: [
                                                     ...element.children,
                                                     dragNode,
                                                 ],
-                                            }]
+                                            }
+
+                                            return [treeDataEle]
                                         }
                                         return [element]
                                     })
@@ -547,6 +539,7 @@ export class Tree extends React.Component<Props, State> {
                                 }
                             })
                         }
+
                     }}
                 >
                     {this.renderTreeNodes(this.state.treeData)}
@@ -556,10 +549,9 @@ export class Tree extends React.Component<Props, State> {
                     left={this.state.pageX}
                     getPopupContainer={this.props.getPopupContainer}
                     top={this.state.pageY}
-                    onScroll={space => {
-                        const { pageY } = this.state
+                    onScroll={(space) => {
                         this.setState({
-                            pageY: pageY + space,
+                            pageY: this.state.pageY + space,
                         })
                     }}
                     onBlur={() => {
@@ -568,14 +560,12 @@ export class Tree extends React.Component<Props, State> {
                         })
                     }}
                     menus={this.props.contextMenu}
-                    onClick={element => {
+                    onClick={(element) => {
                         if (this.props.onClickContextMenu) {
                             if (element.key) {
                                 this.props.onClickContextMenu(element.key, this.state.node)
                             } else {
-                                throw new Error(
-                                    `KOTOMI-TABLE-5003: The key attribute of ContextMenu element cannot be empty. key [${element.key}] `,
-                                )
+                                throw new Error(`KOTOMI-TABLE-5003: The key attribute of ContextMenu element cannot be empty. key [${element.key}] `)
                             }
                         }
                         this.setState({
@@ -591,7 +581,6 @@ export class Tree extends React.Component<Props, State> {
     protected async onLoadData(node: AntTreeNode) {
         const expandedKeys: string[] = lodash.cloneDeep(this.state.expandedKeys)
         const children = await this.props.loadData(node.props.dataRef)
-        // eslint-disable-next-line no-param-reassign
         node.props.dataRef.loaded = true
         if (children && children.length > 0) {
             let tempChildren = children
@@ -604,12 +593,10 @@ export class Tree extends React.Component<Props, State> {
                     expandedKeys.push(element.key)
                 })
             }
-            // eslint-disable-next-line no-param-reassign
             node.props.dataRef.children = tempChildren
             this.oldTreeData = lodash.cloneDeep(this.state.treeData)
-            const { treeData } = this.state
             this.setState({
-                treeData: lodash.cloneDeep(treeData),
+                treeData: lodash.cloneDeep(this.state.treeData),
                 expandedKeys,
             });
         }
@@ -618,12 +605,10 @@ export class Tree extends React.Component<Props, State> {
     // 渲染所有节点数据
     protected renderTreeNodes = (treeData: TreeNodeData[]) => {
         const tempTreeData = treeData.map(item => {
-            const { title: itemTitle } = item
+            let title: string | React.ReactNode = item.title
 
-            let title: string | React.ReactNode = itemTitle
-            const { onRenderTreeNodeTitle } = this.props
-            if (onRenderTreeNodeTitle) {
-                title = onRenderTreeNodeTitle(item)!
+            if (this.props.onRenderTreeNodeTitle) {
+                title = this.props.onRenderTreeNodeTitle(item)
             }
 
             const extProps: any = {}
