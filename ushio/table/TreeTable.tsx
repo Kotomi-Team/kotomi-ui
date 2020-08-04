@@ -25,7 +25,7 @@ const BaseTable = () =>{
       }]}
       loadData={async ({ page, pageSize })=>{
         const datas: any = []
-        for(let i =0 ;i< pageSize ; i++){
+        for(let i =0 ;i< 1 ; i++){
           datas.push({
             id: i,
             name: `${page} - name - ${i} - 这是一个超出的文字内容是一个超出的文字内容是一个超出的文字内容是一个超出的文字内容\n 我的名字 \n\t 叫做张尽`,

@@ -1,6 +1,5 @@
 import React from 'react'
 import lodash from 'lodash'
-import ReactDom from 'react-dom'
 import { Form, Input, Tooltip, Dropdown } from 'asp-antd-compatible'
 import { WrappedFormUtils } from 'asp-antd-compatible/lib/form/Form';
 import { ColumnProps, TableContext, TableContextProps } from './Table'
@@ -51,6 +50,7 @@ export class EditableCell<T> extends React.Component<Props<T>, State> {
     }
 
     private form: WrappedFormUtils
+    private tdRef = React.createRef<HTMLTableDataCellElement>()
 
     // eslint-disable-next-line react/sort-comp
     addBlank(tableContextProps: TableContextProps<any>) {
@@ -131,8 +131,7 @@ export class EditableCell<T> extends React.Component<Props<T>, State> {
 
     getEllipsisState(): boolean {
         try {
-            // eslint-disable-next-line react/no-find-dom-node
-            const element: Element = ReactDom.findDOMNode(this)! as Element
+            const element = this.tdRef.current!
             if (element.clientWidth < element.scrollWidth) {
                 if (this.props.column !== undefined) {
                     return true
@@ -332,6 +331,7 @@ export class EditableCell<T> extends React.Component<Props<T>, State> {
         const textAlign = column === undefined ? undefined : column.align
         const td = (
             <td
+                ref={this.tdRef}
                 className={`${this.props.className} ${this.getClassName()}`}
                 style={{
                     textAlign,
