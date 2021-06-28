@@ -1,7 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom';
 import { Table as AntTable, Divider, Icon, Menu, Pagination, Form } from 'antd'
-import { TableSize, ColumnProps as AntColumnProps, TableRowSelection, TableEventListeners } from 'antd/lib/table/interface'
+import { TableSize, ColumnProps as AntColumnProps, TableRowSelection, TableEventListeners, SorterResult, TableCurrentDataSource, PaginationConfig } from 'antd/lib/table/interface'
 import { WrappedFormUtils, ValidationRule, FormComponentProps } from 'antd/lib/form/Form';
 import { HeightProperty } from 'csstype'
 import XLSX from 'xlsx';
@@ -168,6 +168,8 @@ interface Props<T> extends FormComponentProps<T> {
      */
     onSelect?: (changeRowsKeys: string[], changeRows: T[], selected: boolean) => boolean | undefined
 
+    onChange?: (pagination: PaginationConfig, filters: Partial<Record<keyof T, string[]>>, sorter: SorterResult<T>, extra: TableCurrentDataSource<T>) => void;
+    
     /**
      * 当前行的事件
      * @param record 当前行的数据
@@ -545,6 +547,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                             spinning: this.state.loading,
                         }}
                         pagination={false}
+                        onChange={this.props.onChange}
                         rowSelection={this.getRowSelection()}
                         onHeaderRow={(_columns: ColumnProps<T>[]) => {
                             let propsStyle = {}

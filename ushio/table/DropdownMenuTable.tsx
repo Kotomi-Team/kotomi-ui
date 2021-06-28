@@ -22,7 +22,11 @@ const DropdownMenuTable = () => {
         title: '年龄'
       }]}
       editingType="row"
-      loadData={async ({ page, pageSize }) => {
+      onChange={() => {
+        console.log('-------')
+      }}
+      loadData={async ({ page, pageSize, sorter }) => {
+        console.log(sorter)
         const datas: any = []
         for (let i = 0; i < 1; i++) {
           datas.push({
