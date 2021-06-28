@@ -4,7 +4,7 @@
  */
 
 import React from 'react'
-import { Row, Col } from 'antd'
+import { Row, Col } from 'asp-antd-compatible'
 import { SketchPicker as Picker } from '../../components/index';
 
 const SketchPicker = () => {

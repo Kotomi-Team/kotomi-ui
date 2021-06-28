@@ -6,11 +6,11 @@
 import React from 'react'
 import * as shortid from 'shortid'
 import { Tree, TreeNodeData } from '../../components/tree/Tree';
-import { message } from 'antd';
+import { message } from 'asp-antd-compatible';
 
 
 const BaseTree = () => {
-    const tree = React.createRef<Tree>()
+    const tree = React.createRef<any>()
     return (
         <div style={{
             height: 200,

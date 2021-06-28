@@ -1,8 +1,8 @@
 
 import React from 'react'
-import { Card as AntCard } from 'antd'
+import { Card as AntCard } from 'asp-antd-compatible'
 
-import { CardProps } from 'antd/lib/card/index'
+import { CardProps } from 'asp-antd-compatible/lib/card/index'
 
 interface Props extends CardProps {
 }

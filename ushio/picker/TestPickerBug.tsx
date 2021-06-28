@@ -4,7 +4,7 @@
  */
 
 import React from 'react'
-import { Tabs }  from 'antd'
+import { Tabs }  from 'asp-antd-compatible'
 import { SketchPicker as Picker } from '../../components/index';
 const TestPickerBug = () => {
     return (

@@ -3,7 +3,7 @@
 /es/
 /lib/
 /dist/
-/.umi/
+.umi
 package-lock.json
 *.lock
 *.log

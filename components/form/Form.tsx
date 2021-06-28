@@ -1,14 +1,14 @@
 import React from 'react'
 import ReactDom from 'react-dom'
-import { Form as AntForm, Row, Col, Input } from 'antd'
-import { WrappedFormUtils, ValidationRule, FormComponentProps } from 'antd/lib/form/Form';
-import { ColProps } from 'antd/lib/grid/col';
+import { Form as AntForm, Row, Col, Input } from 'asp-antd-compatible'
+import { WrappedFormUtils, ValidationRule, FormComponentProps } from 'asp-antd-compatible/lib/form/Form';
+import { ColProps } from 'asp-antd-compatible/lib/grid/col';
 
 export interface FormUtils<V = any> extends WrappedFormUtils<V>{
     /**
      * 通过Promise方式进行校验
      */
-    validateFieldsPromise: () => Promise<{errors: any , values: V}>
+    validateFieldsPromise: () => Promise<{errors: any, values: V}>
 }
 
 type EditorComponent = {
@@ -87,14 +87,21 @@ type State = {
 }
 
 class FormItemProps {
-    name: string
-    span: number
-    label: string
+    name?: string
+
+    span?: number
+
+    label?: string
+
     rules?: ValidationRule[]
+
     labelCol?: ColProps
+
     wrapperCol?: ColProps
+
     initialValue?: any
-    component: EditorComponent | undefined
+
+    component?: EditorComponent | undefined
 }
 
 /**
@@ -131,6 +138,7 @@ class Form extends React.Component<Props & FormComponentProps, State> {
 
     // 当前节点上拥有的组件
     components: EditorComponent[] = []
+
     rules: Rule[] = []
 
     constructor(props: Props & FormComponentProps) {
@@ -138,7 +146,7 @@ class Form extends React.Component<Props & FormComponentProps, State> {
     }
 
     render() {
-        const { labelCol , wrapperCol, onSubmit } = this.props
+        const { labelCol, wrapperCol, onSubmit } = this.props
         return (
             <AntForm
                 style={this.props.style}
@@ -157,8 +165,7 @@ class Form extends React.Component<Props & FormComponentProps, State> {
         const { form } = this.props
         const proxyForm: any = form
         // fix https://github.com/Kotomi-Team/kotomi-ui/issues/45
-        proxyForm.validateFieldsPromise = () => {
-            return new Promise<{errors: any, values: any}>((resolve) => {
+        proxyForm.validateFieldsPromise = () => new Promise<{errors: any, values: any}>(resolve => {
                 form.validateFields((errors, values) => {
                     resolve({
                         errors,
@@ -166,12 +173,11 @@ class Form extends React.Component<Props & FormComponentProps, State> {
                     })
                 })
             })
-        }
 
         if (this.props.refExt) {
             if (this.props.refExt instanceof Function) {
                 this.props.refExt(proxyForm as FormUtils)
-            }else {
+            } else {
                 const refExt = this.props.refExt as any
                 refExt.current = proxyForm
             }
@@ -185,9 +191,9 @@ class Form extends React.Component<Props & FormComponentProps, State> {
         const { form, labelCol, wrapperCol } = this.props
         formItemsProps.forEach((itemProps, index) => {
             const cols: JSX.Element[] = []
-            itemProps.forEach((itemCol) => {
+            itemProps.forEach(itemCol => {
                 let rules: ValidationRule[] = []
-                let initialValue = undefined
+                let initialValue
                 if (itemCol.rules) {
                     rules = itemCol.rules
                 }
@@ -196,18 +202,17 @@ class Form extends React.Component<Props & FormComponentProps, State> {
                 }
 
                 if (itemCol.component) {
-
                     const colLabelCol = itemCol.labelCol || labelCol
                     const colWrapperCol = itemCol.wrapperCol || wrapperCol
 
                     const col: JSX.Element = (
                         <Col
-                            span={Math.floor(itemCol.span)}
-                            key={ 'form-item-col' + itemCol.name + index}
-                            className={`kotomi-components-form-col`}
+                            span={Math.floor(itemCol.span!)}
+                            key={ `form-item-col${itemCol.name}${index}`}
+                            className="kotomi-components-form-col"
                         >
                              <AntForm.Item
-                                key={ 'form-item' + itemCol.name + index}
+                                key={ `form-item${itemCol.name}${index}`}
                                 label={itemCol.label}
                                 style={{
                                     marginBottom: this.props.rowSpace,
@@ -218,19 +223,19 @@ class Form extends React.Component<Props & FormComponentProps, State> {
                                 wrapperCol = {{
                                     md: Math.ceil(colWrapperCol!.md as number),
                                 }}
-                                ref={(dom) => {
+                                ref={dom => {
                                     // eslint-disable-next-line react/no-find-dom-node
                                     const element = ReactDom.findDOMNode(dom) as Element
                                     if (element) {
                                         if (colLabelCol) {
-                                             const labelElement: Element = element.getElementsByClassName('ant-col-md-' + Math.floor(colLabelCol.md as number))[0]
+                                             const labelElement: Element = element.getElementsByClassName(`ant-col-md-${Math.floor(colLabelCol.md as number)}`)[0]
                                              if (labelElement) {
                                                  labelElement.setAttribute('style', `width:${(colLabelCol.md as number / 24) * 100}%`)
                                              }
                                         }
 
                                         if (colWrapperCol) {
-                                             const wrapperElement: Element = element.getElementsByClassName('ant-col-md-' + Math.ceil(colWrapperCol!.md as number))[0]
+                                             const wrapperElement: Element = element.getElementsByClassName(`ant-col-md-${Math.ceil(colWrapperCol!.md as number)}`)[0]
                                              if (wrapperElement) {
                                                  wrapperElement.setAttribute('style', `width:${(colWrapperCol.md as number / 24) * 100}%`)
                                              }
@@ -238,22 +243,25 @@ class Form extends React.Component<Props & FormComponentProps, State> {
                                     }
                                  }}
                              >
-                                {form.getFieldDecorator(itemCol.name, {
-                                    rules,
-                                    initialValue,
-                                })(itemCol.component.component)}
+                                {
+                                    // @ts-ignore
+                                    form.getFieldDecorator(itemCol.name, {
+                                        rules,
+                                        initialValue,
+                                    })(itemCol.component.component)
+                                }
                              </AntForm.Item>
                         </Col>
                     )
                     cols.push(col)
-                }else {
+                } else {
                     // 如果默认找不到对应的组件，则抛出对应的错误信息
                     throw Error(`Unsupported component. field name [${itemCol.name}]`)
                 }
             })
             formItems.push((
                 <Row
-                    key={'form-item-row' + index}
+                    key={`form-item-row${index}`}
                 >
                     {cols}
                 </Row>
@@ -261,10 +269,11 @@ class Form extends React.Component<Props & FormComponentProps, State> {
         })
         return formItems
     }
+
     protected getPropsComponents() {
         const { components } = this.props
         return [
-            ...components,
+            ...components!,
             {
                 name: 'input',
                 component: <Input />,
@@ -288,11 +297,11 @@ class Form extends React.Component<Props & FormComponentProps, State> {
             const splitScript = script.trim().split('\n')
             const respArray: FormItemProps[][] = []
 
-            splitScript.forEach((singleRowScript) => {
+            splitScript.forEach(singleRowScript => {
                 const matchs = singleRowScript.match(/\[.*?\]/g)
                 const rowData: FormItemProps[] = []
                 if (matchs) {
-                    matchs.forEach((config) => {
+                    matchs.forEach(config => {
                         if (config) {
                             const realConfig = config
                             .replace(/\[/g, '')
@@ -300,7 +309,7 @@ class Form extends React.Component<Props & FormComponentProps, State> {
                             .split(/\s/g)
                             if (realConfig.length < 2) {
                                 // 如果参数小于二个则直接跳过
-                                return ;
+                                return;
                             }
                             const fromItemProps = new FormItemProps()
                             if (realConfig[0].split('|').length >= 1) {
@@ -308,18 +317,14 @@ class Form extends React.Component<Props & FormComponentProps, State> {
                             }
                             if (realConfig[0].split('|').length >= 2) {
                                 fromItemProps.label = realConfig[0].split('|')[1].trim()
-                            }else {
+                            } else {
                                 fromItemProps.label = ''
                             }
 
                             // 添加组件
-                            fromItemProps.component = components.filter((component) => {
-                                return component.name.trim() === realConfig[1].trim()
-                             })[0]
+                            fromItemProps.component = components.filter(component => component.name.trim() === realConfig[1].trim())[0]
 
-                             const rulesFilter = rules.filter(rule => {
-                                return rule.name === fromItemProps.name
-                            })
+                             const rulesFilter = rules.filter(rule => rule.name === fromItemProps.name)
 
                             if (rulesFilter.length > 0) {
                                 // 设置校验规则
@@ -327,13 +332,15 @@ class Form extends React.Component<Props & FormComponentProps, State> {
                             }
 
                             // 设置默认值
+
+                            // @ts-ignore
                             fromItemProps.initialValue = (initialValues || {})[fromItemProps.name]
 
                             // START 设置当前组件的span大小
                             if (realConfig[2] === undefined) {
                                 let span = 24
-                                rowData.forEach((colData) => {
-                                    span = - colData.span
+                                rowData.forEach(colData => {
+                                    span = -colData.span!
                                 })
                                 fromItemProps.span = span
                             } else {
@@ -359,7 +366,7 @@ class Form extends React.Component<Props & FormComponentProps, State> {
             })
             return respArray
         } catch (error) {
-            console.error("KOTOMI-FORM-5001: Failed to parse script: \n" + script)
+            console.error(`KOTOMI-FORM-5001: Failed to parse script: \n${script}`)
             throw error
         }
     }

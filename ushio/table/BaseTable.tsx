@@ -5,7 +5,7 @@
 
 import React from 'react'
 import { Table } from '../../components/index'
-import { Button } from 'antd'
+import { Button } from 'asp-antd-compatible'
 
 
 const BaseTable = () =>{

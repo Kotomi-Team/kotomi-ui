@@ -4,7 +4,7 @@
  */
 
 import React, { useState } from 'react'
-import { Input, Button } from 'antd'
+import { Input, Button } from 'asp-antd-compatible'
 import { Form } from '../../components/index'
 
 

@@ -6,7 +6,7 @@
 import React, { useRef } from 'react'
 
 import { Tree, TreeNodeData } from '../../components/tree/Tree';
-import { Button } from 'antd';
+import { Button } from 'asp-antd-compatible';
 
 
 const SelectTree = () => {

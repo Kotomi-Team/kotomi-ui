@@ -5,7 +5,7 @@
  */
 
 import React from 'react'
-import { message, Button, DatePicker } from 'antd'
+import { message, Button, DatePicker } from 'asp-antd-compatible'
 import { Table } from '../../components/index'
 
 const table = React.createRef<any>()
@@ -36,7 +36,7 @@ const RowEditorTable = () =>{
           marginLeft: 20
         }}
         onClick={()=>{
-          const datas = []
+          const datas: any[] = []
           for(let i=0;i< 20; i++){
             datas.push({
               id: 50 + 1 

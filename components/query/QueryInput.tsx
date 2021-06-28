@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Input, Select, Col } from 'antd'
+import { Input, Select, Col } from 'asp-antd-compatible'
 
 export interface Field {
     name: string

@@ -1,14 +1,13 @@
-import React from 'react'
+import React, { ReactNode } from 'react'
 import ReactDOM from 'react-dom';
-import { Table as AntTable, Divider, Icon, Menu, Pagination, Form } from 'antd'
-import { TableSize, ColumnProps as AntColumnProps, TableRowSelection, TableEventListeners, SorterResult, TableCurrentDataSource, PaginationConfig } from 'antd/lib/table/interface'
-import { WrappedFormUtils, ValidationRule, FormComponentProps } from 'antd/lib/form/Form';
+import { Table as AntTable, Divider, Icon, Menu, Pagination, Form } from 'asp-antd-compatible'
+import { TableSize, ColumnProps as AntColumnProps, TableRowSelection, TableEventListeners, PaginationConfig, SorterResult, TableCurrentDataSource } from 'asp-antd-compatible/lib/table/interface'
+import { WrappedFormUtils, ValidationRule, FormComponentProps } from 'asp-antd-compatible/lib/form/Form';
 import { HeightProperty } from 'csstype'
 import XLSX from 'xlsx';
 import lodash from 'lodash'
 import { DndProvider } from 'react-dnd'
 import Backend from 'react-dnd-html5-backend'
-// import { Resizable } from 'react-resizable';
 // @ts-ignore
 import { VirtualTable } from 'ant-virtual-table'
 
@@ -160,6 +159,8 @@ interface Props<T> extends FormComponentProps<T> {
     // 指定每页可以显示多少条
     pageSizeOptions?: string[]
 
+    onChange?: (pagination: PaginationConfig, filters: Partial<Record<keyof T, string[]>>, sorter: SorterResult<T>, extra: TableCurrentDataSource<T>) => void;
+
     /**
      * 当前表格的选择状态
      * @param changeRowsKeys  当前所有变化的Row的key
@@ -168,8 +169,6 @@ interface Props<T> extends FormComponentProps<T> {
      */
     onSelect?: (changeRowsKeys: string[], changeRows: T[], selected: boolean) => boolean | undefined
 
-    onChange?: (pagination: PaginationConfig, filters: Partial<Record<keyof T, string[]>>, sorter: SorterResult<T>, extra: TableCurrentDataSource<T>) => void;
-    
     /**
      * 当前行的事件
      * @param record 当前行的数据
@@ -192,7 +191,10 @@ interface Props<T> extends FormComponentProps<T> {
      * @param render 当前数据渲染的react的节点数据
      * @returns 返回一个react组件对象
      */
-    onBeforeRenderPromiseColumn?: (record: T, column: ColumnProps<T>, render: JSX.Element) => JSX.Element
+    onBeforeRenderPromiseColumn?: (
+        record: T,
+        column: ColumnProps<T>,
+        render: JSX.Element) => JSX.Element
 
     /**
      * 在调用特殊约定的列的时候触发的click事件
@@ -243,11 +245,15 @@ interface Props<T> extends FormComponentProps<T> {
     /**
      * 拦截渲染的Tooltip
      */
-    onRenderTooltip?: (td: JSX.Element, props: any) => JSX.Element,
+    onRenderTooltip?: (tooltip: JSX.Element, props: any, td: ReactNode) => JSX.Element,
 
     expandedRowKeys?: string []
 
-    expandedRowRender?: (record: T, index: number, indent: number, expanded: boolean) => React.ReactNode;
+    expandedRowRender?: (
+        record: T,
+        index: number,
+        indent: number,
+        expanded: boolean) => React.ReactNode;
 
     onExpand?: (expanded: boolean, record: T) => void
 
@@ -264,9 +270,11 @@ interface Props<T> extends FormComponentProps<T> {
 }
 
 // 数据状态
-class DataSourceState<T>{
+class DataSourceState<T> {
     update: Array<T> = []
+
     delete: Array<T> = []
+
     create: Array<T> = []
 }
 
@@ -293,7 +301,8 @@ export type TableSorter = {
 /**
  *  和后台交互的表格对象，并且可编辑
  */
-class Table<T> extends React.Component<Props<T>, State<T>>{
+class Table<T> extends React.Component<Props<T>, State<T>> {
+
     static defaultProps = {
         theme: 'small',
         defaultPageSize: 50,
@@ -315,23 +324,14 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
         onSave: async () => true,
         onBeforeClickPromiseColumn: async () => true,
         onBeforeRenderPromiseColumn: (_record: any, _column: any, render: JSX.Element) => render,
-        onRenderBodyRowCssStyle: () => {
-            return {}
-        },
-        onRenderHeaderRowCssStyle: () => {
-            return {}
-        },
-        onRenderDropdownMenu: () => {
-            return (
+        onRenderBodyRowCssStyle: () => ({}),
+        onRenderHeaderRowCssStyle: () => ({}),
+        onRenderDropdownMenu: () => (
 
                 <Menu/>
-            )
-        },
-        onRenderTooltip: (render: JSX.Element) => {
-            return render;
-        },
+            ),
+        onRenderTooltip: (render: JSX.Element) => render,
     }
-
     public blankDivElement: React.RefObject<HTMLDivElement> = React.createRef<HTMLDivElement>()
 
     state = {
@@ -392,13 +392,13 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
     componentDidUpdate() {
         // eslint-disable-next-line react/no-find-dom-node
         const tablElement = ReactDOM.findDOMNode(this.table.current) as Element
-        const antTableBody = tablElement.getElementsByClassName('ant-table-body')[0]
+        const antTableBody = tablElement.getElementsByClassName('asp-table-body')[0]
         if (antTableBody) {
             const style = antTableBody.getAttribute('style')
             antTableBody.setAttribute('style', style!.replace(/min-height:.*;/g, ''))
             if (this.state.dataSource.length > 0) {
                 // 固定Table的高度
-                const height = this.props.height
+                const { height } = this.props
 
                 if (lodash.isNumber(height)) {
                     antTableBody.setAttribute('style', `${style}; min-height:${height}px;`)
@@ -442,6 +442,194 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
             dataSource: [...this.backupDataSource],
         })
         this.editStash()
+    }
+
+    /**
+     *
+     * 修改当前行的数据
+     *
+     * @param id     当前行的唯一ID
+     * @param value  要修改的数据
+     */
+    public updateRow(id: string, value: any) {
+        const { form, rowKey } = this.props
+        const self = this
+        const dataSource = this.getDataSource()
+        dataSource.forEach((data, dataIndex) => {
+            // @ts-ignore
+            if (data[rowKey!] === id) {
+                dataSource.splice(dataIndex, 1, {
+                    ...data,
+                    ...value,
+                });
+
+                const fields = {}
+                Object.keys(value).forEach(key => {
+                    // @ts-ignore
+                    fields[`${key};${dataIndex}`] = value[key]
+                })
+                form.setFieldsValue(fields)
+            }
+        })
+
+        self.setState({
+            dataSource,
+        })
+    }
+
+    public exchangeRow(source: T, targe: T) {
+        const updateData = this.recursiveDataSource(this.state.dataSource, element => {
+            // @ts-ignore
+            if (element[this.props.rowKey!] === source[this.props.rowKey!]) {
+                return {
+                    ...targe,
+                }
+            }
+
+            // @ts-ignore
+            if (element[this.props.rowKey!] === targe[this.props.rowKey!]) {
+                return {
+                    ...source,
+                }
+            }
+            return element
+        })
+        this.setState({
+            dataSource: updateData,
+        })
+    }
+
+    /**
+     * 获取当前表格的编辑状态
+     * @returns DataSourceState
+     */
+    public getDataSourceState() {
+        return this.dataSourceState
+    }
+
+    /**
+     * 设置选中的key
+     * @param rowSelectedKeys 表格选中的key
+     */
+    public setRowSelectedKeys(rowSelectedKeys: string[]) {
+        this.setState({
+            rowSelectedKeys,
+        })
+        const table = this.table.current!
+        table.store.setState({
+            selectedRowKeys: rowSelectedKeys,
+        })
+    }
+
+    /**
+     * 用来进行表格的数据刷新，如果参数为空，则是使用上一次的参数进行数据请求
+     * @param param 刷新表格的参数
+     * @param isCurrentPage 是否在当前页，进行重新装载数据
+     */
+    public reload(param?: any, isCurrentPage: boolean = false) {
+        if (param) {
+            this.REQUEST_PARAM = param
+        }
+        this.requestLoadData({
+            page: isCurrentPage ? this.state.page : 1,
+            pageSize: this.state.pageSize! || this.props.defaultPageSize!,
+            param,
+            sorter: this.state.sorter,
+        })
+    }
+
+    public editHide(): Promise<void[]> {
+        const promises: Promise<void>[] = []
+        promises.push(new Promise<void>(resolve => {
+            resolve()
+        }))
+        this.currentEditorCell.forEach(element => {
+            promises.push(element.onCellSave('hide'))
+        })
+        return Promise.all(promises)
+    }
+
+    /**
+     * 获取当前选择的数据
+     */
+    public getSelectRowKeys() {
+        return this.state.rowSelectedKeys
+    }
+
+    public delRow(id: any | any[]) {
+        const { dataSource } = this.state
+        const { rowKey } = this.props
+        const proxyDataSource: T[] = []
+        dataSource.forEach(element => {
+            if (lodash.isArray(id)) {
+                if (id.indexOf(element[rowKey!]) === -1) {
+                    proxyDataSource.push(element)
+                }
+            } else if (element[rowKey!] !== id) {
+                    proxyDataSource.push(element)
+                }
+        })
+        this.setState({
+            dataSource: proxyDataSource,
+        })
+    }
+
+    /**
+     * 新增一条数据
+     * @param 添加的数据
+     */
+    public appendRow(data: T | T[], displayEditor = true) {
+        const { dataSource } = this.state
+        // @ts-ignore
+        data.$state = 'CREATE'
+        const proxyDataSource: T[] = [...dataSource]
+
+        if (lodash.isArray(data)) {
+            (data as T[]).forEach(element => {
+                this.verifyAppendRowKey(element);
+            })
+            proxyDataSource.push(...(data as T[]))
+            this.dataSourceState.create.push(...(data as T[]))
+        } else {
+            this.verifyAppendRowKey(data as T)
+            proxyDataSource.push(data as T)
+            this.dataSourceState.create.push(data as T)
+        }
+        this.setState({
+            dataSource: proxyDataSource,
+            pageSize: this.props.defaultPageSize! + this.dataSourceState.create.length,
+        }, () => {
+            this.toScrollBottom()
+            if (displayEditor) {
+                this.setState({
+                    // @ts-ignore
+                    editingKey: data[this.props.rowKey!],
+                })
+            }
+        })
+    }
+
+    // 导出文件
+    public exportData(type: 'xls') {
+        const { dataSource, rowSelectedKeys } = this.state;
+        const { rowKey } = this.props
+        const filename = `${this.props.defaultExportFileName}.${type}`
+        const book = XLSX.utils.book_new()
+        let bookSheet;
+        if (rowSelectedKeys.length > 0) {
+            bookSheet = XLSX.utils.json_to_sheet(dataSource.filter(element => rowSelectedKeys.indexOf(element[rowKey!]) !== -1));
+        } else {
+            bookSheet = XLSX.utils.json_to_sheet([...dataSource]);
+        }
+        XLSX.utils.book_append_sheet(book, bookSheet, this.props.defaultExportFileName);
+        XLSX.writeFile(book, filename);
+    }
+
+    /**
+     * 获取当前表格数据的数据源
+     */
+    public getDataSource(): T[] {
+        return lodash.cloneDeep(this.state.dataSource)
     }
 
     render() {
@@ -504,18 +692,20 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                         columns={this.getColumns()}
                         rowClassName={() => 'kotomi-components-table-row'}
                         components={components}
+                        onChange={this.props.onChange}
                         onExpand={(expanded: boolean, record: T) => {
                             const { rowKey, onExpand } = this.props
                             if (expanded && this.props.onLoadChildren) {
                                 this.props.onLoadChildren(record).then((children: T[]) => {
-                                    const dataSource = this.state.dataSource
+                                    const { dataSource } = this.state
                                     const loops = (loopsDataSource: any[]): any[] => loopsDataSource.map((element: any) => {
                                         // @ts-ignore
                                         const chil = element.$children
+                                        // @ts-ignore
                                         if (element[rowKey!] === record[rowKey!]) {
                                             return {
                                                 ...element,
-                                                '$children': children,
+                                                $children: children,
                                             };
                                         }
                                         if (chil === undefined) {
@@ -524,7 +714,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                                         // @ts-ignore
                                         return {
                                             ...element,
-                                            '$children': loops(chil),
+                                            $children: loops(chil),
                                         };
                                     })
                                     this.setState({
@@ -540,14 +730,13 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                         dataSource={this.getDataSource()}
                         loading={{
                             indicator: <Icon
-                                type='loading'
+                                type="loading"
                                 style={{ fontSize: 24 }}
                                 spin
                             />,
                             spinning: this.state.loading,
                         }}
                         pagination={false}
-                        onChange={this.props.onChange}
                         rowSelection={this.getRowSelection()}
                         onHeaderRow={(_columns: ColumnProps<T>[]) => {
                             let propsStyle = {}
@@ -567,7 +756,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                             }
                             // 如果当前行处于不可编辑状态，则不点击click事件
                             if (this.state.editingKey === undefined) {
-                                const onRow = this.props.onRow
+                                const { onRow } = this.props
                                 const rowData = onRow === undefined ? {} : onRow(record, index)
                                 return {
                                     ...rowData,
@@ -585,7 +774,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                                 table: this,
                             }
                         }}
-                        size='small'
+                        size="small"
                         scroll={{
                             x: this.props.width,
                             y: this.props.height,
@@ -594,7 +783,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                     />
                     <Pagination
                         className="kotomi-components-table-pagination"
-                        size='small'
+                        size="small"
                         current={this.state.page}
                         total={this.state.total}
                         hideOnSinglePage
@@ -623,192 +812,6 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
     }
 
     /**
-     *
-     * 修改当前行的数据
-     *
-     * @param id     当前行的唯一ID
-     * @param value  要修改的数据
-     */
-    public updateRow(id: string, value: any) {
-        const { form, rowKey } = this.props
-        const self = this
-        const dataSource = this.getDataSource()
-        dataSource.forEach((data, dataIndex) => {
-            if (data[rowKey!] === id) {
-                dataSource.splice(dataIndex, 1, {
-                    ...data,
-                    ...value,
-                });
-
-                const fields = {}
-                Object.keys(value).forEach(key => {
-                    fields[`${key};${dataIndex}`] = value[key]
-                })
-                form.setFieldsValue(fields)
-            }
-        })
-
-        self.setState({
-            dataSource,
-        })
-    }
-
-    public exchangeRow(source: T, targe: T) {
-        const updateData = this.recursiveDataSource(this.state.dataSource, (element) => {
-            if (element[this.props.rowKey!] === source[this.props.rowKey!]) {
-                return {
-                    ...targe,
-                }
-            }
-
-            if (element[this.props.rowKey!] === targe[this.props.rowKey!]) {
-                return {
-                    ...source,
-                }
-            }
-            return element
-        })
-        this.setState({
-            dataSource: updateData,
-        })
-    }
-
-    /**
-     * 获取当前表格的编辑状态
-     * @returns DataSourceState
-     */
-    public getDataSourceState() {
-        return this.dataSourceState
-    }
-
-    /**
-     * 设置选中的key
-     * @param rowSelectedKeys 表格选中的key
-     */
-    public setRowSelectedKeys(rowSelectedKeys: string[]) {
-        this.setState({
-            rowSelectedKeys,
-        })
-        const table = this.table.current!
-        table.store.setState({
-            selectedRowKeys: rowSelectedKeys,
-        })
-    }
-    /**
-     * 用来进行表格的数据刷新，如果参数为空，则是使用上一次的参数进行数据请求
-     * @param param 刷新表格的参数
-     * @param isCurrentPage 是否在当前页，进行重新装载数据
-     */
-    public reload(param?: any, isCurrentPage: boolean = false) {
-        if (param) {
-            this.REQUEST_PARAM = param
-        }
-        this.requestLoadData({
-            page: isCurrentPage ? this.state.page : 1,
-            pageSize: this.state.pageSize! || this.props.defaultPageSize!,
-            param,
-            sorter: this.state.sorter,
-        })
-    }
-
-    public editHide(): Promise<void[]> {
-        const promises: Promise<void>[] = []
-        promises.push(new Promise<void>((resolve) => {
-            resolve()
-        }))
-        this.currentEditorCell.forEach(element => {
-            promises.push(element.onCellSave('hide'))
-        })
-        return Promise.all(promises)
-    }
-
-    /**
-     * 获取当前选择的数据
-     */
-    public getSelectRowKeys() {
-        return this.state.rowSelectedKeys
-    }
-
-    public delRow(id: any | any[]) {
-        const { dataSource } = this.state
-        const { rowKey } = this.props
-        const proxyDataSource: T[] = []
-        dataSource.forEach((element) => {
-            if (lodash.isArray(id)) {
-                if (id.indexOf(element[rowKey!]) === -1) {
-                    proxyDataSource.push(element)
-                }
-            } else {
-                if (element[rowKey!] !== id) {
-                    proxyDataSource.push(element)
-                }
-            }
-        })
-        this.setState({
-            dataSource: proxyDataSource,
-        })
-    }
-    /**
-     * 新增一条数据
-     * @param 添加的数据
-     */
-    public appendRow(data: T | T[], displayEditor = true) {
-        const { dataSource } = this.state
-        // @ts-ignore
-        data.$state = 'CREATE'
-        const proxyDataSource: T[] = [...dataSource]
-
-        if (lodash.isArray(data)) {
-            (data as T[]).forEach((element) => {
-                this.verifyAppendRowKey(element);
-            })
-            proxyDataSource.push(...(data as T[]))
-            this.dataSourceState.create.push(...(data as T[]))
-        } else {
-            this.verifyAppendRowKey(data as T)
-            proxyDataSource.push(data as T)
-            this.dataSourceState.create.push(data as T)
-        }
-        this.setState({
-            dataSource: proxyDataSource,
-            pageSize: this.props.defaultPageSize! + this.dataSourceState.create.length,
-        }, () => {
-            this.toScrollBottom()
-            if (displayEditor) {
-                this.setState({
-                    editingKey: data[this.props.rowKey!],
-                })
-            }
-        })
-
-    }
-
-    // 导出文件
-    public exportData(type: 'xls') {
-        const { dataSource, rowSelectedKeys } = this.state;
-        const { rowKey } = this.props
-        const filename = `${this.props.defaultExportFileName}.${type}`
-        const book = XLSX.utils.book_new()
-        let bookSheet;
-        if (rowSelectedKeys.length > 0) {
-            bookSheet = XLSX.utils.json_to_sheet(dataSource.filter((element) => {
-                return rowSelectedKeys.indexOf(element[rowKey!]) !== -1
-            }));
-        } else {
-            bookSheet = XLSX.utils.json_to_sheet([...dataSource]);
-        }
-        XLSX.utils.book_append_sheet(book, bookSheet, this.props.defaultExportFileName);
-        XLSX.writeFile(book, filename);
-    }
-
-    /**
-     * 获取当前表格数据的数据源
-     */
-    public getDataSource(): T[] {
-        return lodash.cloneDeep(this.state.dataSource)
-    }
-
-    /**
      * 验证ID数据是否正确
      */
     protected verifyAppendRowKey(data: any) {
@@ -834,7 +837,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
             if (dataSource[i].$children && dataSource[i].$children.length > 0) {
                 respData.push(callbackfn({
                     ...dataSource[i],
-                    '$children': this.recursiveDataSource(dataSource[i].$children, callbackfn),
+                    $children: this.recursiveDataSource(dataSource[i].$children, callbackfn),
                 }))
             } else {
                 respData.push(callbackfn(dataSource[i]))
@@ -851,6 +854,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
     protected isEditing(record: T): boolean {
         const { rowKey } = this.props
         const { editingKey } = this.state
+        // @ts-ignore
         return record[rowKey!] === editingKey
     }
 
@@ -859,15 +863,17 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
         const {
             rowKey,
         } = this.props
-        const dataSourceState = this.dataSourceState
+        const { dataSourceState } = this
         column.render = (_text: string, record: T) => {
             if (
-                dataSourceState.update.filter((data) => {
-                    return data[rowKey!] === record[rowKey!]
-                }).length > 0 ||
-                dataSourceState.create.filter((data) => {
-                    return data[rowKey!] === record[rowKey!]
-                }).length > 0
+                dataSourceState.update.filter(data =>
+                    // @ts-ignore
+                     data[rowKey!] === record[rowKey!],
+                ).length > 0 ||
+                dataSourceState.create.filter(data =>
+                    // @ts-ignore
+                     data[rowKey!] === record[rowKey!],
+                ).length > 0
             ) {
                 return (
                     <>
@@ -899,22 +905,22 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
         return self.isEditing(record) ? (
             <>
                 <Icon
-                    type='check'
+                    type="check"
                     style={this.state.disabledCheck ? { opacity: 0.2 } : {}}
                     onClick={() => {
                         const saveData = () => {
                             if (onSave && form !== undefined) {
                                 form.validateFields((err, values) => {
-
                                     if (!err) {
                                         const newRecord: any = {
                                             ...record,
                                         }
-                                        Object.keys(values).forEach((key) => {
+                                        Object.keys(values).forEach(key => {
                                             const recordKey = key.split(';')
                                             const recordKeyNumber = Number.parseInt(recordKey[1], 10)
                                             if (recordKey[1]) {
                                                 if (self.getEditorRowIndex() === recordKeyNumber) {
+                                                    // @ts-ignore
                                                     newRecord[recordKey[0]] = values[key]
                                                 }
                                             }
@@ -925,11 +931,12 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                                         onSave({
                                             ...newRecord,
                                         },
-                                            state).then((respState) => {
+                                            state).then(respState => {
                                                 if (respState === true) {
                                                     // 修改表格中的数据
                                                     const newData: T[] = [...dataSource];
                                                     newData.forEach((data, dataIndex) => {
+                                                        // @ts-ignore
                                                         if (data[rowKey!] === newRecord[rowKey!]) {
                                                             newData[dataIndex] = { ...newRecord }
                                                         }
@@ -946,7 +953,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                         }
                         if (onBeforeClickPromiseColumn) {
                             form.validateFields((_err, values) => {
-                                onBeforeClickPromiseColumn('SAVE', values).then((respData) => {
+                                onBeforeClickPromiseColumn('SAVE', values).then(respData => {
                                     if (respData) {
                                         saveData()
                                     }
@@ -955,20 +962,19 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                         } else {
                             saveData()
                         }
-
                     }}
                 />
-                <Divider type='vertical' />
+                <Divider type="vertical" />
                 <Icon
-                    type='undo'
+                    type="undo"
                     onClick={() => {
                         const cancelData = () => {
                             const dataIndex = this.getEditorRowIndex()
                             if (dataIndex !== undefined && this.props.editingType === 'row') {
                                 const fields: string[] = []
-                                this.props.columns.forEach((column) => {
+                                this.props.columns.forEach(column => {
                                     if (column.inputModal === 'display') {
-                                        const fieldName = column.dataIndex as string + ';' + dataIndex
+                                        const fieldName = `${column.dataIndex as string};${dataIndex}`
                                         const oldData = this.state.dataSource[dataIndex][column.dataIndex as string]
                                         const newData = this.props.form.getFieldValue(fieldName)
                                         if (oldData !== newData) {
@@ -986,7 +992,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                         }
                         if (onBeforeClickPromiseColumn) {
                             form.validateFields((_err, values) => {
-                                onBeforeClickPromiseColumn('CANCEL', values).then((respData) => {
+                                onBeforeClickPromiseColumn('CANCEL', values).then(respData => {
                                     if (respData) {
                                         cancelData()
                                     }
@@ -1009,6 +1015,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
         }
         return undefined
     }
+
     protected getColumnOperatingEdit(column: ColumnProps<T>) {
         const {
             onBeforeRenderPromiseColumn,
@@ -1066,7 +1073,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
             const editor = (
                 <>
                     {this.getColumnEditElement(record)}
-                    <Divider type='vertical' />
+                    <Divider type="vertical" />
                     {this.getColumnDelElement(record)}
                 </>
             )
@@ -1089,8 +1096,9 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
         const { onSave, onBeforeClickPromiseColumn } = this.props
         const deleteData = () => {
             if (onSave) {
-                onSave(record, 'DELETE').then((respState) => {
+                onSave(record, 'DELETE').then(respState => {
                     if (respState !== false) {
+                        // @ts-ignore
                         const data = self.state.rowSelectedKeys.filter(element => element !== record[self.props.rowKey!])
                         self.setState({
                             rowSelectedKeys: data,
@@ -1102,7 +1110,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
         }
         const onClick = () => {
             if (onBeforeClickPromiseColumn) {
-                onBeforeClickPromiseColumn('DELETE', record).then((respData) => {
+                onBeforeClickPromiseColumn('DELETE', record).then(respData => {
                     if (respData) {
                         deleteData()
                     }
@@ -1122,7 +1130,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
         }
         return (
             <Icon
-                type='delete'
+                type="delete"
                 onClick={onClick}
             />
         )
@@ -1132,12 +1140,14 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
         const { rowKey, onBeforeClickPromiseColumn } = this.props
         const editData = () => {
             this.setState({
+
+                // @ts-ignore
                 editingKey: record[rowKey!],
             })
         }
         const onClick = () => {
             if (onBeforeClickPromiseColumn) {
-                onBeforeClickPromiseColumn('EDIT', record).then((respData) => {
+                onBeforeClickPromiseColumn('EDIT', record).then(respData => {
                     if (respData) {
                         editData()
                     }
@@ -1165,13 +1175,13 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
 
     // 获取index列的信息
     protected getColumnIndex(column: ColumnProps<T>) {
-        column.render = (_text: any, _record: T, index: number) => {
+        column.render = (_text: any, _record: T, index: number) =>
             // @ts-ignore
             /* if (record.$Children) {
                 return <a>{index + 1}</a>
-            }*/
-            return <span style={{ textAlign: column.align }}>{index + 1}</span>
-        }
+            } */
+             <span style={{ textAlign: column.align }}>{index + 1}</span>
+
         if (column.width === undefined) {
             column.width = 25
         }
@@ -1198,7 +1208,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
         const {
             dataSource,
         } = this.state
-        const dataSourceState = this.dataSourceState
+        const { dataSourceState } = this
         columns.forEach((column: ColumnProps<T>) => {
             if (column.dataIndex === '$operating') {
                 // 设置操作的表格
@@ -1231,23 +1241,19 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                 // 如果有别名，那么显示别名信息
                 if (column.aliasDataIndex) {
                     const key: string = column.aliasDataIndex!
-                    column.render = (_text: any, record: T, _index: number) => {
-                        return <span>{record[key]}</span>
-                    }
+                    column.render = (_text: any, record: T, _index: number) => <span>{record[key]}</span>
                 }
-                const onCell = (record: T, rowIndex: number) => {
-                    return {
+                const onCell = (record: T, rowIndex: number) => ({
                         column,
                         record,
                         rowIndex,
                         editing: this.isEditing(record),
                         isEditing: lodash.isFunction(column.isEditing) ? column.isEditing(record) : column.isEditing,
-                        editingType: editingType,
+                        editingType,
                         inputModal: column.inputModal,
                         currentEditorCell: this.currentEditorCell,
                         onRenderTooltip,
                         onSave: async (values: T) => {
-
                             // 修改表格中的数据
                             const newData: T[] = [...dataSource];
                             newData.forEach((data, dataIndex) => {
@@ -1255,7 +1261,6 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                                     newData.splice(dataIndex, 1, {
                                         ...values,
                                     });
-
                                 }
                             })
                             // @ts-ignore
@@ -1265,7 +1270,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                             }
 
                             if (state === 'CREATE') {
-                                if (dataSourceState.create.filter((data) => data[rowKey!] === values[rowKey!]).length > 0) {
+                                if (dataSourceState.create.filter(data => data[rowKey!] === values[rowKey!]).length > 0) {
                                     // 如果这个属性存在于更新状态中，则修改更新状态中的数据
                                     const { create } = dataSourceState
                                     for (let i = 0; i < create.length; i += 1) {
@@ -1293,10 +1298,8 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                             }
                             return true
                         },
-                    }
-                }
-                const loops = (tempColumn: ColumnProps<T>[]): any => {
-                    return tempColumn.map((element: ColumnProps<T>) => {
+                    })
+                const loops = (tempColumn: ColumnProps<T>[]): any => tempColumn.map((element: ColumnProps<T>) => {
                         if (element.children) {
                             return loops(element.children)
                         }
@@ -1305,7 +1308,6 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                             onCell,
                         }
                     })
-                }
 
                 // 如果属性设置为可编辑，则渲染可编辑的表格，默认为不可编辑
                 column.onCell = onCell
@@ -1317,7 +1319,6 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                     column.width = 120
                 }
             }
-
         })
         return columns
     }
@@ -1326,8 +1327,8 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
         const {
             rowKey,
         } = this.props
-        const dataSourceState = this.dataSourceState
-        if (dataSourceState.update.filter((data) => data[rowKey!] === values[rowKey!]).length > 0) {
+        const { dataSourceState } = this
+        if (dataSourceState.update.filter(data => data[rowKey!] === values[rowKey!]).length > 0) {
             // 如果这个属性存在于更新状态中，则修改更新状态中的数据
             const { update } = dataSourceState
             for (let i = 0; i < update.length; i += 1) {
@@ -1380,15 +1381,14 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                 ...param,
                 ...defaultParam,
                 ...this.REQUEST_PARAM,
-            }, sorter,
+            },
+sorter,
         }).then(({ dataSource, total }) => {
-
             // fix https://github.com/Kotomi-Team/kotomi-ui/issues/13
-            dataSource.forEach((data) => {
+            dataSource.forEach(data => {
                 const keys = Object.keys(data)
 
                 if (this.props.onLoadChildren) {
-
                     // @ts-ignore
                     data.$children = []
                 }
@@ -1403,12 +1403,11 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
             const rowSelectedKeys = this.state.rowSelectedKeys || []
 
             if (this.props.rowSelectedKeyName) {
-                dataSource.forEach((element) => {
+                dataSource.forEach(element => {
                     if (element[this.props.rowSelectedKeyName!] === true) {
                         rowSelectedKeys.push(element[this.props.rowKey!] as never)
                     }
                 })
-
             }
             this.dataSourceState.create.splice(0)
 
@@ -1430,10 +1429,9 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
         const { dataSource } = this.state
         const id = this.props.rowKey!
         const self = this
-        changeRows.forEach((element) => {
-
+        changeRows.forEach(element => {
             const data = dataSource.filter(record => record[id] === element[id])
-            data.forEach((record) => {
+            data.forEach(record => {
                 // @ts-ignore
                 record[this.props.rowSelectedKeyName] = selected
                 self.updateDataSource(record as T)
@@ -1498,7 +1496,7 @@ class Table<T> extends React.Component<Props<T>, State<T>>{
                 let respState: boolean | undefined = true
                 respState = self.onSelect(changeRows.map(record => record[self.props.rowKey!] as string), changeRows, selected)
                 if (respState) {
-                    const selectKeys = selectedRows.map<string>((record) => record[self.props.rowKey!] as string)
+                    const selectKeys = selectedRows.map<string>(record => record[self.props.rowKey!] as string)
                     self.setState({
                         rowSelectedKeys: selectKeys,
                     })

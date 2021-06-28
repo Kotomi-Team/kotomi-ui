@@ -19,13 +19,13 @@ type Props = {
  * 添加一个画布,可以对画布的内容进行绘画
  */
 export class Canvas extends React.Component<Props> {
-
     private canvasElement: React.RefObject<HTMLCanvasElement> = React.createRef<HTMLCanvasElement>()
+
     private childrenElement: React.RefObject<HTMLDivElement> = React.createRef<HTMLDivElement>()
 
     componentDidMount() {
-        const offsetHeight = this.childrenElement!.current!.offsetHeight
-        const offsetWidth = this.childrenElement!.current!.offsetWidth
+        const { offsetHeight } = this.childrenElement!.current!
+        const { offsetWidth } = this.childrenElement!.current!
         const style = `
             top:-${offsetHeight}px;
         `
@@ -35,19 +35,6 @@ export class Canvas extends React.Component<Props> {
         // eslint-disable-next-line react/no-find-dom-node
         const element = ReactDom.findDOMNode(this) as Element
         element.setAttribute('style', `height:${offsetHeight}px;`)
-    }
-
-    /**
-     * 绘制贝塞尔曲线
-     * @param line 画出对应的线
-     */
-    public paintBezierLine(from: Position, to: Position): void {
-        const controlPoint: Position = { x: from.x, y: to.y * 2 }
-        const ctx2d = this.canvasElement.current!.getContext('2d')!
-        ctx2d.beginPath()
-        ctx2d.moveTo(from.x, from.y)
-        ctx2d.quadraticCurveTo(controlPoint.x, controlPoint.y, to.x, to.y)
-        ctx2d.stroke()
     }
 
     /**
@@ -61,6 +48,19 @@ export class Canvas extends React.Component<Props> {
             width: element.offsetWidth,
             height: element.offsetHeight,
         }
+    }
+
+    /**
+     * 绘制贝塞尔曲线
+     * @param line 画出对应的线
+     */
+    public paintBezierLine(from: Position, to: Position): void {
+        const controlPoint: Position = { x: from.x, y: to.y * 2 }
+        const ctx2d = this.canvasElement.current!.getContext('2d')!
+        ctx2d.beginPath()
+        ctx2d.moveTo(from.x, from.y)
+        ctx2d.quadraticCurveTo(controlPoint.x, controlPoint.y, to.x, to.y)
+        ctx2d.stroke()
     }
 
     render() {

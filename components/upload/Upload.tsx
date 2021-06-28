@@ -1,6 +1,6 @@
-import React , { useState } from 'react'
-import { Upload as AntUpload, Icon } from 'antd'
-import { UploadChangeParam, UploadLocale, HttpRequestHeader, RcFile } from 'antd/lib/upload/interface'
+import React, { useState } from 'react'
+import { Upload as AntUpload, Icon } from 'asp-antd-compatible'
+import { UploadChangeParam, UploadLocale, HttpRequestHeader, RcFile } from 'asp-antd-compatible/lib/upload/interface'
 
 type Props = {
     // 上传到服务器的地址
@@ -51,7 +51,6 @@ const ImageUpload = function(props: Props) {
                 }
                 if (info.file.status === 'done') {
                     toBase64(info.file.originFileObj!, (result: string) => {
-
                         setImageUrl(result)
                         setLoading(false)
                     })

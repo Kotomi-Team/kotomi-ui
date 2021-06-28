@@ -1,5 +1,5 @@
 import React from 'react'
-import { Modal as AntModal } from 'antd'
+import { Modal as AntModal } from 'asp-antd-compatible'
 import ReactDOM from 'react-dom'
 
 import './style/index.less'
@@ -36,7 +36,6 @@ type State = {
 }
 
 export class Modal extends React.Component<Props, State> {
-
   static defaultProps = {
     title: '',
     width: 416,
@@ -49,17 +48,21 @@ export class Modal extends React.Component<Props, State> {
     loading: false,
     visible: false,
   }
+
   private thisDom = React.createRef<Element>()
+
   private antModal: any = undefined
+
   // 是否移动
   private isMove: boolean | undefined = undefined
 
   componentDidUpdate() {
     setTimeout(() => {
+      // eslint-disable-next-line react/no-find-dom-node
       const dom: Element = ReactDOM.findDOMNode(this.thisDom.current!) as Element
       if (dom !== null && this.props.mask === false) {
-        const antModalHeader = dom.getElementsByClassName('ant-modal-header')[0]
-        this.antModal = dom.getElementsByClassName('ant-modal')[0]
+        const antModalHeader = dom.getElementsByClassName('asp-modal-header')[0]
+        this.antModal = dom.getElementsByClassName('asp-modal')[0]
         antModalHeader.addEventListener('mouseup', this.mouseup)
         antModalHeader.addEventListener('mousedown', this.mousedown)
         dom.addEventListener('mousemove', this.mousemove)
@@ -69,6 +72,7 @@ export class Modal extends React.Component<Props, State> {
 
   componentWillUnmount() {
     if (this.isMove !== undefined) {
+      // eslint-disable-next-line react/no-find-dom-node
       const dom: Element = ReactDOM.findDOMNode(this.thisDom.current!) as Element
       dom.removeEventListener('mousemove', this.mousemove)
     }
@@ -91,7 +95,7 @@ export class Modal extends React.Component<Props, State> {
 
   render() {
     const { loading, visible } = this.state
-    const { title, children , onConfirm, onCancel, width, footerButtonVisible } = this.props
+    const { title, children, onConfirm, onCancel, width, footerButtonVisible } = this.props
     const defaultModalProps: any = {}
     if (footerButtonVisible) {
       defaultModalProps.footer = null
@@ -112,7 +116,7 @@ export class Modal extends React.Component<Props, State> {
             self.setState({
               loading: true,
             })
-            onConfirm(self).then((respState) => {
+            onConfirm(self).then(respState => {
               if (respState === true) {
                 self.hide()
               }
@@ -126,13 +130,13 @@ export class Modal extends React.Component<Props, State> {
         onCancel={() => {
           const self = this
           if (onCancel) {
-            onCancel(self).then((respState) => {
+            onCancel(self).then(respState => {
               if (respState === true) {
                 self.isMove = undefined
                 self.hide()
               }
             })
-          }else {
+          } else {
             // 默认逻辑点击取消隐藏
             self.hide()
           }
@@ -143,6 +147,7 @@ export class Modal extends React.Component<Props, State> {
       </AntModal>
     )
   }
+
   private mouseup = () => {
     this.isMove = false
   }

@@ -1,7 +1,13 @@
 import React from 'react'
-import { Tree as AntTree } from 'antd';
+import { Tree as AntTree } from 'asp-antd-compatible';
 import * as shortid from 'shortid'
-import { AntTreeNode, AntTreeNodeSelectedEvent, AntTreeNodeDropEvent, AntTreeNodeMouseEvent, AntTreeNodeExpandedEvent } from 'antd/lib/tree/Tree'
+import {
+    AntTreeNode,
+    AntTreeNodeSelectedEvent,
+    AntTreeNodeDropEvent,
+    AntTreeNodeMouseEvent,
+    AntTreeNodeExpandedEvent,
+} from 'asp-antd-compatible/lib/tree/Tree'
 import lodash from 'lodash'
 import Dropdown from '../dropdown/Dropdown'
 
@@ -514,13 +520,15 @@ export class Tree extends React.Component<Props, State>{
                                             if (dropEven.dropToGap) {
                                                 return [element, dragNode]
                                             }
-                                            return [{
+                                            const treeDataEle = {
                                                 ...element,
                                                 children: [
                                                     ...element.children,
                                                     dragNode,
                                                 ],
-                                            }]
+                                            }
+
+                                            return [treeDataEle]
                                         }
                                         return [element]
                                     })

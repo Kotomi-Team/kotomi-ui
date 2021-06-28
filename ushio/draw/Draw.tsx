@@ -1,5 +1,5 @@
 import React from 'react'
-import { Button } from 'antd'
+import { Button } from 'asp-antd-compatible'
 import { Canvas } from '../../components/draw/Canvas';
 
 const DrawFlow = () => {

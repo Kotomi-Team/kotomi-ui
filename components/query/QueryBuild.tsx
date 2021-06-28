@@ -2,7 +2,7 @@ import React, { useState, useImperativeHandle, useReducer, useContext } from 're
 import * as shortid from 'shortid'
 import { QueryBuild as RcQueryBuild } from 'rc-query'
 import { Query } from 'rc-query/dist/interface'
-import { Icon, Form, Select } from 'antd'
+import { Icon, Form, Select } from 'asp-antd-compatible'
 import Dropdown from '../dropdown/Dropdown'
 import { reducer, initialState, State } from './Reducer'
 import { QueryInput, Field } from './QueryInput'

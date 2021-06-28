@@ -4,7 +4,6 @@
 
 ## 代码演示
 
-<code src="../../../ushio/table/BigDataTable.tsx" />
 
 ## Table 属性
 
