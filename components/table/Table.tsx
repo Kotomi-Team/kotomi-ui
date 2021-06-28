@@ -3,7 +3,6 @@ import ReactDOM from 'react-dom';
 import { Table as AntTable, Divider, Icon, Menu, Pagination, Form } from 'asp-antd-compatible'
 import { TableSize, ColumnProps as AntColumnProps, TableRowSelection, TableEventListeners, PaginationConfig, SorterResult, TableCurrentDataSource } from 'asp-antd-compatible/lib/table/interface'
 import { WrappedFormUtils, ValidationRule, FormComponentProps } from 'asp-antd-compatible/lib/form/Form';
-import { HeightProperty } from 'csstype'
 import XLSX from 'xlsx';
 import lodash from 'lodash'
 import { DndProvider } from 'react-dnd'
@@ -114,11 +113,11 @@ interface Props<T> extends FormComponentProps<T> {
     /**
      * 表格高度
      */
-    height?: HeightProperty<string | 0>
+    height?: string | number
     /**
      * 表格的宽度
      */
-    width?: HeightProperty<string | 0>
+    width?: string | number
 
     /**
      * 数据中默认的key,默认字段为id
