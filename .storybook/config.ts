@@ -1,4 +1,4 @@
-import 'asp-antd-compatible/dist/antd.css'
+import 'asp-antd-compatible/dist/asp-antd-compatible.css'
 import { configure } from '@storybook/react';
 import '@storybook/addon-console'
 
