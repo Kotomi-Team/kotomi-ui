@@ -45,7 +45,7 @@
     }
   },
   "devDependencies": {
-    "@ant-design/tools": "8.0.4",
+    "@ant-design/tools": "13.6.1",
     "@babel/core": "7.8.3",
     "@storybook/addon-actions": "5.2.8",
     "@storybook/addon-console": "1.2.1",

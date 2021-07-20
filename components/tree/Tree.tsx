@@ -170,7 +170,7 @@ export class Tree extends React.Component<Props, State>{
         })
     }
     public updateNode(key: string, callback: (treeNode: TreeNodeData) => TreeNodeData) {
-        return new Promise((resolve) => {
+        return new Promise<void>((resolve) => {
             const loops = (nodeDatas: TreeNodeData[]) => {
                 nodeDatas.some((element) => {
                     if (element.key === key) {
@@ -250,7 +250,7 @@ export class Tree extends React.Component<Props, State>{
     }
 
     public sort(parent: string | null, order: (children: TreeNodeData[]) => TreeNodeData[]) {
-        return new Promise((resolve) => {
+        return new Promise<void>((resolve) => {
             const loops = (nodeDatas: TreeNodeData[], callback: (node: TreeNodeData) => Boolean) => {
                 nodeDatas.some((element) => {
                     if (element.children && element.children.length > 0) {
@@ -283,7 +283,7 @@ export class Tree extends React.Component<Props, State>{
     }
     // appendNode install
     public insertNode(parent: string | null, nodes: TreeNodeData[], order: (node: TreeNodeData, children: TreeNodeData[]) => TreeNodeData[]) {
-        return new Promise((resolve) => {
+        return new Promise<void>((resolve) => {
             const loops = (nodeDatas: TreeNodeData[], callback: (node: TreeNodeData) => Boolean) => {
                 nodeDatas.some((element) => {
                     if (element.children && element.children.length > 0) {
@@ -369,7 +369,7 @@ export class Tree extends React.Component<Props, State>{
     }
     // 删除指定的节点信息
     public delNode(keys: string | string[]) {
-        return new Promise((resolve) => {
+        return new Promise<void>((resolve) => {
             let delKey: string[] = []
             if (lodash.isArray(keys)) {
                 delKey = keys
