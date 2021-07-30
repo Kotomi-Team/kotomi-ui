@@ -785,7 +785,7 @@ class Table<T> extends React.Component<Props<T>, State<T>> {
                         size="small"
                         current={this.state.page}
                         total={this.state.total}
-                        showTotal={(total) => `总数: ${total} 条`}
+                        showTotal={(total) => `总数 ${total} 条`}
                         showSizeChanger
                         showQuickJumper
                         pageSizeOptions={this.props.pageSizeOptions}
