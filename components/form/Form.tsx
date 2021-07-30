@@ -228,14 +228,14 @@ class Form extends React.Component<Props & FormComponentProps, State> {
                                     const element = ReactDom.findDOMNode(dom) as Element
                                     if (element) {
                                         if (colLabelCol) {
-                                             const labelElement: Element = element.getElementsByClassName(`ant-col-md-${Math.floor(colLabelCol.md as number)}`)[0]
+                                             const labelElement: Element = element.getElementsByClassName(`asp-col-md-${Math.floor(colLabelCol.md as number)}`)[0]
                                              if (labelElement) {
                                                  labelElement.setAttribute('style', `width:${(colLabelCol.md as number / 24) * 100}%`)
                                              }
                                         }
 
                                         if (colWrapperCol) {
-                                             const wrapperElement: Element = element.getElementsByClassName(`ant-col-md-${Math.ceil(colWrapperCol!.md as number)}`)[0]
+                                             const wrapperElement: Element = element.getElementsByClassName(`asp-col-md-${Math.ceil(colWrapperCol!.md as number)}`)[0]
                                              if (wrapperElement) {
                                                  wrapperElement.setAttribute('style', `width:${(colWrapperCol.md as number / 24) * 100}%`)
                                              }

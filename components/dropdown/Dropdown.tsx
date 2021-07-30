@@ -39,9 +39,9 @@ const Dropdown = (props: Props) => {
       <div
         ref={dropdownElement}
         className={classNames(
-          'ant-dropdown',
-          'ant-dropdown-placement-bottomLeft',
-          props.visible === true ? '' : 'ant-dropdown-hidden',
+          'asp-dropdown',
+          'asp-dropdown-placement-bottomLeft',
+          props.visible === true ? '' : 'asp-dropdown-hidden',
         )}
         tabIndex={-1}
         style={{
@@ -56,16 +56,16 @@ const Dropdown = (props: Props) => {
         }}
       >
         <ul className={classNames(
-          'ant-dropdown-menu',
-          'ant-dropdown-menu-light',
-          'ant-dropdown-menu-root',
-          'ant-dropdown-menu-vertical',
+          'asp-dropdown-menu',
+          'asp-dropdown-menu-light',
+          'asp-dropdown-menu-root',
+          'asp-dropdown-menu-vertical',
         )}>
           {(props.menus).map((element: JSX.Element, index: number) => {
             return (
               <li
                 key={index}
-                className="ant-dropdown-menu-item"
+                className="asp-dropdown-menu-item"
                 onClick={() => {
                   if (props.onClick) {
                     props.onClick(element, index)
