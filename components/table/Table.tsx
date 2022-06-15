@@ -8,7 +8,7 @@ import lodash from 'lodash'
 import { DndProvider } from 'react-dnd'
 import Backend from 'react-dnd-html5-backend'
 // @ts-ignore
-import { VirtualTable } from 'ant-virtual-table'
+import { VirtualTable } from 'ant-virtual-table-asp'
 
 import DragRow from './DragRow'
 import { EditableCell } from './EditableCell'
@@ -597,7 +597,7 @@ class Table<T> extends React.Component<Props<T>, State<T>> {
         this.setState({
             dataSource: proxyDataSource,
             pageSize: this.props.defaultPageSize! + this.dataSourceState.create.length,
-        }, () => {
+        }, () => {+
             this.toScrollBottom()
             if (displayEditor) {
                 this.setState({

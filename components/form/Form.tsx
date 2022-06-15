@@ -204,7 +204,6 @@ class Form extends React.Component<Props & FormComponentProps, State> {
                 if (itemCol.component) {
                     const colLabelCol = itemCol.labelCol || labelCol
                     const colWrapperCol = itemCol.wrapperCol || wrapperCol
-
                     const col: JSX.Element = (
                         <Col
                             span={Math.floor(itemCol.span!)}

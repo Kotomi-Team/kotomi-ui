@@ -1,6 +1,6 @@
 {
   "name": "kotomi-ui",
-  "version": "1.19.4",
+  "version": "1.19.6",
   "description": "基于Ant Design做的组件扩展，开发的一套组件库",
   "scripts": {
     "start": "dumi dev",
@@ -87,7 +87,7 @@
   },
   "dependencies": {
     "@types/rc-time-picker": "^3.4.1",
-    "ant-virtual-table": "0.1.10",
+    "ant-virtual-table-asp": "0.1.11",
     "asp-antd-compatible": "3.26.20",
     "classnames": "2.2.6",
     "lodash": "4.17.21",
